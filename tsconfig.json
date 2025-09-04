@@ -9,9 +9,12 @@
     }
   ],
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["*"],
+      "@shared/*": ["shared/*"],
+      "@components/*": ["shared/components/*"],
+      "@lib/*": ["shared/lib/*"]
     }
   }
 }

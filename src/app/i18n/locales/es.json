@@ -1,0 +1,15 @@
+{
+  "loading": "Cargando...",
+  "login": {
+    "title": "Inicia sesión en tu cuenta",
+    "subtitle": "Ingresa tu correo electrónico a continuación para iniciar sesión en tu cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgot_password": "¿Olvidaste tu contraseña?",
+    "button": "Ingresar",
+    "continue_with": "O continúa con",
+    "login_with_google": "Iniciar sesión con Google",
+    "dont_have_account": "¿No tienes una cuenta?",
+    "register": "Regístrate"
+  }
+}
