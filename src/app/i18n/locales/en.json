@@ -11,5 +11,24 @@
     "login_with_google": "Login with Google",
     "dont_have_account": "Don't have an account?",
     "register": "Register"
+  },
+  "not_found":{
+    "title":"Page not found",
+    "button": "Go home"
+  },
+  "menu":{
+    "dashboard": "Dashboard",
+    "create_form": "Create Form",
+    "my_forms": "My forms",
+    "form_data": "Form Data",
+    "personnel_management": "Personnel Managment",
+    "roles_and_permisions": {
+      "title": "Roles & Permissions",
+      "submenu":{
+        "roles_overview": "Roles Overview",
+        "permission_matrix": "Permission Matrix",
+        "role_assignments": "Role Assignments" 
+      }
+    }
   }
 }

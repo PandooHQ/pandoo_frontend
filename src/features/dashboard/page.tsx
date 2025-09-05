@@ -13,7 +13,7 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex flex-col">
       <header className="flex items-center justify-between px-6 border-b bg-black text-white h-[8vh] font-bold">
         <h1 className="text-lg">Dashboard</h1>
         <button className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium hover:bg-red-700 transition"
@@ -24,7 +24,7 @@ const DashboardPage = () => {
         </button>
       </header>
 
-      <main className="flex flex-1 items-center justify-center bg-gray-100">
+      <main className="flex-1 overflow-y-auto">
         <p className="text-xl font-semibold">Dashboard Page</p>
       </main>
     </div>

@@ -6,6 +6,9 @@ import { PublicRoute } from "../providers/PublicRoute"
 import RegisterPage from "@/features/register/page"
 import { PrivateRoute } from "../providers/PrivateRoute"
 import DashboardPage from "@/features/dashboard/page"
+import { PrivateLayout } from "@/shared/components/PrivateLayout"
+import NotFoundPage from "@/shared/components/NotFound"
+import SettingsPage from "@/features/settings/page"
 
 function LanguageWrapper({ children }: { children: React.ReactNode }) {
   const { lang } = useParams<{ lang: string }>()
@@ -48,15 +51,18 @@ export function AppRouter() {
           />
 
           <Route
-            path="dashboard"
             element={
               <LanguageWrapper>
                 <PrivateRoute>
-                  <DashboardPage />
+                  <PrivateLayout />
                 </PrivateRoute>
               </LanguageWrapper>
             }
-          />
+          >
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
