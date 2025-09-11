@@ -30,8 +30,7 @@ export function LoginForm({
   const onSubmit = (data: LoginFormValues) => {
     console.log("Login data:", data);
     useAuthStore.getState().setToken("dummy-token");
-    console.log(lang);
-    navigate(`/${lang}/dashboard`);
+    navigate(`/${lang}/`);
   };
 
   return (

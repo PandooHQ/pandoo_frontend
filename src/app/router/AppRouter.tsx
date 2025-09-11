@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom"
+import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate } from "react-router-dom"
 import { useEffect } from "react"
 import i18n from "../i18n"
 import LoginPage from "@/features/login/page"
@@ -9,15 +9,30 @@ import DashboardPage from "@/features/dashboard/page"
 import { PrivateLayout } from "@/shared/components/PrivateLayout"
 import NotFoundPage from "@/shared/components/NotFound"
 import SettingsPage from "@/features/settings/page"
+import HomePage from "@/features/home/page"
+import FormPage from "@/features/forms/page"
+
+const SUPPORTED_LANGUAGES = ["en", "es"]
+const DEFAULT_LANGUAGE = "es"
 
 function LanguageWrapper({ children }: { children: React.ReactNode }) {
   const { lang } = useParams<{ lang: string }>()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    if (lang && ["en", "es"].includes(lang)) {
+    if (!lang || !SUPPORTED_LANGUAGES.includes(lang)) {
+      navigate(`/${DEFAULT_LANGUAGE}${window.location.pathname.replace(/^\/[^/]*/, '')}`, { replace: true })
+      return
+    }
+
+    if (lang && SUPPORTED_LANGUAGES.includes(lang)) {
       i18n.changeLanguage(lang)
     }
-  }, [lang])
+  }, [lang, navigate])
+
+  if (!lang || !SUPPORTED_LANGUAGES.includes(lang)) {
+    return null
+  }
 
   return <>{children}</>
 }
@@ -59,8 +74,10 @@ export function AppRouter() {
               </LanguageWrapper>
             }
           >
+            <Route path="" element={<HomePage />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="forms" element={<FormPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

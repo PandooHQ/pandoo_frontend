@@ -5,10 +5,17 @@ import {
   Database,
   Users,
   Shield,
+  House
 } from "lucide-react";
 
 const data = {
   navMain: [
+    {
+      titleKey: "menu.home",
+      url: "/",
+      items: [],
+      icon: House,
+    },
     {
       titleKey: "menu.dashboard",
       url: "/dashboard",

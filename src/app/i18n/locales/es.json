@@ -17,7 +17,8 @@
     "button": "Volver al dashboard"
   },
   "menu": {
-    "dashboard": "Tablero",
+    "home": "Home",
+    "dashboard": "Panel de control",
     "create_form": "Crear formulario",
     "my_forms": "Mis formularios",
     "form_data": "Datos de formularios",

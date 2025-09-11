@@ -17,6 +17,7 @@
     "button": "Go home"
   },
   "menu":{
+    "home": "Home",
     "dashboard": "Dashboard",
     "create_form": "Create Form",
     "my_forms": "My forms",

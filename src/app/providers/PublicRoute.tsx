@@ -20,7 +20,7 @@ export function PublicRoute({ children }: PublicRouteProps) {
 
   if (loading) return <LoadingScreen />;
 
-  if (token) return <Navigate to={`/${lang ?? "es"}/dashboard`} replace />;
+  if (token) return <Navigate to={`/${lang ?? "es"}/`} replace />;
 
   return <>{children}</>;
 }

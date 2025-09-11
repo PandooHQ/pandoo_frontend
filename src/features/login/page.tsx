@@ -1,4 +1,4 @@
-import { LoginForm } from "./components/login-form"
+import { LoginForm } from "./components/LoginForm"
 import loginPanda from "@/assets/login-panda.jpeg"
 
 export default function LoginPage() {
