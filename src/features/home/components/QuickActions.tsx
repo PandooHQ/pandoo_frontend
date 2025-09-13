@@ -1,11 +1,9 @@
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { BarChart3, FileText, Plus, Users } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function QuickActions() {
-
-  const { lang } = useParams<{ lang: string }>();
 
   return (
     <Card>
@@ -70,7 +68,7 @@ export default function QuickActions() {
               >
                 <BarChart3 className="h-6 w-6 text-orange-600" />
                 <div className="text-center">
-                  <div className="font-medium">Ver Panel de Control</div>
+                  <div className="font-medium">Datos De Formularios</div>
                   <div className="text-xs text-muted-foreground">
                     Análisis e información
                   </div>

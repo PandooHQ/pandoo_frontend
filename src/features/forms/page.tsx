@@ -91,7 +91,6 @@ export default function FormPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3 grid-cols-1">
-        {/* Create New Form Card */}
         <Link to="/forms/blank">
           <Card className="border-dashed border-2 hover:border-primary/50 transition-colors cursor-pointer group">
             <CardContent className="flex flex-col items-center justify-center p-6 min-h-[200px]">
@@ -108,7 +107,6 @@ export default function FormPage() {
           </Card>
         </Link>
 
-        {/* Existing Forms */}
         <FormCards forms={forms} />
       </div>
     </div>

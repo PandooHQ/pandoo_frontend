@@ -11,6 +11,7 @@ import NotFoundPage from "@/shared/components/NotFound"
 import SettingsPage from "@/features/settings/page"
 import HomePage from "@/features/home/page"
 import FormPage from "@/features/forms/page"
+import FormBuilderPage from "@/features/formBuilder/page"
 
 const SUPPORTED_LANGUAGES = ["en", "es"]
 const DEFAULT_LANGUAGE = "es"
@@ -78,6 +79,7 @@ export function AppRouter() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="forms" element={<FormPage />} />
+            <Route path="forms/blank" element={<FormBuilderPage/>} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

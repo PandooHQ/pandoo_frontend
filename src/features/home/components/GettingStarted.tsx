@@ -38,9 +38,9 @@ export default function GettingStarted() {
               <span className="text-sm font-medium text-blue-600">2</span>
             </div>
             <div>
-              <h4 className="font-medium">Agrega tu Equipo</h4>
+              <h4 className="font-medium">Ingresa tu personal</h4>
               <p className="text-sm text-muted-foreground">
-                Invita personal y asígnales formularios
+                Crea tu personal y asignales formularios
               </p>
               <Link
                 to="personnel"
