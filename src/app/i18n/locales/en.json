@@ -1,5 +1,6 @@
 {
   "loading": "Loading...",
+  "logout": "Logout",
   "login": {
     "title": "Login to your account",
     "subtitle": "Enter your email below to sign in to your account",

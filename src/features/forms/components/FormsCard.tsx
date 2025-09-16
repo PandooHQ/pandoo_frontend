@@ -29,7 +29,7 @@ import { useMyForms } from "../hooks/useMyForm";
 
 export const FormCards = ({ forms }: FormCardsProps) => {
 
-  const { getStatusLabel, getStatusColor } = useMyForms()
+  const { getStatusLabel, getStatusColor, removeForm } = useMyForms()
 
   return (
     <>
@@ -64,7 +64,7 @@ export const FormCards = ({ forms }: FormCardsProps) => {
                     <Copy className="mr-2 h-4 w-4" />
                     Duplicar
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">
+                  <DropdownMenuItem className="text-destructive" onClick={() => removeForm(form.id)}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Eliminar
                   </DropdownMenuItem>

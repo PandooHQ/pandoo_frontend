@@ -12,10 +12,12 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../stores/auth";
 import { LogOut } from "lucide-react";
 import { Button } from "./ui/button";
+import { useTranslation } from "react-i18next";
 
 export default function CustomizeHeader() {
   const location = useLocation();
   const { lang } = useParams<{ lang: string }>();
+  const { t } = useTranslation();
   const segments = location.pathname.split("/").filter(Boolean);
   const breadcrumbSegments = segments.filter((seg) => seg !== lang);
   const currentRoute = breadcrumbSegments[breadcrumbSegments.length - 1];
@@ -39,12 +41,15 @@ export default function CustomizeHeader() {
               {breadcrumbSegments.slice(0, -1).flatMap((segment, index) => {
                 const path = `/${[lang, ...breadcrumbSegments.slice(0, index + 1)].join("/")}`;
                 return [
-                  <BreadcrumbItem key={`item-${index}`} className="hidden md:flex">
+                  <BreadcrumbItem
+                    key={`item-${index}`}
+                    className="hidden md:flex"
+                  >
                     <BreadcrumbLink href={path}>
                       {segment.charAt(0).toUpperCase() + segment.slice(1)}
                     </BreadcrumbLink>
                   </BreadcrumbItem>,
-                  <BreadcrumbSeparator key={`sep-${index}`} />
+                  <BreadcrumbSeparator key={`sep-${index}`} />,
                 ];
               })}
 
@@ -62,7 +67,7 @@ export default function CustomizeHeader() {
           variant={"ghost"}
         >
           <LogOut className="h-4 w-4" />
-          Logout
+          {t("logout")}
         </Button>
       </header>
     </SidebarInset>

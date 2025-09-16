@@ -27,7 +27,7 @@ export default function FormPage() {
               Asignación Masiva
             </Button>
           </Link>
-          <Link to="/forms/blank">
+          <Link to="blank">
             <Button>
               <Plus className="md:mr-2 h-4 w-4" />
               Nuevo Formulario
@@ -91,7 +91,7 @@ export default function FormPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3 grid-cols-1">
-        <Link to="/forms/blank">
+        <Link to="blank">
           <Card className="border-dashed border-2 hover:border-primary/50 transition-colors cursor-pointer group">
             <CardContent className="flex flex-col items-center justify-center p-6 min-h-[200px]">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">

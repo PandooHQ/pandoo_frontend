@@ -1,9 +1,9 @@
-import { useTranslation } from "react-i18next"
-import { Link, useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next";
+import { Link, useParams } from "react-router-dom";
 
 export default function NotFoundPage() {
-  const { lang } = useParams<{ lang: string }>()
-    const { t } = useTranslation()
+  const { lang } = useParams<{ lang: string }>();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col items-center justify-center text-center">
@@ -17,5 +17,5 @@ export default function NotFoundPage() {
         {t("not_found.button")}
       </Link>
     </div>
-  )
+  );
 }

@@ -12,11 +12,29 @@ import {
   type UniqueIdentifier,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { SectionType } from "../types/SectionType";
 import type { ItemType } from "../types/ItemType";
+import type { FormType } from "@/features/forms/types/FormType";
+import { useNavigate, useParams } from "react-router-dom";
+import { FormsContext } from "@/features/forms/hooks/FormsContext";
 
 export const useFormBuilder = () => {
+  const navigate = useNavigate();
+  const { lang } = useParams<{ lang: string }>();
+  const formsContext = useContext(FormsContext);
+  const fetchForms = formsContext?.fetchForms ?? (() => {});
+
+  const [newForm, setNewForm] = useState<FormType>({
+    id: Math.floor(Math.random() * 100),
+    title: "",
+    description: "",
+    status: "draft",
+    createdAt: new Date().toISOString(),
+    responses: 0,
+    lastModified: new Date().toISOString(),
+    sections: [],
+  });
   const [sections, setSections] = useState<SectionType[]>([]);
 
   const [containers, setContainers] = useState<UniqueIdentifier[]>(
@@ -29,6 +47,16 @@ export const useFormBuilder = () => {
 
   const isSortingContainer =
     activeId != null ? containers.includes(activeId) : false;
+
+  const saveForm = (status: "draft" | "published" = "draft") => {
+    const formToSave = { ...newForm, status, sections };
+    const storedForms = JSON.parse(localStorage.getItem("forms") || "[]");
+    storedForms.push(formToSave);
+    localStorage.setItem("forms", JSON.stringify(storedForms));
+    console.log(storedForms)
+    fetchForms();
+    navigate(`/${lang}/forms`);
+  };
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -119,7 +147,7 @@ export const useFormBuilder = () => {
 
       if (isFromMenu) {
         const already = overSection?.items.some((i) => i.id === active.id);
-        if (already) return; // ya está (evita duplicados)
+        if (already) return;
         setSections((prev) =>
           prev.map((s) =>
             s.id === overSection?.id
@@ -286,7 +314,6 @@ export const useFormBuilder = () => {
   };
 
   const addSection = () => {
-    console.log("asdasd");
     const newSection: SectionType = {
       id: `Sortable-${Date.now()}`,
       title: `Nueva Sección`,
@@ -331,11 +358,14 @@ export const useFormBuilder = () => {
   return {
     containers,
     sections,
+    newForm,
+    setNewForm,
     sensors,
     activeId,
     updateItem,
     removeItem,
     addSection,
+    saveForm,
     removeSection,
     updateSection,
     handleDragEnd,

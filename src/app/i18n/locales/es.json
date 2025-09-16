@@ -1,5 +1,6 @@
 {
   "loading": "Cargando...",
+  "logout": "Cerrar sesión",
   "login": {
     "title": "Inicia sesión en tu cuenta",
     "subtitle": "Ingresa tu correo electrónico a continuación para iniciar sesión en tu cuenta",

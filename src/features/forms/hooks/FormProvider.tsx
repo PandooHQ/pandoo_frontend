@@ -10,92 +10,58 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
     status: "",
   });
 
-  const [allForm] = useState<FormType[]>([
-    {
-      id: 1,
-      title: "Formulario de Control de Maquinaria",
-      description:
-        "Formulario diario de inspección y control de maquinaria para equipos de construcción",
-      status: "published",
-      createdAt: "2024-01-15",
-      responses: 24,
-      lastModified: "2024-01-20",
-    },
-    {
-      id: 2,
-      title: "Encuesta de Retroalimentación de Empleados",
-      description:
-        "Formulario mensual de satisfacción y recolección de comentarios de empleados",
-      status: "draft",
-      createdAt: "2024-01-10",
-      responses: 0,
-      lastModified: "2024-01-18",
-    },
-    {
-      id: 3,
-      title: "Registro de Clientes",
-      description: "Formulario de incorporación y registro de nuevos clientes",
-      status: "published",
-      createdAt: "2024-01-05",
-      responses: 156,
-      lastModified: "2024-01-15",
-    },
-    {
-      id: 4,
-      title: "Evaluación de Proyecto",
-      description:
-        "Formulario de evaluación y valoración de finalización de proyecto",
-      status: "draft",
-      createdAt: "2023-12-20",
-      responses: 45,
-      lastModified: "2024-01-10",
-    },
-  ]);
+  const [allForm, setAllForm] = useState<FormType[]>([]);
 
   const [forms, setForms] = useState<FormType[]>(allForm);
 
   useEffect(() => {
-    console.log(params);
-  }, [params]);
+    const storedForms = JSON.parse(localStorage.getItem("forms") || "[]");
+    setAllForm(storedForms);
+    setForms(storedForms);
+  }, []);
 
   useEffect(() => {
-    const fetchForms = async () => {
-      try {
-
-        if (params.search) {
-          setForms(
-            allForm.filter((form) =>
-              form.title.toLowerCase().includes(params.search.toLowerCase())
-            )
-          );
-        } else {
-          setForms(allForm);
-        }
-
-        if (params.status != "") {
-          setForms(
-            allForm.filter((form) =>
-              form.status.toLowerCase().includes(params.status.toLowerCase())
-            )
-          );
-        } else {
-          setForms(allForm);
-        }
-      } catch (error) {
-        console.error(error);
-        setForms([]);
-      }
-    };
-
     fetchForms();
-  }, [params.page, params.search, allForm, params.status]);
+  }, [params.page, params.search, params.status]);
 
-  const addForm = (form: FormType) => {
-    setForms((prev) => [...prev, form]);
+  const fetchForms = () => {
+    try {
+      const storedForms = JSON.parse(localStorage.getItem("forms") || "[]");
+      setAllForm(storedForms);
+
+      let filteredForms = storedForms;
+
+      if (params.search) {
+        filteredForms = filteredForms.filter((form: FormType) =>
+          form.title.toLowerCase().includes(params.search.toLowerCase())
+        );
+      }
+
+      if (params.status) {
+        filteredForms = filteredForms.filter((form: FormType) =>
+          form.status.toLowerCase().includes(params.status.toLowerCase())
+        );
+      }
+
+      setForms(filteredForms);
+    } catch (error) {
+      console.error(error);
+      setForms([]);
+    }
   };
 
   const removeForm = (id: number) => {
-    setForms((prev) => prev.filter((f) => f.id !== id));
+    console.log("aqui")
+    setForms((prev) => {
+      const updated = prev.filter((f) => f.id !== id);
+      localStorage.setItem("forms", JSON.stringify(updated)); 
+      return updated;
+    });
+
+    setAllForm((prev) => {
+      const updated = prev.filter((f) => f.id !== id);
+      return updated;
+    });
   };
 
   const updateForm = (form: FormType) => {
@@ -106,7 +72,7 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <FormsContext.Provider
-      value={{ forms, addForm, removeForm, updateForm, setParams }}
+      value={{ forms, removeForm, updateForm, setParams, fetchForms }}
     >
       {children}
     </FormsContext.Provider>
