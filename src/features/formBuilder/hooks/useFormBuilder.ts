@@ -19,7 +19,12 @@ import type { FormType } from "@/features/forms/types/FormType";
 import { useNavigate, useParams } from "react-router-dom";
 import { FormsContext } from "@/features/forms/hooks/FormsContext";
 
-export const useFormBuilder = () => {
+interface FormBuilderInitialValues {
+  form?: FormType;
+  sections?: SectionType[];
+}
+
+export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   const navigate = useNavigate();
   const { lang } = useParams<{ lang: string }>();
   const formsContext = useContext(FormsContext);
@@ -35,11 +40,39 @@ export const useFormBuilder = () => {
     lastModified: new Date().toISOString(),
     sections: [],
   });
+
   const [sections, setSections] = useState<SectionType[]>([]);
+
+  useEffect(() => {
+    if (initialValues?.form) setNewForm(initialValues.form);
+    if (initialValues?.sections) setSections(initialValues.sections);
+  }, [initialValues?.form, initialValues?.sections]);
 
   const [containers, setContainers] = useState<UniqueIdentifier[]>(
     (sections ?? []).map((section) => section.id)
   );
+
+  const updateForm = (status: "draft" | "published" = "draft") => {
+    const formToUpdate = { ...newForm, status, sections };
+    const storedForms: FormType[] = JSON.parse(
+      localStorage.getItem("forms") || "[]"
+    );
+
+    const index = storedForms.findIndex((f) => f.id === formToUpdate.id);
+
+    if (index !== -1) {
+      storedForms[index] = formToUpdate;
+      localStorage.setItem("forms", JSON.stringify(storedForms));
+      console.log("Formulario actualizado:", storedForms[index]);
+      fetchForms();
+      navigate(`/${lang}/forms`);
+    } else {
+      console.warn(
+        "Formulario no encontrado para actualizar, guardando como nuevo"
+      );
+      saveForm(status); 
+    }
+  };
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const lastOverId = useRef<UniqueIdentifier | null>(null);
@@ -53,7 +86,7 @@ export const useFormBuilder = () => {
     const storedForms = JSON.parse(localStorage.getItem("forms") || "[]");
     storedForms.push(formToSave);
     localStorage.setItem("forms", JSON.stringify(storedForms));
-    console.log(storedForms)
+    console.log(storedForms);
     fetchForms();
     navigate(`/${lang}/forms`);
   };
@@ -366,6 +399,7 @@ export const useFormBuilder = () => {
     removeItem,
     addSection,
     saveForm,
+    updateForm,
     removeSection,
     updateSection,
     handleDragEnd,

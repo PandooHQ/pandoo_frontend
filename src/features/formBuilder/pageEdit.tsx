@@ -3,12 +3,11 @@ import {
   DragOverlay,
   MeasuringStrategy,
   useDndContext,
-  type UniqueIdentifier,
 } from "@dnd-kit/core";
 import InputsMenuCard from "./components/InputsMenuCard";
 import Section from "./components/sections/Section";
 import { useFormBuilder } from "./hooks/useFormBuilder";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { CheckCircle, Upload } from "lucide-react";
 import {
@@ -22,10 +21,24 @@ import { Label } from "@radix-ui/react-label";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Switch } from "@/shared/components/ui/switch";
-import { ConfirmModal } from "@/shared/components/ConfirmModal";
+import { useParams } from "react-router-dom";
+import type { FormType } from "../forms/types/FormType";
 
-export default function Page() {
+export default function FormBuilderEditPage() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
+  const { id } = useParams<{ id: string }>();
+  const [formData, setFormData] = useState<FormType | null>(null);
+
+  useEffect(() => {
+    const storedForms = localStorage.getItem("forms");
+    if (storedForms) {
+      const forms: FormType[] = JSON.parse(storedForms);
+      const form = forms.find((f) => f.id.toString() === id);
+      if (form) setFormData(form);
+    }
+    console.log(formData)
+  }, [id]);
+
   const {
     sensors,
     collisionDetectionStrategy,
@@ -37,49 +50,28 @@ export default function Page() {
     sections,
     newForm,
     setNewForm,
-    saveForm,
-    // selectedSectionId,
+    updateForm,
     addSection,
     isSortingContainer,
     removeSection,
     updateSection,
     updateItem,
     removeItem,
-  } = useFormBuilder();
+  } = useFormBuilder({
+    form: formData ?? undefined,
+    sections: formData?.sections ?? undefined,
+  });
   const { active } = useDndContext();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalOpenItem, setModalOpenItem] = useState(false);
-  const [selectedFormId, setSelectedFormId] = useState<
-    number | UniqueIdentifier | null
-  >(null);
-  const [selectedFieldId, setSelectedFieldId] = useState<string>("");
 
-  const handleDeleteClick = (id: number | UniqueIdentifier) => {
-    setSelectedFormId(id);
-    setModalOpen(true);
-  };
 
-  const handleDeleteClickItem = (id: string) => {
-    setSelectedFieldId(id);
-    setModalOpenItem(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (selectedFormId !== null) removeSection(selectedFormId);
-  };
-
-  const handleConfirmDeleteItem = () => {
-    if (selectedFieldId !== null) {
-      removeItem(selectedFieldId);
-    }
-  };
+  if (!formData) return <p>Cargando...</p>;
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
-      <div className="flex items-center justify-between flex-col gap-4 lg:flex-row">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            Crear Formulario en Blanco
+            Editar formulario
           </h1>
           <p className="text-muted-foreground">
             Construye tu formulario desde cero con campos personalizados
@@ -111,7 +103,7 @@ export default function Page() {
           </Button>*/}
 
           <Button
-            onClick={() => saveForm("published")}
+            onClick={() => updateForm("published")}
             disabled={newForm.status == "published"}
             className={
               newForm.status == "published"
@@ -377,7 +369,7 @@ export default function Page() {
               </div>
             </DialogContent>
           </Dialog> */}
-          <Button onClick={() => saveForm()}>Guardar Formulario</Button>
+          <Button onClick={() => updateForm()}>Guardar Formulario</Button>
         </div>
       </div>
 
@@ -400,10 +392,10 @@ export default function Page() {
             sections={sections}
             addSection={addSection}
             isSortingContainer={isSortingContainer}
-            removeSection={handleDeleteClick}
+            removeSection={removeSection}
             updateSection={updateSection}
             updateItem={updateItem}
-            removeItem={handleDeleteClickItem}
+            removeItem={removeItem}
           />
           <DragOverlay>
             {activeId ? (
@@ -547,25 +539,6 @@ export default function Page() {
           </Card>
         </div>
       </div>
-      <ConfirmModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="Eliminar Seccion"
-        description="¿Estás seguro que deseas eliminar esta seccion? Esta acción no se puede deshacer."
-        confirmText="Eliminar"
-        cancelText="Cancelar"
-      />
-
-      <ConfirmModal
-        isOpen={modalOpenItem}
-        onClose={() => setModalOpenItem(false)}
-        onConfirm={handleConfirmDeleteItem}
-        title="Eliminar Campo"
-        description="¿Estás seguro que deseas eliminar este campo? Esta acción no se puede deshacer."
-        confirmText="Eliminar"
-        cancelText="Cancelar"
-      />
     </div>
   );
 }

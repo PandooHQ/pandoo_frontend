@@ -14,4 +14,5 @@ export interface FormsContextType {
     }>
   >;
   fetchForms: () => void;
+  duplicateForm: (form:FormType) => void;
 }

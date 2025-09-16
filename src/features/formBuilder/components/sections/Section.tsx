@@ -43,7 +43,7 @@ export default function Section({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
+        <CardContent className="space-y-4 max-h-[750px] overflow-y-auto">
           {containers.map((sectionId: UniqueIdentifier) => {
             const section = sections?.find((s) => s.id === sectionId); 
             if (!section) return null;
@@ -53,7 +53,7 @@ export default function Section({
                 key={section.id}
                 section={section} 
                 isSortingContainer={isSortingContainer}
-                removeSection={removeSection}
+                removeSection={() => removeSection(section.id)}
                 updateSection={updateSection}
                 updateItem={updateItem}
                 removeItem={removeItem}

@@ -51,10 +51,10 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeForm = (id: number) => {
-    console.log("aqui")
+    console.log("aqui");
     setForms((prev) => {
       const updated = prev.filter((f) => f.id !== id);
-      localStorage.setItem("forms", JSON.stringify(updated)); 
+      localStorage.setItem("forms", JSON.stringify(updated));
       return updated;
     });
 
@@ -70,9 +70,38 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const duplicateForm = (form: FormType) => {
+    const storedForms: FormType[] = JSON.parse(
+      localStorage.getItem("forms") || "[]"
+    );
+
+    // Crear un nuevo id (puede ser timestamp o random)
+    const newId = Math.floor(Math.random() * 1000000);
+
+    // Clonar el form con nuevo id y título modificado
+    const clonedForm: FormType = {
+      ...form,
+      id: newId,
+      title: `${form.title} (copia)`,
+      createdAt: new Date().toISOString(),
+      lastModified: new Date().toISOString(),
+      responses: 0,
+      sections: form?.sections?.map((section) => ({
+        ...section,
+        id: `${section.id}-${newId}`, 
+        items: section.items.map((item) => ({ ...item })), 
+      })),
+    };
+
+    storedForms.push(clonedForm);
+    localStorage.setItem("forms", JSON.stringify(storedForms));
+
+    fetchForms();
+  };
+
   return (
     <FormsContext.Provider
-      value={{ forms, removeForm, updateForm, setParams, fetchForms }}
+      value={{ forms, removeForm, updateForm, setParams, fetchForms, duplicateForm }}
     >
       {children}
     </FormsContext.Provider>

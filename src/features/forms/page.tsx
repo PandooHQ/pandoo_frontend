@@ -1,7 +1,7 @@
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
-import { Plus, Search, Users } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { FormCards } from "./components/FormsCard";
 import { useMyForms } from "./hooks/useMyForm";
@@ -20,13 +20,8 @@ export default function FormPage() {
             Gestiona y organiza todos tus formularios en un solo lugar
           </p>
         </div>
-        <div className="grid gap-3 lg:gap-3 grid-cols-2 lg:mt-0 mt-4 md:gap-12">
-          <Link to="/forms/bulk-assignment">
-            <Button variant="outline" disabled>
-              <Users className="md:mr-2 h-4 w-4" />
-              Asignación Masiva
-            </Button>
-          </Link>
+
+        <div className="flex justify-end w-full lg:w-auto mt-4 lg:mt-0">
           <Link to="blank">
             <Button>
               <Plus className="md:mr-2 h-4 w-4" />
@@ -36,7 +31,7 @@ export default function FormPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 flex-col sm:flex-row">
+      <div className="flex items-center gap-4 flex-col lg:flex-row">
         <div className="relative flex-1 w-full max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input

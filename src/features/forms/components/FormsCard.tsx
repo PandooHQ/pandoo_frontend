@@ -16,7 +16,6 @@ import {
   Calendar,
   Copy,
   Edit,
-  Eye,
   MoreVertical,
   Trash2,
   Users,
@@ -26,14 +25,29 @@ import { Badge } from "@/shared/components/ui/badge";
 import type { FormType } from "../types/FormType";
 import type { FormCardsProps } from "../types/FormCardsTypes";
 import { useMyForms } from "../hooks/useMyForm";
+import { useNavigate } from "react-router-dom";
+import { ConfirmModal } from "@/shared/components/ConfirmModal";
+import { useState } from "react";
 
 export const FormCards = ({ forms }: FormCardsProps) => {
+  const { getStatusLabel, getStatusColor, removeForm, duplicateForm } =
+    useMyForms();
+  const navigate = useNavigate();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedFormId, setSelectedFormId] = useState<number | null>(null);
 
-  const { getStatusLabel, getStatusColor, removeForm } = useMyForms()
+  const handleDeleteClick = (id: number) => {
+    setSelectedFormId(id);
+    setModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedFormId !== null) removeForm(selectedFormId);
+  };
 
   return (
     <>
-      {forms.map((form:FormType) => (
+      {forms.map((form: FormType) => (
         <Card key={form.id} className="hover:shadow-md transition-shadow">
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
@@ -52,19 +66,22 @@ export const FormCards = ({ forms }: FormCardsProps) => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(`edit/${form.id}`)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Editar
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  {/* <DropdownMenuItem>
                     <Eye className="mr-2 h-4 w-4" />
                     Vista Previa
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  </DropdownMenuItem> */}
+                  <DropdownMenuItem onClick={() => duplicateForm(form)}>
                     <Copy className="mr-2 h-4 w-4" />
                     Duplicar
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive" onClick={() => removeForm(form.id)}>
+                  <DropdownMenuItem
+                    onClick={() => handleDeleteClick(form.id)}
+                    className="text-destructive"
+                  >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Eliminar
                   </DropdownMenuItem>
@@ -99,6 +116,16 @@ export const FormCards = ({ forms }: FormCardsProps) => {
           </CardFooter>
         </Card>
       ))}
+
+      <ConfirmModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar formulario"
+        description="¿Estás seguro que deseas eliminar este formulario? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </>
   );
 };

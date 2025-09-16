@@ -12,6 +12,7 @@ import SettingsPage from "@/features/settings/page"
 import HomePage from "@/features/home/page"
 import FormPage from "@/features/forms/page"
 import FormBuilderPage from "@/features/formBuilder/page"
+import FormBuilderEditPage from "@/features/formBuilder/pageEdit"
 
 const SUPPORTED_LANGUAGES = ["en", "es"]
 const DEFAULT_LANGUAGE = "es"
@@ -80,6 +81,7 @@ export function AppRouter() {
             <Route path="settings" element={<SettingsPage />} />
             <Route path="forms" element={<FormPage />} />
             <Route path="forms/blank" element={<FormBuilderPage/>} />
+            <Route path="forms/edit/:id" element={<FormBuilderEditPage/>} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
