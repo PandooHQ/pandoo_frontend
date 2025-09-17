@@ -14,6 +14,7 @@ import { FolderPlus } from "lucide-react";
 import { SortableSection } from "./SortableSection";
 import type { SectionProps } from "../../types/SectionsPropsType";
 import type { UniqueIdentifier } from "@dnd-kit/core";
+import { useState } from "react";
 
 export default function Section({
   containers,
@@ -23,8 +24,10 @@ export default function Section({
   removeSection,
   updateSection,
   updateItem,
-  removeItem
+  removeItem,
 }: SectionProps) {
+  const [selectedSection, setSelectedSection] = useState<UniqueIdentifier>();
+
   return (
     <SortableContext items={containers} strategy={verticalListSortingStrategy}>
       <Card>
@@ -45,18 +48,20 @@ export default function Section({
         </CardHeader>
         <CardContent className="space-y-4 max-h-[750px] overflow-y-auto">
           {containers.map((sectionId: UniqueIdentifier) => {
-            const section = sections?.find((s) => s.id === sectionId); 
+            const section = sections?.find((s) => s.id === sectionId);
             if (!section) return null;
 
             return (
               <SortableSection
                 key={section.id}
-                section={section} 
+                section={section}
                 isSortingContainer={isSortingContainer}
                 removeSection={() => removeSection(section.id)}
                 updateSection={updateSection}
                 updateItem={updateItem}
                 removeItem={removeItem}
+                selectedSection={selectedSection}
+                setSelectedSection={setSelectedSection}
               />
             );
           })}

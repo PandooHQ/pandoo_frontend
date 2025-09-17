@@ -10,12 +10,15 @@ import {
   defaultAnimateLayoutChanges,
 } from "@dnd-kit/sortable";
 import type { AnimateLayoutChanges } from "@dnd-kit/sortable";
+import type { UniqueIdentifier } from "@dnd-kit/core";
 
 type SortableItemProps = {
   item: ItemType;
   disabled?: boolean;
   onUpdate: (id: string, updates: Partial<ItemType>) => void;
   onRemove: (id: string) => void;
+  section: UniqueIdentifier;
+  setSelectedSection: (itemId: UniqueIdentifier) => void
 };
 
 const animateLayoutChanges: AnimateLayoutChanges = (args) =>
@@ -27,6 +30,8 @@ export function SortableItem({
   disabled,
   onUpdate,
   onRemove,
+  section,
+  setSelectedSection
 }: SortableItemProps) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } =
     useSortable({
@@ -90,7 +95,10 @@ export function SortableItem({
           onChange={(e) => updateField({ label: e.target.value })}
           placeholder="Etiqueta del campo"
           className="flex-1 text-sm"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation()
+            setSelectedSection(section)
+          }}
         />
 
         <Button

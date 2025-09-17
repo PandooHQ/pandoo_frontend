@@ -30,6 +30,9 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   const formsContext = useContext(FormsContext);
   const fetchForms = formsContext?.fetchForms ?? (() => {});
 
+  const [history, setHistory] = useState<SectionType[][]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+
   const [newForm, setNewForm] = useState<FormType>({
     id: Math.floor(Math.random() * 100),
     title: "",
@@ -52,6 +55,24 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     (sections ?? []).map((section) => section.id)
   );
 
+  useEffect(() => {
+    setHistory((prev) => {
+      // Si se hizo undo y luego se realiza una nueva acción, eliminamos los futuros:
+      const newHistory = prev.slice(0, historyIndex + 1);
+      // Solo agregamos si el último estado es distinto del actual
+      if (
+        newHistory.length === 0 ||
+        JSON.stringify(newHistory[newHistory.length - 1]) !==
+          JSON.stringify(sections)
+      ) {
+        newHistory.push(sections);
+        setHistoryIndex(newHistory.length - 1);
+        return newHistory;
+      }
+      return prev;
+    });
+  }, [sections]);
+
   const updateForm = (status: "draft" | "published" = "draft") => {
     const formToUpdate = { ...newForm, status, sections };
     const storedForms: FormType[] = JSON.parse(
@@ -70,7 +91,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       console.warn(
         "Formulario no encontrado para actualizar, guardando como nuevo"
       );
-      saveForm(status); 
+      saveForm(status);
     }
   };
 
@@ -388,9 +409,25 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     );
   };
 
+  const undo = () => {
+    if (historyIndex > 0) {
+      setSections(history[historyIndex - 1]);
+      setHistoryIndex(historyIndex - 1);
+    }
+  };
+
+  const redo = () => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setSections(history[newIndex]);
+      setHistoryIndex(newIndex);
+    }
+  };
+
   return {
     containers,
     sections,
+    historyIndex,
     newForm,
     setNewForm,
     sensors,
@@ -400,6 +437,8 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     addSection,
     saveForm,
     updateForm,
+    undo,
+    redo,
     removeSection,
     updateSection,
     handleDragEnd,

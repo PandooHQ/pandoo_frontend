@@ -13,13 +13,15 @@ import type { UniqueIdentifier } from "@dnd-kit/core";
 import type { ItemType } from "../../types/ItemType";
 import { useEffect, useRef, useState } from "react";
 
-export function SortableSection({ section, isSortingContainer, removeSection, updateSection, updateItem, removeItem }: {
+export function SortableSection({ section, isSortingContainer, removeSection, updateSection, updateItem, removeItem, selectedSection, setSelectedSection}: {
   section: SectionType;
   isSortingContainer: boolean;
   removeSection: (id: UniqueIdentifier) => void;
   updateSection: (id: UniqueIdentifier, title: string) => void;
   updateItem: (itemId: string, updates: Partial<ItemType>) => void;
   removeItem: (itemId: string) => void;
+  selectedSection: UniqueIdentifier | undefined;
+  setSelectedSection: (itemId: UniqueIdentifier) => void
 }) {
   const { id, title, items } = section;
   const { setNodeRef, transform, isDragging, attributes, listeners } =
@@ -29,7 +31,7 @@ export function SortableSection({ section, isSortingContainer, removeSection, up
     });
 
   const contentRef = useRef<HTMLDivElement>(null);
-  const [containerHeight, setContainerHeight] = useState<string | number>("auto");
+  const [containerHeight, setContainerHeight] = useState<string | number>("auto");  
 
   useEffect(() => {
     if (contentRef.current) {
@@ -48,8 +50,9 @@ export function SortableSection({ section, isSortingContainer, removeSection, up
         transform: CSS.Translate.toString(transform),
         transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
         opacity: isDragging ? 0.7 : 1,
-        background: "#f9fafb",
-        border: "1px solid #e5e7eb",
+        background: id === selectedSection ? 'aliceblue' : "#f9fafb",
+        border: "1px solid",
+        borderColor: id === selectedSection ? '#0097ff' : "#e5e7eb",
         borderRadius: "12px",
         padding: "12px",
         minWidth: "200px",
@@ -87,7 +90,10 @@ export function SortableSection({ section, isSortingContainer, removeSection, up
           onChange={(e) => updateSection(id, e.target.value)}
           placeholder="Título de la sección"
           className="flex-1 font-medium"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            setSelectedSection(id)
+            e.stopPropagation()
+          }}
         />
         <Button
           variant="ghost"
@@ -123,6 +129,8 @@ export function SortableSection({ section, isSortingContainer, removeSection, up
               disabled={isSortingContainer}
               onRemove={() => removeItem(item.id)}
               onUpdate={updateItem}
+              section={section?.id}
+              setSelectedSection={setSelectedSection}
             />
           ))}
         </div>

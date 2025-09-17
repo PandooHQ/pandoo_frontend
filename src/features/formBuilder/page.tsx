@@ -10,7 +10,7 @@ import Section from "./components/sections/Section";
 import { useFormBuilder } from "./hooks/useFormBuilder";
 import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
-import { CheckCircle, Upload } from "lucide-react";
+import { CheckCircle, Redo, Undo, Upload } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -28,6 +28,7 @@ export default function Page() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
   const {
     sensors,
+    historyIndex,
     collisionDetectionStrategy,
     handleDragStart,
     handleDragEnd,
@@ -45,6 +46,8 @@ export default function Page() {
     updateSection,
     updateItem,
     removeItem,
+    undo,
+    redo
   } = useFormBuilder();
   const { active } = useDndContext();
   const [modalOpen, setModalOpen] = useState(false);
@@ -53,7 +56,6 @@ export default function Page() {
     number | UniqueIdentifier | null
   >(null);
   const [selectedFieldId, setSelectedFieldId] = useState<string>("");
-
   const handleDeleteClick = (id: number | UniqueIdentifier) => {
     setSelectedFormId(id);
     setModalOpen(true);
@@ -84,16 +86,9 @@ export default function Page() {
           <p className="text-muted-foreground">
             Construye tu formulario desde cero con campos personalizados
           </p>
-          {/* {selectedSectionId && (
-            <p className="text-sm text-blue-600 mt-1">
-              Seleccionado:{" "}
-              {sections.find((s) => s.id === selectedSectionId)?.title ||
-                "Sección Desconocida"}
-            </p>
-          )} */}
         </div>
         <div className="flex gap-2">
-          {/* <Button
+          <Button
             variant="outline"
             size="sm"
             onClick={undo}
@@ -108,8 +103,7 @@ export default function Page() {
             disabled={historyIndex >= history.length - 1}
           >
             <Redo className="h-4 w-4" />
-          </Button>*/}
-
+          </Button>
           <Button
             onClick={() => saveForm("published")}
             disabled={newForm.status == "published"}
@@ -131,252 +125,6 @@ export default function Page() {
               </>
             )}
           </Button>
-          {/* <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" onClick={() => setCurrentSheetIndex(0)}>
-                <Smartphone className="mr-2 h-4 w-4" />
-                Vista Previa
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[660px] p-0 w-fit">
-              <div
-                className="bg-white dark:bg-gray-950 rounded-lg overflow-hidden shadow-lg flex flex-col"
-                style={{ height: "600px", width: "320px" }}
-              >
-                <div className="bg-white dark:bg-gray-950 px-4 py-2 flex items-center justify-between text-xs border-b flex-shrink-0">
-                  <div className="flex items-center gap-1">
-                    <div className="flex items-end gap-0.5 mr-2">
-                      <div className="w-1 h-2 bg-gray-800 dark:bg-white rounded-full"></div>
-                      <div className="w-1 h-2.5 bg-gray-800 dark:bg-white rounded-full"></div>
-                      <div className="w-1 h-3 bg-gray-800 dark:bg-white rounded-full"></div>
-                      <div className="w-1 h-3.5 bg-gray-800 dark:bg-white rounded-full"></div>
-                    </div>
-                    <svg
-                      className="w-3 h-3 mr-2"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.07 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z" />
-                    </svg>
-                  </div>
-                  <div className="font-medium">9:41 AM</div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs">87%</span>
-                    <div className="w-6 h-3 border border-gray-800 dark:border-white rounded-sm relative flex items-center">
-                      <div className="w-4 h-1.5 bg-gray-800 dark:bg-white rounded-sm ml-0.5"></div>
-                      <div className="w-0.5 h-1.5 bg-gray-800 dark:bg-white rounded-sm absolute -right-1"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-gray-950 border-b px-4 py-4 flex items-center flex-shrink-0">
-                  <button className="mr-3 flex items-center justify-center">
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <div className="flex-1">
-                    <h1 className="text-lg font-medium">{formTitle}</h1>
-                    <p className="text-sm text-muted-foreground">
-                      Recolección de Datos
-                    </p>
-                  </div>
-                </div>
-
-                <div className="px-4 py-3 border-b flex-shrink-0">
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">
-                      Paso {currentSheetIndex + 1} de{" "}
-                      {getSectionsWithFields().length}
-                    </span>
-                    <span className="font-medium">
-                      {Math.round(
-                        ((currentSheetIndex + 1) /
-                          getSectionsWithFields().length) *
-                          100
-                      )}
-                      %
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${((currentSheetIndex + 1) / getSectionsWithFields().length) * 100}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto px-4 py-4">
-                  {getSectionsWithFields().length > 0 ? (
-                    <div className="space-y-4">
-                      {getCurrentSection() && (
-                        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 space-y-4">
-                          <div className="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-                            <User className="h-5 w-5 text-blue-500" />
-                            <h3 className="font-medium text-base">
-                              {getCurrentSection()?.title}
-                            </h3>
-                          </div>
-
-                          {getCurrentSectionFields().map((field) => (
-                            <div key={field.id} className="space-y-2">
-                              {field.type === "instructions" ? (
-                                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                                  <div
-                                    className="text-sm text-blue-900 dark:text-blue-100"
-                                    dangerouslySetInnerHTML={{
-                                      __html: formatInstructionsContent(
-                                        field.content || ""
-                                      ),
-                                    }}
-                                  />
-                                </div>
-                              ) : field.type === "signature" ? (
-                                <>
-                                  <Label className="text-sm font-medium">
-                                    {field.label}
-                                    {field.required && (
-                                      <span className="text-red-500 ml-1">
-                                        *
-                                      </span>
-                                    )}
-                                  </Label>
-                                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50">
-                                    <PenTool className="h-6 w-6 mx-auto mb-2 text-gray-400" />
-                                    <p className="text-sm text-gray-500">
-                                      Toca para firmar
-                                    </p>
-                                  </div>
-                                </>
-                              ) : (
-                                <>
-                                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    {field.label}
-                                    {field.required && (
-                                      <span className="text-red-500 ml-1">
-                                        *
-                                      </span>
-                                    )}
-                                  </Label>
-                                  {field.type === "text" && (
-                                    <div className="relative">
-                                      <Input
-                                        className="text-sm pl-4 py-3 rounded-lg border-gray-300 focus:border-blue-500"
-                                        placeholder={
-                                          field.placeholder ||
-                                          `Enter ${field.label.toLowerCase()}`
-                                        }
-                                      />
-                                    </div>
-                                  )}
-                                  {field.type === "email" && (
-                                    <div className="relative">
-                                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                                      <Input
-                                        className="text-sm pl-10 py-3 rounded-lg border-gray-300 focus:border-blue-500"
-                                        type="email"
-                                        placeholder={
-                                          field.placeholder ||
-                                          "Ingrese dirección de correo"
-                                        }
-                                      />
-                                    </div>
-                                  )}
-                                  {field.type === "number" && (
-                                    <div className="relative">
-                                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                                      <Input
-                                        className="text-sm pl-10 py-3 rounded-lg border-gray-300 focus:border-blue-500"
-                                        type="number"
-                                        placeholder={
-                                          field.placeholder || "Ingrese número"
-                                        }
-                                      />
-                                    </div>
-                                  )}
-                                  {field.type === "textarea" && (
-                                    <Textarea
-                                      className="text-sm py-3 rounded-lg border-gray-300 focus:border-blue-500"
-                                      placeholder={
-                                        field.placeholder ||
-                                        `Enter ${field.label.toLowerCase()}`
-                                      }
-                                    />
-                                  )}
-                                  {field.type === "select" && (
-                                    <Select>
-                                      <SelectTrigger className="text-sm py-3 rounded-lg border-gray-300 focus:border-blue-500">
-                                        <SelectValue
-                                          placeholder={`Seleccionar ${field.label.toLowerCase()}`}
-                                        />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {field.options?.map((option, index) => (
-                                          <SelectItem
-                                            key={index}
-                                            value={option.toLowerCase()}
-                                          >
-                                            {option}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-6 text-sm text-muted-foreground">
-                      Agregue secciones con campos para ver la vista previa de
-                      su formulario
-                    </div>
-                  )}
-                </div>
-
-                <div className="px-4 py-4 bg-white dark:bg-gray-950 border-t flex-shrink-0">
-                  <div className="space-y-3">
-                    {canNavigatePrev() && (
-                      <Button
-                        variant="outline"
-                        className="w-full py-3 rounded-lg font-medium bg-transparent"
-                        onClick={() => navigateToSheet("prev")}
-                      >
-                        Anterior
-                      </Button>
-                    )}
-
-                    {canNavigateNext() ? (
-                      <Button
-                        className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium"
-                        onClick={() => navigateToSheet("next")}
-                      >
-                        Siguiente
-                      </Button>
-                    ) : (
-                      <Button className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium">
-                        Enviar Formulario
-                      </Button>
-                    )}
-
-                    <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span>Auto-guardado</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span>En línea</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog> */}
           <Button onClick={() => saveForm()}>Guardar Formulario</Button>
         </div>
       </div>
