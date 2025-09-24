@@ -30,7 +30,7 @@ export const useMyForms = () => {
       case "archived":
         return "Archivado";
       default:
-        return status.charAt(0).toUpperCase() + status.slice(1);
+        return status?.charAt(0)?.toUpperCase() + status?.slice(1);
     }
   };
 

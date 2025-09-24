@@ -10,6 +10,8 @@ import { Label } from "@radix-ui/react-label";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/shared/stores/auth";
 import { useNavigate, useParams } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { login } from "../services/loginService";
 
 export function LoginForm({
   className,
@@ -18,6 +20,7 @@ export function LoginForm({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { lang } = useParams<{ lang: string }>();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   const {
     register,
@@ -27,10 +30,19 @@ export function LoginForm({
     resolver: zodResolver(loginSchema),
   });
 
+  const mutation = useMutation({
+    mutationFn: login,
+    onSuccess: (data) => {
+      setAuth(data.data.token, "Nombre prueba");
+      navigate(`/${lang}/`);
+    },
+    onError: (error: unknown) => {
+      console.error("Login failed:", error);
+    },
+  });
+
   const onSubmit = (data: LoginFormValues) => {
-    console.log("Login data:", data);
-    useAuthStore.getState().setToken("dummy-token");
-    navigate(`/${lang}/`);
+    mutation.mutate(data);
   };
 
   return (
@@ -80,7 +92,12 @@ export function LoginForm({
           )}
         </div>
 
-        <Button type="submit" className="w-full">
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={mutation.isPending}
+          loading={mutation.isPending}
+        >
           {t("login.button")}
         </Button>
 
@@ -91,7 +108,11 @@ export function LoginForm({
         </div>
 
         <Button variant="outline" className="w-full">
-          <img src="/google-logo.svg" alt="Google Logo" className="mr-2 h-4 w-4" />
+          <img
+            src="/google-logo.svg"
+            alt="Google Logo"
+            className="mr-2 h-4 w-4"
+          />
           {t("login.login_with_google")}
         </Button>
       </div>

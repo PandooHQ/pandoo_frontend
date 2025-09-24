@@ -23,6 +23,8 @@
     "create_form": "Crear formulario",
     "my_forms": "Mis formularios",
     "form_data": "Datos de formularios",
+    "form_entry": "Ingreso de formularios",
+    "mobile_forms": "Formularios móviles",
     "personnel_management": "Gestión de personal",
     "roles_and_permisions": {
       "title": "Roles y permisos",
@@ -32,5 +34,9 @@
         "role_assignments": "Asignación de roles"
       }
     }
+  },
+  "mobile_forms":{
+    "completed": "Completado",
+    "in_progress": "En curso"
   }
 }

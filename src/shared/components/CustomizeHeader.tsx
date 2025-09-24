@@ -25,7 +25,7 @@ export default function CustomizeHeader() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    useAuthStore.getState().clearToken();
+    useAuthStore.getState().clearAuth();
     navigate(`/${lang}/login`);
   };
 

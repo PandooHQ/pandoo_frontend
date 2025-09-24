@@ -13,6 +13,8 @@ export interface FormsContextType {
       status: string;
     }>
   >;
-  fetchForms: () => void;
+  fetchForms?: () => void;
   duplicateForm: (form:FormType) => void;
+  isLoading : boolean;
+  isError: boolean,
 }

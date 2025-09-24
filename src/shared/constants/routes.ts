@@ -5,7 +5,8 @@ import {
   Database,
   Users,
   Shield,
-  House
+  House,
+  Smartphone
 } from "lucide-react";
 
 const data = {
@@ -34,6 +35,18 @@ const data = {
       url: "/forms/data",
       items: [],
       icon: Database,
+    },
+    {
+      titleKey: "menu.form_entry",
+      url: "/forms/form-entry",
+      items: [],
+      icon: Smartphone,
+    },
+    {
+      titleKey: "menu.mobile_forms",
+      url: "/forms/mobile-forms",
+      items: [],
+      icon: Smartphone,
     },
     {
       titleKey: "menu.personnel_management",

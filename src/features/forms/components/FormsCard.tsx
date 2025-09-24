@@ -25,7 +25,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import type { FormType } from "../types/FormType";
 import type { FormCardsProps } from "../types/FormCardsTypes";
 import { useMyForms } from "../hooks/useMyForm";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; 
 import { ConfirmModal } from "@/shared/components/ConfirmModal";
 import { useState } from "react";
 
@@ -47,7 +47,7 @@ export const FormCards = ({ forms }: FormCardsProps) => {
 
   return (
     <>
-      {forms.map((form: FormType) => (
+      {forms.length > 0 && forms?.map((form: FormType) => (
         <Card key={form.id} className="hover:shadow-md transition-shadow">
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
