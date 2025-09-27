@@ -38,5 +38,28 @@
   "mobile_forms":{
     "completed": "Completed",
     "in_progress": "In progress"
+  },     
+  "form_data": {
+    "title": "Form Submissions",
+    "subtitle": "View and manage data from your forms",
+    "export": "Export data",
+    "filters": {
+      "from": "From:",
+      "to": "To:"
+    },
+    "metrics": {
+      "total_submissions": {
+        "title": "Total Submissions",
+        "subtitle": "For this form"
+      },
+      "active_users": {
+        "title": "Active Users",
+        "subtitle": "Users with submissions"
+      },
+      "completion_rate": {
+        "title": "Completion Rate",
+        "subtitle": "Forms completed successfully"
+      }
+    }
   }
 }

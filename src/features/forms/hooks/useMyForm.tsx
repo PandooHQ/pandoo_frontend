@@ -3,12 +3,12 @@ import { FormsContext } from "./FormsContext";
 
 export const useMyForms = () => {
   const context = useContext(FormsContext);
-  
+
   if (!context) {
     throw new Error("useForms debe usarse dentro de un FormsProvider");
   }
 
-   const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "published":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
@@ -34,9 +34,10 @@ export const useMyForms = () => {
     }
   };
 
+
   return {
     ...context,
     getStatusColor,
-    getStatusLabel
+    getStatusLabel,
   };
 };

@@ -15,6 +15,7 @@ import FormBuilderPage from "@/features/formBuilder/page"
 import FormBuilderEditPage from "@/features/formBuilder/pageEdit"
 import MobileFormsPage from "@/features/mobileForms/page"
 import FormEntryPage from "@/features/formEntry/page"
+import FormDataPage from "@/features/data/page"
 
 const SUPPORTED_LANGUAGES = ["en", "es"]
 const DEFAULT_LANGUAGE = "es"
@@ -85,6 +86,7 @@ export function AppRouter() {
             <Route path="forms" element={<FormPage />} />
             <Route path="forms/blank" element={<FormBuilderPage/>} />
             <Route path="forms/form-entry" element={<FormEntryPage/>} />
+            <Route path="forms/data" element={<FormDataPage/>}/>
             <Route path="forms/mobile-forms" element={<MobileFormsPage/>} />
             <Route path="forms/edit/:id" element={<FormBuilderEditPage/>} />
 

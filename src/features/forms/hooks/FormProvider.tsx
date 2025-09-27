@@ -2,7 +2,7 @@ import { type ReactNode, useEffect, useState } from "react";
 import type { FormType } from "../types/FormType";
 import { FormsContext } from "./FormsContext";
 import { useQuery } from "@tanstack/react-query";
-import { getForms } from "../services/getForms";
+import { getForms } from "../../../shared/api/getForms";
 
 export const FormsProvider = ({ children }: { children: ReactNode }) => {
   const [params, setParams] = useState({
@@ -14,7 +14,6 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
 
   const [forms, setForms] = useState<FormType[]>([]);
 
-  // 1. Traemos datos de la API al inicio
   const { data, isLoading, isError } = useQuery<FormType[]>({
     queryKey: ["forms"],
     queryFn: getForms,
@@ -22,13 +21,11 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (data) {
-      console.log(data)
       localStorage.setItem("forms", JSON.stringify(data));
       setForms(data);
     }
   }, [data]);
 
-  // 3. Filtrado local en base a params
   useEffect(() => {
     const storedForms: FormType[] = JSON.parse(localStorage.getItem("forms") || "[]");
 
@@ -49,15 +46,7 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
     setForms(filteredForms);
   }, [params]);
 
-  // 4. Acciones locales
-  const removeForm = (id: number) => {
-    setForms((prev) => {
-      const updated = prev.filter((f) => f.id !== id);
-      localStorage.setItem("forms", JSON.stringify(updated));
-      return updated;
-    });
-  };
-
+  
   const updateForm = (form: FormType) => {
     setForms((prev) =>
       prev.map((f) => (f.id === form.id ? { ...f, ...form } : f))
@@ -99,7 +88,6 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         isError,
         setParams,
-        removeForm,
         updateForm,
         duplicateForm,
       }}

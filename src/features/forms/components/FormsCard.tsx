@@ -25,16 +25,30 @@ import { Badge } from "@/shared/components/ui/badge";
 import type { FormType } from "../types/FormType";
 import type { FormCardsProps } from "../types/FormCardsTypes";
 import { useMyForms } from "../hooks/useMyForm";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate, useParams } from "react-router-dom";
 import { ConfirmModal } from "@/shared/components/ConfirmModal";
 import { useState } from "react";
+import { useFormMutation } from "@/shared/hooks/useFormMutation";
+import { deleteForm } from "../services/deleteForm";
+import { getForm } from "../services/getForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const FormCards = ({ forms }: FormCardsProps) => {
-  const { getStatusLabel, getStatusColor, removeForm, duplicateForm } =
-    useMyForms();
+  const { getStatusLabel, getStatusColor, duplicateForm } = useMyForms();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { lang } = useParams<{ lang: string }>();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedFormId, setSelectedFormId] = useState<number | null>(null);
+  const deleteMutation = useFormMutation(deleteForm, lang!);
+
+  const handlePrefetch = (id: number) => {
+    queryClient.prefetchQuery({
+      queryKey: ["form", id],
+      queryFn: () => getForm(id),
+      staleTime: 1000 * 60 * 5,
+    });
+  };
 
   const handleDeleteClick = (id: number) => {
     setSelectedFormId(id);
@@ -42,80 +56,89 @@ export const FormCards = ({ forms }: FormCardsProps) => {
   };
 
   const handleConfirmDelete = () => {
-    if (selectedFormId !== null) removeForm(selectedFormId);
+    if (selectedFormId !== null) {
+      deleteMutation.mutate(selectedFormId);
+    }
   };
 
   return (
     <>
-      {forms.length > 0 && forms?.map((form: FormType) => (
-        <Card key={form.id} className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1 flex-1">
-                <CardTitle className="text-lg leading-tight">
-                  {form.title}
-                </CardTitle>
-                <CardDescription className="text-sm line-clamp-2">
-                  {form.description}
-                </CardDescription>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => navigate(`edit/${form.id}`)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar
-                  </DropdownMenuItem>
-                  {/* <DropdownMenuItem>
+      {forms.length > 0 &&
+        forms?.map((form: FormType) => (
+          <Card
+            key={form.id}
+            className="hover:shadow-md transition-shadow"
+            onMouseEnter={() => handlePrefetch(form.id)}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1 flex-1">
+                  <CardTitle className="text-lg leading-tight">
+                    {form.title}
+                  </CardTitle>
+                  <CardDescription className="text-sm line-clamp-2">
+                    {form.description}
+                  </CardDescription>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => navigate(`edit/${form.id}`)}
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Editar
+                    </DropdownMenuItem>
+                    {/* <DropdownMenuItem>
                     <Eye className="mr-2 h-4 w-4" />
                     Vista Previa
                   </DropdownMenuItem> */}
-                  <DropdownMenuItem onClick={() => duplicateForm(form)}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    Duplicar
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleDeleteClick(form.id)}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Eliminar
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            <div className="flex items-center gap-2 pt-2">
-              <Badge
-                variant="secondary"
-                className={getStatusColor(form.status)}
-              >
-                {getStatusLabel(form.status)}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Users className="h-4 w-4" />
-                {form.responses} respuestas
+                    <DropdownMenuItem onClick={() => duplicateForm(form)}>
+                      <Copy className="mr-2 h-4 w-4" />
+                      Duplicar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleDeleteClick(form.id)}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Eliminar
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                {new Date(form.lastModified).toLocaleDateString()}
+              <div className="flex items-center gap-2 pt-2">
+                <Badge
+                  variant="secondary"
+                  className={getStatusColor(form.status)}
+                >
+                  {getStatusLabel(form.status)}
+                </Badge>
               </div>
-            </div>
-          </CardContent>
-          <CardFooter className="pt-0">
-            <Button variant="outline" className="w-full bg-transparent">
-              Continuar
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4" />
+                  {form.responses} respuestas
+                </div>
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4" />
+                  {new Date(form.lastModified).toLocaleDateString()}
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="pt-0">
+              <Button variant="outline" className="w-full bg-transparent">
+                Continuar
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
 
       <ConfirmModal
         isOpen={modalOpen}

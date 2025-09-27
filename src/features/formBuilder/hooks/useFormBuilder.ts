@@ -12,12 +12,15 @@ import {
   type UniqueIdentifier,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { SectionType } from "../types/SectionType";
 import type { ItemType } from "../types/ItemType";
 import type { FormType } from "@/features/forms/types/FormType";
-import { useNavigate, useParams } from "react-router-dom";
-import { FormsContext } from "@/features/forms/hooks/FormsContext";
+import { useParams } from "react-router-dom";
+import { typeMap } from "@/features/forms/types/FormTypeMap";
+import { createForm } from "../services/createForm";
+import { useFormMutation } from "@/shared/hooks/useFormMutation";
+import { useEditForm } from "./useEditForm";
 
 interface FormBuilderInitialValues {
   form?: FormType;
@@ -25,13 +28,11 @@ interface FormBuilderInitialValues {
 }
 
 export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
-  const navigate = useNavigate();
   const { lang } = useParams<{ lang: string }>();
-  const formsContext = useContext(FormsContext);
-  const fetchForms = formsContext?.fetchForms ?? (() => {});
 
   const [history, setHistory] = useState<SectionType[][]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const createMutation = useFormMutation(createForm, lang!);
 
   const [newForm, setNewForm] = useState<FormType>({
     id: Math.floor(Math.random() * 100),
@@ -73,27 +74,201 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     });
   }, [sections]);
 
-  const updateForm = (status: "draft" | "published" = "draft") => {
-    const formToUpdate = { ...newForm, status, sections };
-    const storedForms: FormType[] = JSON.parse(
-      localStorage.getItem("forms") || "[]"
-    );
+  // function buildPayload(original: any, edited: any) {
+  //   const steps_attributes: any[] = [];
 
-    const index = storedForms.findIndex((f) => f.id === formToUpdate.id);
+  //   edited.sections.forEach((editedStep: any, stepIndex: number) => {
+  //     const origStep = original.sections.find(
+  //       (s: any) => s.id === editedStep.id
+  //     );
 
-    if (index !== -1) {
-      storedForms[index] = formToUpdate;
-      localStorage.setItem("forms", JSON.stringify(storedForms));
-      console.log("Formulario actualizado:", storedForms[index]);
-      fetchForms();
-      navigate(`/${lang}/forms`);
-    } else {
-      console.warn(
-        "Formulario no encontrado para actualizar, guardando como nuevo"
+  //     if (!origStep) {
+  //       steps_attributes.push({
+  //         id: editedStep.id,
+  //         title: editedStep.title,
+  //         position: stepIndex + 1,
+  //         sections: [],
+  //         inputs_attributes: (editedStep.items || []).map((ei: any, i: number) => ({
+  //           ...ei,
+  //           position: i + 1,
+  //         })),
+  //       });
+  //     } else {
+  //       const processedInputs: any[] = [];
+
+  //       (editedStep.items || []).forEach((ei: any, i: number) => {
+  //         const origInput = (origStep.items || []).find(
+  //           (oi: any) => oi.id === ei.id
+  //         );
+
+  //         if (!origInput) {
+  //           processedInputs.push({
+  //             ...ei,
+  //             position: i + 1,
+  //           });
+  //         } else {
+  //           processedInputs.push({
+  //             ...ei,
+  //             position: i + 1,
+  //           });
+  //         }
+  //       });
+
+  //       (origStep.items || []).forEach((oi: any, i: number) => {
+  //         if (!(editedStep.items || []).find((ei: any) => ei.id === oi.id)) {
+  //           processedInputs.push({
+  //             ...oi,
+  //             position: i + 1,
+  //             _destroy: 1,
+  //           });
+  //         }
+  //       });
+
+  //       steps_attributes.push({
+  //         id: editedStep.id,
+  //         title: editedStep.title,
+  //         position: stepIndex + 1,
+  //         sections: [],
+  //         inputs_attributes: processedInputs,
+  //       });
+  //     }
+  //   });
+
+  //   original.sections.forEach((origStep: any, i: number) => {
+  //     if (!edited.sections.find((es: any) => es.id === origStep.id)) {
+  //       steps_attributes.push({
+  //         id: origStep.id,
+  //         title: origStep.title,
+  //         position: i + 1,
+  //         _destroy: 1,
+  //         sections: [],
+  //         items: (origStep.items || []).map((oi: any, j: number) => ({
+  //           ...oi,
+  //           position: j + 1,
+  //           _destroy: 1,
+  //         })),
+  //       });
+  //     }
+  //   });
+
+  //   return {
+  //     id: original.id,
+  //     title: original.title,
+  //     steps_attributes,
+  //   };
+  // }
+
+  function buildPayload(original: any, edited: any) {
+    const steps_attributes: any[] = [];
+
+    edited.sections.forEach((editedStep: any, stepIndex: number) => {
+      const origStep = original.sections.find(
+        (s: any) => s.id === editedStep.id
       );
-      saveForm(status);
-    }
+
+      const processInput = (input: any, pos: number) => {
+        const {
+          type,
+          required,
+          options,
+          placeholder,
+          minLength,
+          maxLength,
+          ...rest
+        } = input;
+
+        return {
+          ...rest,
+          position: pos + 1,
+          input_config_type: type,
+          input_config_attributes: {
+            required,
+            placeholder,
+            min_length: minLength,
+            max_length: maxLength,
+            options,
+          },
+        };
+      };
+
+      if (!origStep) {
+        steps_attributes.push({
+          id: editedStep.id,
+          title: editedStep.title,
+          position: stepIndex + 1,
+          inputs_attributes: (editedStep.items || []).map(processInput),
+        });
+      } else {
+        const processedInputs: any[] = [];
+
+        (editedStep.items || []).forEach((ei: any, i: number) => {
+          const origInput = (origStep.items || []).find(
+            (oi: any) => oi.id === ei.id
+          );
+
+          if (!origInput) {
+            processedInputs.push(processInput(ei, i));
+          } else {
+            processedInputs.push(processInput(ei, i));
+          }
+        });
+
+        (origStep.items || []).forEach((oi: any, i: number) => {
+          if (!(editedStep.items || []).find((ei: any) => ei.id === oi.id)) {
+            processedInputs.push({
+              ...processInput(oi, i),
+              _destroy: 1,
+            });
+          }
+        });
+
+        steps_attributes.push({
+          id: editedStep.id,
+          title: editedStep.title,
+          position: stepIndex + 1,
+          inputs_attributes: processedInputs,
+        });
+      }
+    });
+
+    original.sections.forEach((origStep: any, i: number) => {
+      if (!edited.sections.find((es: any) => es.id === origStep.id)) {
+        steps_attributes.push({
+          id: origStep.id,
+          title: origStep.title,
+          position: i + 1,
+          _destroy: 1,
+          sections_attributes: [], // 👈 cambio
+          inputs_attributes: (origStep.items || []).map((oi: any, j: number) => ({
+            // ...processInput(oi, j),
+            _destroy: 1,
+          })),
+        });
+      }
+
+    });
+    return {
+      title: original.title,
+      steps_attributes,
+    };
+  }
+
+
+  const { mutate: updateFormMutation, isLoading } = useEditForm();
+
+  const handleUpdateForm = (
+    id: number,
+    status: "draft" | "published",
+    initialForm: FormType
+  ) => {
+    const formToUpdate = { ...newForm, status, sections };
+
+    const formToSend = buildPayload(initialForm, formToUpdate);
+    formToSend.title = formToUpdate.title;
+
+    updateFormMutation({ id, data: { form: formToSend } });
   };
+
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const lastOverId = useRef<UniqueIdentifier | null>(null);
@@ -102,14 +277,10 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   const isSortingContainer =
     activeId != null ? containers.includes(activeId) : false;
 
-  const saveForm = (status: "draft" | "published" = "draft") => {
+  const saveForm = async (status: "draft" | "published" = "draft") => {
     const formToSave = { ...newForm, status, sections };
-    const storedForms = JSON.parse(localStorage.getItem("forms") || "[]");
-    storedForms.push(formToSave);
-    localStorage.setItem("forms", JSON.stringify(storedForms));
-    console.log(storedForms);
-    fetchForms();
-    navigate(`/${lang}/forms`);
+    const formToSend = normalizeAndValidateForm(formToSave);
+    createMutation.mutate(formToSend);
   };
 
   const sensors = useSensors(
@@ -424,6 +595,150 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     }
   };
 
+  const normalizeFormForBackend = (form: FormType) => {
+    const keepIdIfNumber = (id: unknown) =>
+      typeof id === "number" ? { id } : {};
+
+    return {
+      form: {
+        ...(typeof form.id === "number" ? { id: form.id } : {}),
+        title: form.title,
+        steps_attributes: (form.sections ?? []).reduce<Record<string, unknown>>(
+          (stepsAcc, section: SectionType, sectionIndex) => {
+            stepsAcc[sectionIndex] = {
+              ...keepIdIfNumber(section.id),
+              title: section.title,
+              position: sectionIndex + 1,
+              inputs_attributes: section.items.reduce<Record<string, unknown>>(
+                (inputsAcc, item: ItemType, itemIndex) => {
+                  inputsAcc[itemIndex] = {
+                    ...keepIdIfNumber(item.id),
+                    label: item.label,
+                    name: item.id, 
+                    position: itemIndex + 1,
+                    input_config_type: typeMap[item.type] ?? item.type,
+                    input_config_attributes: buildAttributes(item),
+                  };
+                  return inputsAcc;
+                },
+                {}
+              ),
+            };
+            return stepsAcc;
+          },
+          {}
+        ),
+      },
+    };
+  };
+
+  const buildAttributes = (item: ItemType) => {
+    const baseAttributes: Record<string, any> = {
+      required: item.required ?? false,
+    };
+
+    switch (item.type) {
+      case "text":
+        return {
+          ...baseAttributes,
+          // placeholder:
+          //   item.placeholder || `Ingrese ${item.label.toLowerCase()}`,
+          // min_length: item.minLength || undefined,
+          // max_length: item.maxLength || 255,
+        };
+
+      case "select":
+        return {
+          ...baseAttributes,
+          options: (item.options || []).map((option) => ({
+            id: option.id,
+            name: option.label, // 👈 corregido
+          })), // ✅ CRÍTICO: Asegurar que siempre haya opciones
+          // include_blank: item.placeholder || "Seleccione una opción",
+          // searchable: item.searchable ?? false,
+        };
+
+      case "radio":
+        return {
+          ...baseAttributes,
+          options: item.options || [],
+        };
+
+      case "checkbox":
+        return {
+          ...baseAttributes,
+          options: item.options || [],
+          // inline: item.inline ?? false,
+          // select_all: item.selectAll ?? false,
+          // min_selections: item.minSelections || undefined,
+          // max_selections: item.maxSelections || undefined,
+        };
+
+      case "number":
+        return {
+          ...baseAttributes,
+          // min: item.min || undefined,
+          // max: item.max || undefined,
+          // step: item.step || 1,
+          // default_value: item.defaultValue?.toString() || undefined,
+        };
+
+      case "date":
+      case "datetime":
+      case "time":
+        return {
+          ...baseAttributes,
+          field_type: item.type,
+        };
+
+      case "signature":
+        return {
+          ...baseAttributes,
+        };
+
+      case "file":
+        return {
+          ...baseAttributes,
+          // accept: item.accept || undefined,
+          // max_size: item.maxSize || undefined,
+        };
+
+      default:
+        return baseAttributes;
+    }
+  };
+
+  const normalizeAndValidateForm = (form: FormType) => {
+    if (!form.sections || form.sections.length === 0) {
+      throw new Error("El formulario debe tener al menos una sección");
+    }
+
+    form.sections.forEach((section, index) => {
+      if (!section.items || section.items.length === 0) {
+        throw new Error(`La sección ${index + 1} debe tener al menos un campo`);
+      }
+
+      section.items.forEach((item) => {
+        if (
+          (item.type === "select" ||
+            item.type === "radio" ||
+            item.type === "checkbox") &&
+          (!item.options || item.options.length === 0)
+        ) {
+          console.warn(
+            `⚠️ Campo "${item.label}" de tipo ${item.type} no tiene opciones definidas`
+          );
+          item.options = [
+            { id: 1, name: "Opción 1" },
+            { id: 2, name: "Opción 2" },
+          ];
+        }
+      });
+    });
+
+    return normalizeFormForBackend(form);
+  };
+
   return {
     containers,
     sections,
@@ -436,9 +751,10 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     removeItem,
     addSection,
     saveForm,
-    updateForm,
+    handleUpdateForm,
     undo,
     redo,
+    normalizeFormForBackend,
     removeSection,
     updateSection,
     handleDragEnd,

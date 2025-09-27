@@ -33,7 +33,7 @@ export function LoginForm({
   const mutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      setAuth(data.data.token, "Nombre prueba");
+      setAuth(data.data.token, {name: "Nombre prueba", email: "example@gmail.com"});
       navigate(`/${lang}/`);
     },
     onError: (error: unknown) => {

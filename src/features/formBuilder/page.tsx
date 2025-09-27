@@ -39,7 +39,6 @@ export default function Page() {
     newForm,
     setNewForm,
     saveForm,
-    // selectedSectionId,
     addSection,
     isSortingContainer,
     removeSection,

@@ -23,21 +23,26 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { Switch } from "@/shared/components/ui/switch";
 import { useParams } from "react-router-dom";
 import type { FormType } from "../forms/types/FormType";
+import { useQuery } from "@tanstack/react-query";
+import { getForm } from "../forms/services/getForm";
+import { denormalizeFormFromBackend } from "@/shared/lib/denormalizedForm";
 
 export default function FormBuilderEditPage() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
   const { id } = useParams<{ id: string }>();
   const [formData, setFormData] = useState<FormType | null>(null);
 
-  useEffect(() => {
-    const storedForms = localStorage.getItem("forms");
-    if (storedForms) {
-      const forms: FormType[] = JSON.parse(storedForms);
-      const form = forms.find((f) => f.id.toString() === id);
-      if (form) setFormData(form);
-    }
-    console.log(formData)
-  }, [id]);
+  const formId = id ? parseInt(id, 10) : undefined;
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["form", formId],
+    queryFn: () => {
+      console.log("🚀 Haciendo petición para form:", formId);
+      return getForm(formId!);
+    },
+    enabled: !!formId && !isNaN(formId),
+    staleTime: 1000 * 60 * 5,
+  });
 
   const {
     sensors,
@@ -53,7 +58,7 @@ export default function FormBuilderEditPage() {
     undo,
     redo,
     setNewForm,
-    updateForm,
+    handleUpdateForm,
     addSection,
     isSortingContainer,
     removeSection,
@@ -64,10 +69,26 @@ export default function FormBuilderEditPage() {
     form: formData ?? undefined,
     sections: formData?.sections ?? undefined,
   });
+
   const { active } = useDndContext();
 
+  useEffect(() => {
+    if (!data) return;
 
-  if (!formData) return <p>Cargando...</p>;
+    const payload = data.data ?? data;
+    const denormalizedForm = denormalizeFormFromBackend(payload);
+    setFormData(denormalizedForm);
+  }, [data]);
+
+  if (!formId || isNaN(formId)) {
+    return <p>ID de formulario inválido</p>;
+  }
+
+  if (isLoading) return <p>Cargando...</p>;
+
+  if (error) return <p>Error al cargar el formulario</p>;
+
+  if (!formData) return <p>Cargando datos del formulario...</p>;
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
@@ -98,7 +119,7 @@ export default function FormBuilderEditPage() {
             <Redo className="h-4 w-4" />
           </Button>
           <Button
-            onClick={() => updateForm("published")}
+            onClick={() => handleUpdateForm(formId,"published", formData)}
             disabled={newForm.status == "published"}
             className={
               newForm.status == "published"
@@ -118,7 +139,7 @@ export default function FormBuilderEditPage() {
               </>
             )}
           </Button>
-          <Button onClick={() => updateForm()}>Guardar Formulario</Button>
+          <Button onClick={() => handleUpdateForm(formId,"draft", formData)}>Guardar Formulario</Button>
         </div>
       </div>
 

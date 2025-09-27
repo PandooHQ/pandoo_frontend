@@ -12,7 +12,7 @@ export default function FormPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
       <div className="flex items-center justify-between flex-col lg:flex-row">
-        <div>
+        <div> 
           <h1 className="text-2xl font-semibold tracking-tight">
             Mis Formularios
           </h1>

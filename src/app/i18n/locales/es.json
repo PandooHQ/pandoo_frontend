@@ -38,5 +38,28 @@
   "mobile_forms":{
     "completed": "Completado",
     "in_progress": "En curso"
+  },
+  "form_data":{
+    "title": "Envíos de Formularios",
+    "subtitle": "Ver y administrar datos de tus formularios",
+    "export": "Exportar datos",
+    "filters": {
+      "from": "Desde:",
+      "to": "Hasta:"
+    },
+    "metrics": {
+      "total_submissions": {
+        "title": "Envíos Totales",
+        "subtitle": "Para este formulario"
+      },
+      "active_users": {
+        "title": "Usuarios Activos",
+        "subtitle": "Usuarios con envíos"
+      },
+      "completion_rate": {
+        "title": "Tasa de Finalización",
+        "subtitle": "Formularios completados exitosamente"
+      }
+    }
   }
 }
