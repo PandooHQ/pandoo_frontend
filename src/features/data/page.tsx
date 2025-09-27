@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Card,
   CardContent,
@@ -28,7 +29,7 @@ import {
   Signature,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState} from "react";
 import { getForms } from "@/shared/api/getForms";
 import { getFormResponses } from "./services/getFormResponses";
 import { exportData } from "./services/exportData";
@@ -60,7 +61,7 @@ export default function FormDataPage() {
 
   const filteredSubmissions = useMemo(() => {
     if (!formResponses?.submissions) return [];
-    return formResponses.submissions.filter((s) => {
+    return formResponses.submissions.filter((s: { created_at: string | number | Date; }) => {
       const createdAt = new Date(s.created_at);
       const afterStart = startDate ? createdAt >= new Date(startDate) : true;
       const beforeEnd = endDate ? createdAt <= new Date(endDate) : true;
@@ -208,7 +209,7 @@ export default function FormDataPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredSubmissions.map((s) => (
+                {filteredSubmissions.map((s: { id: number; user: { email: string }; created_at: string | number | Date; updated_at: string | number | Date; answers: any[]; }) => (
                   <TableRow key={s.id} className="hover:bg-muted/50">
                     <TableCell>{s.id}</TableCell>
                     <TableCell>{s.user.email}</TableCell>
