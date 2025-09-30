@@ -39,7 +39,7 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
 
     if (params.status) {
       filteredForms = filteredForms.filter((form) =>
-        form.status.toLowerCase().includes(params.status.toLowerCase())
+        form?.status?.toLowerCase().includes(params.status.toLowerCase())
       );
     }
 

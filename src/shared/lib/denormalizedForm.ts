@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ItemType } from "@/features/formBuilder/types/ItemType";
 import type { SectionType } from "@/features/formBuilder/types/SectionType";
 import type { Form } from "@/features/forms/types/FormNormalized";
-import type { FormType } from "@/features/forms/types/FormType";
 
-export const denormalizeFormFromBackend = (backendForm: Form): FormType => {
+export const denormalizeFormFromBackend = (backendForm: Form) => {
   return {
     id: backendForm.id!,
     title: backendForm.title,
+    status: backendForm.status,
+    description: backendForm.description,
     sections: (backendForm.steps || []).map(
       (step: any): SectionType => ({
         id: step.id,

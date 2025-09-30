@@ -56,22 +56,9 @@ const data = {
     },
     {
       titleKey: "menu.roles_and_permisions.title",
-      url: "#",
+      url: "/roles",
       icon: Shield,
-      items: [
-        {
-          titleKey: "menu.roles_and_permisions.submenu.roles_overview",
-          url: "/roles/overview",
-        },
-        {
-          titleKey: "menu.roles_and_permisions.submenu.permission_matrix",
-          url: "/roles/permissions",
-        },
-        {
-          titleKey: "menu.roles_and_permisions.submenu.role_assignments",
-          url: "/roles/assignments",
-        },
-      ],
+      items: [],
     },
   ],
 };

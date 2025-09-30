@@ -119,7 +119,7 @@ export default function FormBuilderEditPage() {
             <Redo className="h-4 w-4" />
           </Button>
           <Button
-            onClick={() => handleUpdateForm(formId,"published", formData)}
+            onClick={() => handleUpdateForm("published", formData)}
             disabled={newForm.status == "published"}
             className={
               newForm.status == "published"
@@ -139,7 +139,7 @@ export default function FormBuilderEditPage() {
               </>
             )}
           </Button>
-          <Button onClick={() => handleUpdateForm(formId,"draft", formData)}>Guardar Formulario</Button>
+          <Button onClick={() => handleUpdateForm("draft", formData)}>Guardar Formulario</Button>
         </div>
       </div>
 

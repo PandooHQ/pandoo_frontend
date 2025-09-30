@@ -58,9 +58,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
 
   useEffect(() => {
     setHistory((prev) => {
-      // Si se hizo undo y luego se realiza una nueva acción, eliminamos los futuros:
       const newHistory = prev.slice(0, historyIndex + 1);
-      // Solo agregamos si el último estado es distinto del actual
       if (
         newHistory.length === 0 ||
         JSON.stringify(newHistory[newHistory.length - 1]) !==
@@ -73,90 +71,6 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       return prev;
     });
   }, [sections]);
-
-  // function buildPayload(original: any, edited: any) {
-  //   const steps_attributes: any[] = [];
-
-  //   edited.sections.forEach((editedStep: any, stepIndex: number) => {
-  //     const origStep = original.sections.find(
-  //       (s: any) => s.id === editedStep.id
-  //     );
-
-  //     if (!origStep) {
-  //       steps_attributes.push({
-  //         id: editedStep.id,
-  //         title: editedStep.title,
-  //         position: stepIndex + 1,
-  //         sections: [],
-  //         inputs_attributes: (editedStep.items || []).map((ei: any, i: number) => ({
-  //           ...ei,
-  //           position: i + 1,
-  //         })),
-  //       });
-  //     } else {
-  //       const processedInputs: any[] = [];
-
-  //       (editedStep.items || []).forEach((ei: any, i: number) => {
-  //         const origInput = (origStep.items || []).find(
-  //           (oi: any) => oi.id === ei.id
-  //         );
-
-  //         if (!origInput) {
-  //           processedInputs.push({
-  //             ...ei,
-  //             position: i + 1,
-  //           });
-  //         } else {
-  //           processedInputs.push({
-  //             ...ei,
-  //             position: i + 1,
-  //           });
-  //         }
-  //       });
-
-  //       (origStep.items || []).forEach((oi: any, i: number) => {
-  //         if (!(editedStep.items || []).find((ei: any) => ei.id === oi.id)) {
-  //           processedInputs.push({
-  //             ...oi,
-  //             position: i + 1,
-  //             _destroy: 1,
-  //           });
-  //         }
-  //       });
-
-  //       steps_attributes.push({
-  //         id: editedStep.id,
-  //         title: editedStep.title,
-  //         position: stepIndex + 1,
-  //         sections: [],
-  //         inputs_attributes: processedInputs,
-  //       });
-  //     }
-  //   });
-
-  //   original.sections.forEach((origStep: any, i: number) => {
-  //     if (!edited.sections.find((es: any) => es.id === origStep.id)) {
-  //       steps_attributes.push({
-  //         id: origStep.id,
-  //         title: origStep.title,
-  //         position: i + 1,
-  //         _destroy: 1,
-  //         sections: [],
-  //         items: (origStep.items || []).map((oi: any, j: number) => ({
-  //           ...oi,
-  //           position: j + 1,
-  //           _destroy: 1,
-  //         })),
-  //       });
-  //     }
-  //   });
-
-  //   return {
-  //     id: original.id,
-  //     title: original.title,
-  //     steps_attributes,
-  //   };
-  // }
 
   function buildPayload(original: any, edited: any) {
     const steps_attributes: any[] = [];
@@ -238,8 +152,8 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
           title: origStep.title,
           position: i + 1,
           _destroy: 1,
-          sections_attributes: [], // 👈 cambio
-          inputs_attributes: (origStep.items || []).map((oi: any, j: number) => ({
+          sections_attributes: [],
+          inputs_attributes: (origStep.items || []).map(() => ({
             // ...processInput(oi, j),
             _destroy: 1,
           })),
@@ -249,15 +163,15 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     });
     return {
       title: original.title,
+      status: original.status,
+      description: original.description,
       steps_attributes,
     };
   }
 
-
-  const { mutate: updateFormMutation, isLoading } = useEditForm();
+  const { mutate: updateFormMutation } = useEditForm();
 
   const handleUpdateForm = (
-    id: number,
     status: "draft" | "published",
     initialForm: FormType
   ) => {
@@ -265,8 +179,10 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
 
     const formToSend = buildPayload(initialForm, formToUpdate);
     formToSend.title = formToUpdate.title;
+    formToSend.description = formToUpdate.description;
+    formToSend.status = status;
 
-    updateFormMutation({ id, data: { form: formToSend } });
+    updateFormMutation({ form: formToSend });
   };
 
 
@@ -603,6 +519,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       form: {
         ...(typeof form.id === "number" ? { id: form.id } : {}),
         title: form.title,
+        description: form.description,
         steps_attributes: (form.sections ?? []).reduce<Record<string, unknown>>(
           (stepsAcc, section: SectionType, sectionIndex) => {
             stepsAcc[sectionIndex] = {

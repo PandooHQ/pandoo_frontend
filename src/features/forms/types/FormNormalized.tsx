@@ -9,6 +9,8 @@ interface Step {
 export interface Form {
   id?: number;
   title: string;
+  description?: string;
   steps_attributes: Step[];
   steps?: Step[]
+  status?: "draft" | "published"
 }

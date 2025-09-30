@@ -114,9 +114,9 @@ export const FormCards = ({ forms }: FormCardsProps) => {
               <div className="flex items-center gap-2 pt-2">
                 <Badge
                   variant="secondary"
-                  className={getStatusColor(form.status)}
+                  className={getStatusColor(form.status!)}
                 >
-                  {getStatusLabel(form.status)}
+                  {getStatusLabel(form.status!)}
                 </Badge>
               </div>
             </CardHeader>
@@ -124,11 +124,11 @@ export const FormCards = ({ forms }: FormCardsProps) => {
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Users className="h-4 w-4" />
-                  {form.responses} respuestas
+                  {form.responses || 0} respuestas
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  {new Date(form.lastModified).toLocaleDateString()}
+                  {new Date(form.createdAt!).toLocaleDateString()}
                 </div>
               </div>
             </CardContent>

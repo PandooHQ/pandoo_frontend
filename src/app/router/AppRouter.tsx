@@ -16,6 +16,10 @@ import FormBuilderEditPage from "@/features/formBuilder/pageEdit"
 import MobileFormsPage from "@/features/mobileForms/page"
 import FormEntryPage from "@/features/formEntry/page"
 import FormDataPage from "@/features/data/page"
+import RolesPage from "@/features/roles/page"
+import EditRolePage from "@/features/roles/edit/page"
+import ManageUsersPage from "@/features/roles/manageUsers/page"
+import ConfigureRolePage from "@/features/roles/configure/page"
 
 const SUPPORTED_LANGUAGES = ["en", "es"]
 const DEFAULT_LANGUAGE = "es"
@@ -82,6 +86,11 @@ export function AppRouter() {
             <Route path="" element={<HomePage />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="settings" element={<SettingsPage />} />
+           
+            <Route path="roles" element={<RolesPage />} />
+            <Route path="roles/edit/:id" element={<EditRolePage />} />
+            <Route path="roles/manage-users/:id" element={<ManageUsersPage />} />
+            <Route path="roles/configure/:name" element={<ConfigureRolePage />} />
 
             <Route path="forms" element={<FormPage />} />
             <Route path="forms/blank" element={<FormBuilderPage/>} />
