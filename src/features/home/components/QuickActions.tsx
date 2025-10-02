@@ -61,7 +61,7 @@ export default function QuickActions() {
               </Button>
             </Link>
 
-            <Link to="dashboard">
+            <Link to="forms/data">
               <Button
                 variant="outline"
                 className="h-auto p-4 flex flex-col items-center gap-2 w-full hover:bg-orange-50 hover:border-orange-200 bg-transparent"

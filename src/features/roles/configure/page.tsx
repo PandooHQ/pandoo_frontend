@@ -15,16 +15,19 @@ const mockPermissions: PermissionType[] = [
     id: "read",
     name: "Ver",
     description: "Puede ver formularios y datos",
+    enabled: false,
   },
   {
     id: "create",
     name: "Completar",
     description: "Puede llenar formularios",
+    enabled: false,
   },
   {
     id: "update",
     name: "Actualizar",
     description: "Puede actualizar formularios",
+    enabled: false,
   },
 ];
 
@@ -51,14 +54,14 @@ export default function ConfigureRolePage() {
       user?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDepartment =
-      departmentFilter === "all" || user?.department === departmentFilter;
+      departmentFilter === "all" || user?.department?.name === departmentFilter;
     const matchesJobTitle =
-      jobTitleFilter === "all" || user?.position === jobTitleFilter;
+      jobTitleFilter === "all" || user?.position?.name === jobTitleFilter;
     return matchesSearch && matchesDepartment && matchesJobTitle;
   });
 
-  const departments = [...new Set(users.map((user) => user?.department))];
-  const jobTitles = [...new Set(users.map((user) => user?.position))];
+  const departments = [...new Set(users.map((user) => user?.department?.name))];
+  const jobTitles = [...new Set(users.map((user) => user?.position?.name))];
 
   const handlePermissionSelect = (permissionId: string, checked: boolean) => {
     if (checked) {
@@ -109,9 +112,7 @@ export default function ConfigureRolePage() {
       );
 
       toast.success(`Rol "${roleDescription}" configurado con permisos`);
-
-      console.log("Usuarios asignados:", selectedUsers);
-
+      
       setTimeout(() => {
         router(`/${lang}/roles`);
       }, 1500);

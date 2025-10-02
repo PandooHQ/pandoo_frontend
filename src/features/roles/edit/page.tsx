@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -12,73 +12,98 @@ import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Save, Shield } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useRole } from "../hooks/useRole";
 
-const mockPermissions = [
-  { id: "view", name: "Ver", description: "Puede ver formularios y datos" },
+// 🔹 Esta lista debería venir de un endpoint, pero la hardcodeamos aquí por ahora
+const allPermissions = [
   {
-    id: "create",
-    name: "Crear",
-    description: "Puede crear nuevos formularios",
-  },
-  { id: "delete", name: "Eliminar", description: "Puede eliminar formularios" },
-  {
-    id: "complete",
-    name: "Completar",
-    description: "Puede llenar formularios",
+    subject: "User",
+    actions: ["assign_roles", "manage", "create", "read", "update", "destroy"],
   },
   {
-    id: "manage_users",
-    name: "Gestionar Usuarios",
-    description: "Puede gestionar cuentas de usuario",
+    subject: "Form",
+    actions: [
+      "publish",
+      "unpublish",
+      "duplicate",
+      "manage",
+      "create",
+      "read",
+      "update",
+      "destroy",
+    ],
   },
   {
-    id: "view_reports",
-    name: "Ver Reportes",
-    description: "Puede acceder a reportes y análisis",
+    subject: "FormResponse",
+    actions: ["manage", "create", "read", "update", "destroy"],
+  },
+  {
+    subject: "Role",
+    actions: ["manage", "create", "read", "update", "destroy"],
+  },
+  {
+    subject: "Permission",
+    actions: ["manage", "create", "read", "update", "destroy"],
   },
 ];
 
-const mockRole = {
-  id: 1,
-  name: "Administrator",
-  description: "Full system access and management capabilities",
-  permissions: [
-    "view",
-    "create",
-    "edit",
-    "delete",
-    "manage_users",
-    "view_reports",
-  ],
-};
-
 export default function EditRolePage() {
   const router = useNavigate();
-  // const params = useParams()
-  const [role, setRole] = useState(mockRole);
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>(
-    mockRole.permissions
-  );
+  const { id } = useParams<{ id: string }>();
+  const { data: roleData } = useRole(Number(id) || 0);
 
-  const handlePermissionChange = (permissionId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedPermissions([...selectedPermissions, permissionId]);
-    } else {
-      setSelectedPermissions(
-        selectedPermissions.filter((id) => id !== permissionId)
+  const [role, setRole] = useState({
+    id: 0,
+    name: "",
+    description: "",
+    permissions: [] as { subject_class: string; action: string; description: string }[],
+  });
+
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (roleData) {
+      setRole({
+        id: roleData.id,
+        name: roleData.name,
+        description: roleData.description,
+        permissions: roleData.permissions ? roleData.permissions.map(p => ({
+          subject_class: p.subject_class,
+          action: p.action,
+          description: p.description ?? ""
+        })) : [],
+      });
+
+      const initialSelected = (roleData.permissions ?? []).map(
+        (p) => `${p.subject_class}:${p.action}`
       );
+      setSelectedPermissions(initialSelected);
+    }
+  }, [roleData]);
+
+  const handlePermissionChange = (subject: string, action: string, checked: boolean) => {
+    const key = `${subject}:${action}`;
+    if (checked) {
+      setSelectedPermissions([...selectedPermissions, key]);
+    } else {
+      setSelectedPermissions(selectedPermissions.filter((p) => p !== key));
     }
   };
 
   const handleSave = () => {
-    // In a real app, you would save the changes to the backend here
-    console.log("Saving role:", { ...role, permissions: selectedPermissions });
+    console.log("Saving role:", {
+      ...role,
+      permissions: selectedPermissions.map((perm) => {
+        const [subject_class, action] = perm.split(":");
+        return { subject_class, action };
+      }),
+    });
     router("/roles");
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-8 pt-0">    
+    <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -130,30 +155,56 @@ export default function EditRolePage() {
           <CardHeader>
             <CardTitle>Permisos del Rol</CardTitle>
             <CardDescription>
-              Selecciona los permisos para este rol
+              Selecciona los permisos agrupados por entidad
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {mockPermissions.map((permission) => (
-                <div key={permission.id} className="flex items-start space-x-3">
-                  <Checkbox
-                    id={permission.id}
-                    checked={selectedPermissions.includes(permission.id)}
-                    onCheckedChange={(checked) =>
-                      handlePermissionChange(permission.id, checked as boolean)
-                    }
-                  />
-                  <div className="grid gap-1.5 leading-none">
-                    <label
-                      htmlFor={permission.id}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      {permission.name}
-                    </label>
-                    <p className="text-xs text-muted-foreground">
-                      {permission.description}
-                    </p>
+            <div className="space-y-6">
+              {allPermissions.map((group) => (
+                <div key={group.subject}>
+                  <h3 className="font-semibold text-lg mb-2">
+                    {group.subject}
+                  </h3>
+                  <div className="space-y-2">
+                    {group.actions.map((action) => {
+                      const key = `${group.subject}:${action}`;
+                      const assignedPermission = role.permissions.find(
+                        (p) =>
+                          p.subject_class === group.subject &&
+                          p.action === action
+                      );
+                      return (
+                        <div
+                          key={key}
+                          className="flex items-start space-x-3"
+                        >
+                          <Checkbox
+                            id={key}
+                            checked={selectedPermissions.includes(key)}
+                            onCheckedChange={(checked) =>
+                              handlePermissionChange(
+                                group.subject,
+                                action,
+                                checked as boolean
+                              )
+                            }
+                          />
+                          <div className="grid gap-1.5 leading-none">
+                            <label
+                              htmlFor={key}
+                              className="text-sm font-medium leading-none"
+                            >
+                              {action}
+                            </label>
+                            <p className="text-xs text-muted-foreground">
+                              {assignedPermission
+                                ? assignedPermission.description
+                                : `Permiso para ${action} ${group.subject}`}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

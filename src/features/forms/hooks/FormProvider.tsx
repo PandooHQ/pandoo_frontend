@@ -21,7 +21,6 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (data) {
-      localStorage.setItem("forms", JSON.stringify(data));
       setForms(data);
     }
   }, [data]);

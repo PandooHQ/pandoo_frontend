@@ -1,5 +1,4 @@
 import {
-  LayoutDashboard,
   NotebookPen,
   NotebookText,
   Database,
@@ -16,12 +15,6 @@ const data = {
       url: "/",
       items: [],
       icon: House,
-    },
-    {
-      titleKey: "menu.dashboard",
-      url: "/dashboard",
-      items: [],
-      icon: LayoutDashboard,
     },
     {
       titleKey: "menu.create_form",

@@ -1,6 +1,10 @@
+import type { Department } from "./DepartmentsContextType";
+import type { Position } from "./PositionsContextType";
+
 export interface UsersContextType {
     users: User[];
     updateUser: (userData: UpdateUserInput) => Promise<User>;
+    createUser: (userData: CreateUserInput) => Promise<User>;
 }
 
 export interface User {
@@ -12,8 +16,23 @@ export interface User {
     first_name: string;
     last_name:  string;
     role?:      Role;
-    department: string;
-    position:   string;
+    department: Department;
+    position:   Position;
+    profile_picture?: File;
+    phone?:     string;
+    location?:  string;
+    department_id?: string;
+    position_id?: string
+}
+
+export interface CreateUserInput {
+    email:      string;
+    first_name: string;
+    last_name:  string;
+    department_id: number | string;
+    position_id:   number | string;
+    phone?:     string;
+    location?:  string;
 }
 
 export interface Role {
@@ -23,6 +42,7 @@ export interface Role {
     created_at:  Date;
     updated_at:  Date;
 }
+
 
 export type UpdateUserInput = Partial<
   Omit<User, "id">

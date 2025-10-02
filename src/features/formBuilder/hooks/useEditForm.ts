@@ -19,7 +19,9 @@ export const useEditForm = () => {
     },
 
     onSuccess: () => {
+      console.log("aqui")
       queryClient.invalidateQueries({ queryKey: ["forms"] });
+      queryClient.invalidateQueries({ queryKey: ["forms", `${id}`] });
 
       navigate(`/${lang}/forms`);
     },

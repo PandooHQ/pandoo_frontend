@@ -8,18 +8,45 @@ interface PrivateRouteProps {
 }
 
 export function PrivateRoute({ children }: PrivateRouteProps) {
-  const { token } = useAuthStore();
+  const { token, user, fetchProfile, clearAuth, shouldVerifySession } = useAuthStore();
   const { lang } = useParams<{ lang: string }>();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    const checkProfile = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      if (!user || shouldVerifySession()) {
+        console.log("Verificando sesión con el servidor...");
+        try {
+          const result = await fetchProfile();
+          
+          if (!result.authenticated) {
+            console.log("Sesión expirada, limpiando autenticación");
+            clearAuth();
+          }
+        } catch (e) {
+          console.error("Error al verificar sesión:", e);
+          clearAuth();
+        }
+      } else {
+        console.log("Sesión válida en cache, no es necesario verificar");
+      }
+      
+      setLoading(false);
+    };
+    
+    checkProfile();
+  }, [token, user, fetchProfile, clearAuth, shouldVerifySession]);
 
   if (loading) return <LoadingScreen />;
 
-  if (!token) return <Navigate to={`/${lang ?? "es"}/login`} replace />;
+  if (!token || !user) {
+    return <Navigate to={`/${lang ?? "es"}/login`} replace />;
+  }
 
   return <>{children}</>;
 }

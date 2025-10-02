@@ -25,7 +25,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import type { FormType } from "../types/FormType";
 import type { FormCardsProps } from "../types/FormCardsTypes";
 import { useMyForms } from "../hooks/useMyForm";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ConfirmModal } from "@/shared/components/ConfirmModal";
 import { useState } from "react";
 import { useFormMutation } from "@/shared/hooks/useFormMutation";
@@ -37,16 +37,14 @@ export const FormCards = ({ forms }: FormCardsProps) => {
   const { getStatusLabel, getStatusColor, duplicateForm } = useMyForms();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { lang } = useParams<{ lang: string }>();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedFormId, setSelectedFormId] = useState<number | null>(null);
-  const deleteMutation = useFormMutation(deleteForm, lang!);
+  const deleteMutation = useFormMutation(deleteForm);
 
   const handlePrefetch = (id: number) => {
     queryClient.prefetchQuery({
       queryKey: ["form", id],
       queryFn: () => getForm(id),
-      staleTime: 1000 * 60 * 5,
     });
   };
 

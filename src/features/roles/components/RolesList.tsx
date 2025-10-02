@@ -66,8 +66,8 @@ export const RolesList = ({ roles }: Props) => {
     router(`edit/${roleId}`);
   };
 
-  const handleManageUsers = (roleId: number) => {
-    router(`manage-users/${roleId}`);
+  const handleManageUsers = (role: Role) => {
+    router(`manage-users/${role.id}?name=${encodeURIComponent(role.name)}`);
   };
 
   return (
@@ -109,7 +109,7 @@ export const RolesList = ({ roles }: Props) => {
                         Editar Rol
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => handleManageUsers(role.id)}
+                        onClick={() => handleManageUsers(role)}
                       >
                         <UserCheck className="mr-2 h-4 w-4" />
                         Gestionar Usuarios

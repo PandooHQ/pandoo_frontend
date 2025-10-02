@@ -156,10 +156,10 @@ export const UserAssignment = ({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">{user.position}</span>
+                    <span className="text-sm">{user?.position?.name}</span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">{user.department}</span>
+                    <span className="text-sm">{user?.department?.name}</span>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm">{user?.role?.name}</span>

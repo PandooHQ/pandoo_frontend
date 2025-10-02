@@ -10,13 +10,6 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
-import {
   Avatar,
   AvatarFallback,
   AvatarImage,
@@ -32,55 +25,76 @@ import {
   Upload,
 } from "lucide-react";
 
+import { useAuthStore } from "@/shared/stores/auth";
+import { updateUser } from "@/shared/api/updateUser";
+
 export default function SettingsPage() {
+  const { user: userData, updateUser: updateState } = useAuthStore();
+  // const { departments } = useDepartments();
+  // const { positions } = usePositions()
+
+  console.log(userData)
+
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [formData, setFormData] = useState(
+    userData || {
+      id: 0,
+      first_name: "John",
+      last_name: "Doe",
+      email: "",
+      phone: "",
+      position: "",
+      department: "",
+      location: "",
+      status: "Active",
+      profile_picture: "/placeholder.svg",
+      created_at: "",
+    }
+  );
+
   const [isEditing, setIsEditing] = useState(false);
 
-  const [formData, setFormData] = useState({
-    firstName: "Carlos",
-    lastName: "Mendoza",
-    email: "carlos.mendoza@constructoraln.com",
-    phone: "+56 9 8765 4321",
-    position: "Equipment Operator",
-    department: "Operations",
-    status: "active",
-    location: "Santiago, Chile",
-    sendNotifications: true,
-    canCreateForms: false,
-    isAdmin: false,
-  });
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setProfilePicture(e.target.files[0]);
+      setFormData({ ...formData, profile_picture: URL.createObjectURL(e.target.files[0]) });
+    }
 
-  const user = {
-    id: 1,
-    name: `${formData.firstName} ${formData.lastName}`,
-    email: formData.email,
-    phone: formData.phone,
-    position: formData.position,
-    department: formData.department,
-    status: formData.status,
-    joinDate: "2024-03-15",
-    location: formData.location,
-    avatar: "/placeholder-user.png",
   };
 
-  const handleSave = () => {
+  const user = {
+    id: formData?.id,
+    name: `${formData?.first_name} ${formData?.last_name}`,
+    email: formData?.email,
+    phone: formData?.phone || "+56 9 8765 4321",
+    position: formData?.position,
+    department: formData?.department,
+    status: formData?.status,
+    joinDate: formData?.created_at,
+    location: formData?.location,
+    avatar: formData?.profile_picture,
+  };
+
+  const handleSave = async() => {
+    const resp = await updateUser(formData.id, {
+      id: formData.id.toString(),
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      email: formData.email,
+      phone: formData.phone || userData?.phone,
+      position_id: formData.position,
+      department_id: formData.department,
+      location: formData.location,
+      profile_picture: profilePicture || undefined,
+    });
+
+    updateState(resp.data)
     setIsEditing(false);
   };
 
   const handleCancel = () => {
+    setFormData(userData!);
     setIsEditing(false);
-    setFormData({
-      firstName: "Carlos",
-      lastName: "Mendoza",
-      email: "carlos.mendoza@constructoraln.com",
-      phone: "+56 9 8765 4321",
-      position: "Equipment Operator",
-      department: "Operations",
-      status: "active",
-      location: "Santiago, Chile",
-      sendNotifications: true,
-      canCreateForms: false,
-      isAdmin: false,
-    });
   };
 
   return (
@@ -92,9 +106,14 @@ export default function SettingsPage() {
               <div className="relative">
                 <Avatar className="h-16 w-16">
                   <AvatarImage
-                    src={user.avatar || "/placeholder.svg"}
+                    src={
+                      formData.profile_picture instanceof File
+                        ? URL.createObjectURL(formData.profile_picture)
+                        : formData.profile_picture || "/placeholder.svg"
+                    }
                     alt={user.name}
                   />
+
                   <AvatarFallback className="text-lg">
                     {user.name
                       .split(" ")
@@ -103,13 +122,25 @@ export default function SettingsPage() {
                   </AvatarFallback>
                 </Avatar>
                 {isEditing && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="absolute -bottom-2 -right-2 bg-white"
-                  >
-                    <Upload className="h-3 w-3" />
-                  </Button>
+                  <>
+                    <input
+                      type="file"
+                      id="file-upload"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="absolute -bottom-2 -right-2 bg-white"
+                      onClick={() =>
+                        document.getElementById("file-upload")?.click()
+                      }
+                    >
+                      <Upload className="h-3 w-3" />
+                    </Button>
+                  </>
                 )}
               </div>
               <div className="space-y-1 text-center md:text-left">
@@ -161,9 +192,9 @@ export default function SettingsPage() {
                   <Label htmlFor="firstName">Nombre</Label>
                   <Input
                     id="firstName"
-                    value={formData.firstName}
+                    value={formData.first_name!}
                     onChange={(e) =>
-                      setFormData({ ...formData, firstName: e.target.value })
+                      setFormData({ ...formData, first_name: e.target.value })
                     }
                   />
                 </div>
@@ -171,9 +202,9 @@ export default function SettingsPage() {
                   <Label htmlFor="lastName">Apellido</Label>
                   <Input
                     id="lastName"
-                    value={formData.lastName}
+                    value={formData.last_name!}
                     onChange={(e) =>
-                      setFormData({ ...formData, lastName: e.target.value })
+                      setFormData({ ...formData, last_name: e.target.value })
                     }
                   />
                 </div>
@@ -192,7 +223,7 @@ export default function SettingsPage() {
                   <Label htmlFor="phone">Teléfono</Label>
                   <Input
                     id="phone"
-                    value={formData.phone}
+                    value={formData.phone || ""}
                     onChange={(e) =>
                       setFormData({ ...formData, phone: e.target.value })
                     }
@@ -267,15 +298,27 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             {isEditing ? (
               <>
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="position">Cargo</Label>
-                  <Input
-                    id="position"
+                  <Select
                     value={formData.position}
-                    onChange={(e) =>
-                      setFormData({ ...formData, position: e.target.value })
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, position: value })
                     }
-                  />
+                  >
+                    <SelectTrigger className="w-[220px]">
+                      {user.position}
+                    </SelectTrigger>
+                    <SelectContent>
+                      {
+                        positions && positions.map((pos) =>(
+                          <SelectItem key={pos.id} value={pos.id} >
+                            {pos.name}
+                          </SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="department">Departamento</Label>
@@ -285,22 +328,20 @@ export default function SettingsPage() {
                       setFormData({ ...formData, department: value })
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue />
+                    <SelectTrigger className="w-[220px]">
+                      {user.department}
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Operations">Operaciones</SelectItem>
-                      <SelectItem value="Quality Control">
-                        Control de Calidad
-                      </SelectItem>
-                      <SelectItem value="Safety">Seguridad</SelectItem>
-                      <SelectItem value="Maintenance">Mantenimiento</SelectItem>
-                      <SelectItem value="Administration">
-                        Administración
-                      </SelectItem>
+                      {
+                        departments && departments.map((dept) =>(
+                          <SelectItem key={dept.id} value={dept.id} >
+                            {dept.name}
+                          </SelectItem>
+                        ))
+                      }
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
               </>
             ) : (
               <>

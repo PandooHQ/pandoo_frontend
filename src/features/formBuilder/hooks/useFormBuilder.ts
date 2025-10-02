@@ -16,7 +16,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { SectionType } from "../types/SectionType";
 import type { ItemType } from "../types/ItemType";
 import type { FormType } from "@/features/forms/types/FormType";
-import { useParams } from "react-router-dom";
 import { typeMap } from "@/features/forms/types/FormTypeMap";
 import { createForm } from "../services/createForm";
 import { useFormMutation } from "@/shared/hooks/useFormMutation";
@@ -28,11 +27,10 @@ interface FormBuilderInitialValues {
 }
 
 export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
-  const { lang } = useParams<{ lang: string }>();
 
   const [history, setHistory] = useState<SectionType[][]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const createMutation = useFormMutation(createForm, lang!);
+  const createMutation = useFormMutation(createForm);
 
   const [newForm, setNewForm] = useState<FormType>({
     id: Math.floor(Math.random() * 100),

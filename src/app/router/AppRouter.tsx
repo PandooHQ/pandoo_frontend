@@ -5,7 +5,6 @@ import LoginPage from "@/features/login/page"
 import { PublicRoute } from "../providers/PublicRoute"
 import RegisterPage from "@/features/register/page"
 import { PrivateRoute } from "../providers/PrivateRoute"
-import DashboardPage from "@/features/dashboard/page"
 import { PrivateLayout } from "@/shared/components/PrivateLayout"
 import NotFoundPage from "@/shared/components/NotFound"
 import SettingsPage from "@/features/settings/page"
@@ -20,6 +19,7 @@ import RolesPage from "@/features/roles/page"
 import EditRolePage from "@/features/roles/edit/page"
 import ManageUsersPage from "@/features/roles/manageUsers/page"
 import ConfigureRolePage from "@/features/roles/configure/page"
+import PersonnelManagementPage from "@/features/personnel/page"
 
 const SUPPORTED_LANGUAGES = ["en", "es"]
 const DEFAULT_LANGUAGE = "es"
@@ -84,8 +84,8 @@ export function AppRouter() {
             }
           >
             <Route path="" element={<HomePage />} />
-            <Route path="dashboard" element={<DashboardPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="personnel" element={<PersonnelManagementPage />} />
            
             <Route path="roles" element={<RolesPage />} />
             <Route path="roles/edit/:id" element={<EditRolePage />} />

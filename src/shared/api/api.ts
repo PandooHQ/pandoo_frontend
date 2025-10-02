@@ -1,8 +1,8 @@
 import axios from "axios";
 import { useAuthStore } from "../stores/auth";
 
-const baseUrl = "http://localhost:3000/api/v1";
-// const baseUrl = "https://pandoo-api-dev-9e2f14065ca2.herokuapp.com/api/v1/"
+// export const baseUrl = "http://localhost:3000/api/v1";
+export const baseUrl = "https://pandoo-api-dev-9e2f14065ca2.herokuapp.com/api/v1/"
 
 const api = axios.create({
   baseURL: baseUrl,
