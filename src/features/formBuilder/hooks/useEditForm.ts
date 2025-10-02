@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import type { Form } from "@/features/forms/types/FormNormalized";
 import { editForm } from "../services/editForm";
 
@@ -9,8 +9,7 @@ interface FormPayload {
 
 export const useEditForm = () => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { id, lang } = useParams<{ id: string, lang:string }>(); 
+  const { id } = useParams<{ id: string, lang:string }>(); 
 
   return useMutation({
     mutationFn: (data: FormPayload) => {
@@ -19,11 +18,8 @@ export const useEditForm = () => {
     },
 
     onSuccess: () => {
-      console.log("aqui")
       queryClient.invalidateQueries({ queryKey: ["forms"] });
       queryClient.invalidateQueries({ queryKey: ["forms", `${id}`] });
-
-      navigate(`/${lang}/forms`);
     },
 
     onError: (error) => {

@@ -6,7 +6,7 @@ export interface FormType {
   sections?: SectionType[];
   description?: string;
   status?: "published" | "draft";
-  createdAt?: string;
+  created_at?: string;
   responses?: number;
   lastModified?: string;
 }

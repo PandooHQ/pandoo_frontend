@@ -20,6 +20,8 @@ import { typeMap } from "@/features/forms/types/FormTypeMap";
 import { createForm } from "../services/createForm";
 import { useFormMutation } from "@/shared/hooks/useFormMutation";
 import { useEditForm } from "./useEditForm";
+import { toast } from "sonner";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface FormBuilderInitialValues {
   form?: FormType;
@@ -31,13 +33,15 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   const [history, setHistory] = useState<SectionType[][]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const createMutation = useFormMutation(createForm);
+  const { lang } = useParams()
+  const router = useNavigate()
 
   const [newForm, setNewForm] = useState<FormType>({
     id: Math.floor(Math.random() * 100),
     title: "",
     description: "",
     status: "draft",
-    createdAt: new Date().toISOString(),
+    created_at: new Date().toISOString(),
     responses: 0,
     lastModified: new Date().toISOString(),
     sections: [],
@@ -169,7 +173,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
 
   const { mutate: updateFormMutation } = useEditForm();
 
-  const handleUpdateForm = (
+  const handleUpdateForm = async (
     status: "draft" | "published",
     initialForm: FormType
   ) => {
@@ -180,7 +184,19 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     formToSend.description = formToUpdate.description;
     formToSend.status = status;
 
-    updateFormMutation({ form: formToSend });
+
+    try{
+      await updateFormMutation({ form: formToSend });
+
+      toast.success("El formulario ha sido actualizado correctamente")
+    
+      setTimeout(() => {
+        router(`/${lang}/forms`)
+      }, 1500);
+    }catch(e){
+      console.error(e)
+      toast.error("Ha ocurrido un error durante la actualizacion" )
+    }
   };
 
 
@@ -194,7 +210,17 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   const saveForm = async (status: "draft" | "published" = "draft") => {
     const formToSave = { ...newForm, status, sections };
     const formToSend = normalizeAndValidateForm(formToSave);
-    createMutation.mutate(formToSend);
+    try{
+      await createMutation.mutate(formToSend);
+      toast.success("Formulario creado exitosamente")
+
+      setTimeout(() => {
+        router(`/${lang}/forms`)
+      }, 1500);
+    }catch(e){
+      console.error(e)
+      toast.error("Ha ocurrido un error ")
+    }
   };
 
   const sensors = useSensors(

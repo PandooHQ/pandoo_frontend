@@ -26,6 +26,7 @@ import type { FormType } from "../forms/types/FormType";
 import { useQuery } from "@tanstack/react-query";
 import { getForm } from "../forms/services/getForm";
 import { denormalizeFormFromBackend } from "@/shared/lib/denormalizedForm";
+import { Toaster } from "sonner";
 
 export default function FormBuilderEditPage() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
@@ -309,6 +310,7 @@ export default function FormBuilderEditPage() {
           </Card>
         </div>
       </div>
+      <Toaster richColors/>
     </div>
   );
 }

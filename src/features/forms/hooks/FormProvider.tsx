@@ -64,7 +64,7 @@ export const FormsProvider = ({ children }: { children: ReactNode }) => {
       ...form,
       id: newId,
       title: `${form.title} (copia)`,
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
       lastModified: new Date().toISOString(),
       responses: 0,
       sections: form?.sections?.map((section) => ({

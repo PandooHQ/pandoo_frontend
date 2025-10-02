@@ -23,6 +23,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Switch } from "@/shared/components/ui/switch";
 import { ConfirmModal } from "@/shared/components/ConfirmModal";
+import { Toaster } from "sonner";
 
 export default function Page() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
@@ -313,6 +314,7 @@ export default function Page() {
         confirmText="Eliminar"
         cancelText="Cancelar"
       />
+      <Toaster richColors/>
     </div>
   );
 }

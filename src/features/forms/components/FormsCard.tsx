@@ -126,7 +126,7 @@ export const FormCards = ({ forms }: FormCardsProps) => {
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  {new Date(form.createdAt!).toLocaleDateString()}
+                  {new Date(form.created_at!).toLocaleDateString()}
                 </div>
               </div>
             </CardContent>
