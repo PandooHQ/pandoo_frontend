@@ -16,35 +16,47 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useRole } from "../hooks/useRole";
 
 // 🔹 Esta lista debería venir de un endpoint, pero la hardcodeamos aquí por ahora
+// const allPermissions = [
+//   {
+//     subject: "User",
+//     actions: ["assign_roles", "manage", "create", "read", "update", "destroy"],
+//   },
+//   {
+//     subject: "Form",
+//     actions: [
+//       "publish",
+//       "unpublish",
+//       "duplicate",
+//       "manage",
+//       "create",
+//       "read",
+//       "update",
+//       "destroy",
+//     ],
+//   },
+//   {
+//     subject: "FormResponse",
+//     actions: ["manage", "create", "read", "update", "destroy"],
+//   },
+//   {
+//     subject: "Role",
+//     actions: ["manage", "create", "read", "update", "destroy"],
+//   },
+//   {
+//     subject: "Permission",
+//     actions: ["manage", "create", "read", "update", "destroy"],
+//   },
+// ];
+
+
 const allPermissions = [
   {
     subject: "User",
-    actions: ["assign_roles", "manage", "create", "read", "update", "destroy"],
-  },
-  {
-    subject: "Form",
-    actions: [
-      "publish",
-      "unpublish",
-      "duplicate",
-      "manage",
-      "create",
-      "read",
-      "update",
-      "destroy",
-    ],
+    actions: ["manage"],
   },
   {
     subject: "FormResponse",
-    actions: ["manage", "create", "read", "update", "destroy"],
-  },
-  {
-    subject: "Role",
-    actions: ["manage", "create", "read", "update", "destroy"],
-  },
-  {
-    subject: "Permission",
-    actions: ["manage", "create", "read", "update", "destroy"],
+    actions: ["create", "read", "update"],
   },
 ];
 

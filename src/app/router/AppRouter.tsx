@@ -11,7 +11,6 @@ import SettingsPage from "@/features/settings/page"
 import HomePage from "@/features/home/page"
 import FormPage from "@/features/forms/page"
 import FormBuilderPage from "@/features/formBuilder/page"
-import FormBuilderEditPage from "@/features/formBuilder/pageEdit"
 import MobileFormsPage from "@/features/mobileForms/page"
 import FormEntryPage from "@/features/formEntry/page"
 import FormDataPage from "@/features/data/page"
@@ -20,6 +19,8 @@ import EditRolePage from "@/features/roles/edit/page"
 import ManageUsersPage from "@/features/roles/manageUsers/page"
 import ConfigureRolePage from "@/features/roles/configure/page"
 import PersonnelManagementPage from "@/features/personnel/page"
+import FormBuilderEditPage from "@/features/formBuilder/pageEdit"
+import BulkFormAssignmentPage from "@/features/forms/assignment/page"
 
 const SUPPORTED_LANGUAGES = ["en", "es"]
 const DEFAULT_LANGUAGE = "es"
@@ -92,12 +93,14 @@ export function AppRouter() {
             <Route path="roles/manage-users/:id" element={<ManageUsersPage />} />
             <Route path="roles/configure/:name" element={<ConfigureRolePage />} />
 
+
             <Route path="forms" element={<FormPage />} />
             <Route path="forms/blank" element={<FormBuilderPage/>} />
             <Route path="forms/form-entry" element={<FormEntryPage/>} />
             <Route path="forms/data" element={<FormDataPage/>}/>
             <Route path="forms/mobile-forms" element={<MobileFormsPage/>} />
             <Route path="forms/edit/:id" element={<FormBuilderEditPage/>} />
+            <Route path="forms/bulk-assignment" element={<BulkFormAssignmentPage/>} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Route>

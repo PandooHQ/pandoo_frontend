@@ -1,7 +1,7 @@
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { FormCards } from "./components/FormsCard";
 import { useMyForms } from "./hooks/useMyForm";
@@ -22,12 +22,20 @@ export default function FormPage() {
         </div>
 
         <div className="flex justify-end w-full lg:w-auto mt-4 lg:mt-0">
-          <Link to="blank">
-            <Button>
-              <Plus className="md:mr-2 h-4 w-4" />
-              Nuevo Formulario
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link to="bulk-assignment">
+              <Button variant="outline">
+                <Users className="mr-2 h-4 w-4" />
+                Asignación Masiva
+              </Button>
+            </Link>
+            <Link to="blank">
+              <Button>
+                <Plus className="md:mr-2 h-4 w-4" />
+                Nuevo Formulario
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
