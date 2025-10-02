@@ -1,14 +1,8 @@
 import api from "@/shared/api/api"
 import type { Assignment } from "../types/AssignmentContextType"
+    
+export const getFormResponseUser = async(): Promise<Assignment[]> => {
+    const {data} = await api.get("/form_responses")
 
-interface AssignmentResponse {
-    data: {
-        assignment: Assignment[]
-    }
-}
-
-export const getFormResponseUser = async(): Promise<AssignmentResponse> => {
-    const resp = await api.get("/form_responses")
-
-    return resp.data
+    return data.data
 }

@@ -1,43 +1,83 @@
-import { useContext } from "react";
-import { FormsContext } from "./FormsContext";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { FormType } from "../types/FormType";
+import { getForms } from "@/shared/api/getForms";
+import { useMemo, useState } from "react";
 
 export const useMyForms = () => {
-  const context = useContext(FormsContext);
+  const queryClient = useQueryClient();
 
-  if (!context) {
-    throw new Error("useForms debe usarse dentro de un FormsProvider");
-  }
+  const {
+    data: forms = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery<FormType[]>({
+    queryKey: ["forms"],
+    queryFn: getForms,
+  });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "published":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-      case "draft":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-      case "archived":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
-      default:
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+  const [params, setParams] = useState({
+    page: 1,
+    per_page: 10,
+    search: "",
+    status: "",
+  });
+
+  const filteredForms = useMemo(() => {
+    let result = [...forms];
+
+    if (params.search) {
+      result = result.filter((form) =>
+        form.title.toLowerCase().includes(params.search.toLowerCase())
+      );
     }
+
+    if (params.status) {
+      result = result.filter((form) =>
+        form?.status?.toLowerCase().includes(params.status.toLowerCase())
+      );
+    }
+
+    return result;
+  }, [forms, params]);
+
+  const updateForm = (form: FormType) => {
+    queryClient.setQueryData<FormType[]>(["forms"], (old = []) =>
+      old.map((f) => (f.id === form.id ? { ...f, ...form } : f))
+    );
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "published":
-        return "Publicado";
-      case "draft":
-        return "Borrador";
-      case "archived":
-        return "Archivado";
-      default:
-        return status?.charAt(0)?.toUpperCase() + status?.slice(1);
-    }
-  };
+  const duplicateForm = (form: FormType) => {
+    const newId = Math.floor(Math.random() * 1000000);
 
+    const clonedForm: FormType = {
+      ...form,
+      id: newId,
+      title: `${form.title} (copia)`,
+      created_at: new Date().toISOString(),
+      lastModified: new Date().toISOString(),
+      responses: 0,
+      sections: form?.sections?.map((section) => ({
+        ...section,
+        id: `${section.id}-${newId}`,
+        items: section.items.map((item) => ({ ...item })),
+      })),
+    };
+
+    queryClient.setQueryData<FormType[]>(["forms"], (old = []) => [
+      ...old,
+      clonedForm,
+    ]);
+  };
 
   return {
-    ...context,
-    getStatusColor,
-    getStatusLabel,
+    forms: filteredForms,
+    params,
+    setParams,
+    updateForm,
+    duplicateForm,
+    isLoading,
+    isError,
+    fetchForms: refetch,
   };
 };

@@ -22,7 +22,7 @@ export const useAssignments = () => {
   })
 
   return {
-    assignments : data?.data || [],
+    assignments : data || [],
     createAssignment: createAssignmentMutation.mutateAsync,
   }
 }

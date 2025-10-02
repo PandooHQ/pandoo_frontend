@@ -6,7 +6,7 @@ import { useAssignments } from "./useAssignments"
 export const AssignmentProvider = ({ children }: { children: ReactNode }) => {
   const { assignments, createAssignment } = useAssignments()
   return (
-    <AssignmentContext.Provider value={{ assignments: Array.isArray(assignments) ? assignments : assignments.assignment, createAssignment }}>
+    <AssignmentContext.Provider value={{ assignments: assignments, createAssignment }}>
       {children}
     </AssignmentContext.Provider>
   )
