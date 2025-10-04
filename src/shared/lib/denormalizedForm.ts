@@ -23,7 +23,7 @@ export const denormalizeFormFromBackend = (backendForm: Form) => {
             options: input.options
               ? input.options.map((o: any) => ({
                   id: o.id,
-                  label: o.name ?? o.label,
+                  label: o.value ?? o.label,
                 }))
               : [],
             // Campos específicos

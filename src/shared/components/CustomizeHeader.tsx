@@ -46,7 +46,7 @@ export default function CustomizeHeader() {
                     className="hidden md:flex"
                   >
                     <BreadcrumbLink href={path}>
-                      {segment.charAt(0).toUpperCase() + segment.slice(1)}
+                      {t(`routes.${segment}`, segment)}
                     </BreadcrumbLink>
                   </BreadcrumbItem>,
                   <BreadcrumbSeparator key={`sep-${index}`} />,
@@ -54,9 +54,7 @@ export default function CustomizeHeader() {
               })}
 
               <BreadcrumbPage className="font-semibold text-primary">
-                {currentRoute
-                  ? currentRoute.charAt(0).toUpperCase() + currentRoute.slice(1)
-                  : "Inicio"}
+                  {currentRoute ? t(`routes.${currentRoute}`, currentRoute) : t("routes.home")}
               </BreadcrumbPage>
             </BreadcrumbList>
           </Breadcrumb>

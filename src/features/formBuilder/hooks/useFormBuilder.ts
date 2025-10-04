@@ -501,6 +501,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   };
 
   const updateItem = (itemId: string, updates: Partial<ItemType>) => {
+    console.log(updates, itemId)
     setSections((prevSections) =>
       prevSections.map((section) => ({
         ...section,
@@ -593,10 +594,8 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
           ...baseAttributes,
           options: (item.options || []).map((option) => ({
             id: option.id,
-            name: option.label, // 👈 corregido
-          })), // ✅ CRÍTICO: Asegurar que siempre haya opciones
-          // include_blank: item.placeholder || "Seleccione una opción",
-          // searchable: item.searchable ?? false,
+            value: option.label,
+          })), 
         };
 
       case "radio":
@@ -625,7 +624,11 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
         };
 
       case "date":
-      case "datetime":
+        return {
+          ...baseAttributes,
+          field_type: item.type
+        };
+      case "datetime": 
       case "time":
         return {
           ...baseAttributes,

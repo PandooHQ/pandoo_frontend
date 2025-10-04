@@ -50,10 +50,12 @@ export default function FormDataPage() {
   const firstFormId = selectedFormId ?? forms?.[0]?.id ?? 0;
 
   const { data: formResponses } = useQuery({
-    queryKey: ["forms", firstFormId, "responses"],
+    queryKey: ["forms", `${firstFormId}`, "responses"],
     queryFn: () => getFormResponses(firstFormId),
     enabled: !!firstFormId,
   });
+
+  console.log(formResponses)
 
   const handleFormChange = (formId: string) => {
     setSelectedFormId(Number(formId));
@@ -202,7 +204,6 @@ export default function FormDataPage() {
                   <TableHead>ID</TableHead>
                   <TableHead>User Email</TableHead>
                   <TableHead>Created At</TableHead>
-                  <TableHead>Updated At</TableHead>
                   {formResponses?.columns?.map((col: {id:number, label: string}) => (
                     <TableHead key={col.id}>{col.label}</TableHead>
                   ))}
@@ -215,9 +216,6 @@ export default function FormDataPage() {
                     <TableCell>{s.user.email}</TableCell>
                     <TableCell>
                       {new Date(s.created_at).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(s.updated_at).toLocaleString()}
                     </TableCell>
                     {formResponses.columns.map((col: {id:number, label:string}) => {
                       const ans = s.answers.find(

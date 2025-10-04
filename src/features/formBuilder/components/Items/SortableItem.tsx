@@ -48,7 +48,6 @@ export function SortableItem({
     const newOption = {
       id: Date.now(),
       label: "Nueva opción",
-      value: `value-${Date.now()}`,
     };
     updateField({ options: [...(item.options ?? []), newOption] });
   };
@@ -144,15 +143,6 @@ export function SortableItem({
                 className="flex-1 text-xs"
                 onChange={(e) =>
                   updateOption(opt.id, { label: e.target.value })
-                }
-                onClick={(e) => e.stopPropagation()}
-              />
-              <Input
-                value={opt.value}
-                placeholder="Valor"
-                className="flex-1 text-xs"
-                onChange={(e) =>
-                  updateOption(opt.id, { value: e.target.value })
                 }
                 onClick={(e) => e.stopPropagation()}
               />

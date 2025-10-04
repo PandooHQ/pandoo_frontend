@@ -96,7 +96,7 @@ export default function FormPage() {
       <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3 grid-cols-1">
         <Link to="blank">
           <Card className="border-dashed border-2 hover:border-primary/50 transition-colors cursor-pointer group">
-            <CardContent className="flex flex-col items-center justify-center p-6 min-h-[200px]">
+            <CardContent className="flex flex-col items-center justify-center p-6 min-h-[150px]">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <Plus className="h-6 w-6 text-primary" />
               </div>

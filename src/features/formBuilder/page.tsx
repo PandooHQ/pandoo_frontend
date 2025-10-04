@@ -21,7 +21,6 @@ import {
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { Switch } from "@/shared/components/ui/switch";
 import { ConfirmModal } from "@/shared/components/ConfirmModal";
 import { Toaster } from "sonner";
 
@@ -257,7 +256,7 @@ export default function Page() {
                   rows={3}
                 />
               </div>
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Configuración del Formulario</Label>
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
@@ -279,7 +278,7 @@ export default function Page() {
                     </Label>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
           <Card>

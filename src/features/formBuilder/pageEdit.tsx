@@ -20,7 +20,6 @@ import {
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { Switch } from "@/shared/components/ui/switch";
 import { useParams } from "react-router-dom";
 import type { FormType } from "../forms/types/FormType";
 import { useQuery } from "@tanstack/react-query";
@@ -36,9 +35,8 @@ export default function FormBuilderEditPage() {
   const formId = id ? parseInt(id, 10) : undefined;
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["form", formId],
+    queryKey: ["form", `${formId}`],
     queryFn: () => {
-      console.log("🚀 Haciendo petición para form:", formId);
       return getForm(formId!);
     },
     enabled: !!formId && !isNaN(formId),
@@ -272,7 +270,7 @@ export default function FormBuilderEditPage() {
                   rows={3}
                 />
               </div>
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Configuración del Formulario</Label>
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
@@ -294,7 +292,7 @@ export default function FormBuilderEditPage() {
                     </Label>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
           <Card>

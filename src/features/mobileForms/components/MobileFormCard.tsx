@@ -8,17 +8,19 @@ interface Props {
 }
 
 const statusColors: Record<MobileForm["status"], string> = {
-  completed: "bg-green-500 text-white",
-  in_progress: "bg-blue-500 text-white",
+  sent: "bg-green-500 text-white",
+  draft: "bg-yellow-500 text-white",
+  assigned: "bg-red-500 text-white",
 };
 
 const MobileFormCard = ({ mobileForm }: Props) => {
   const { t } = useTranslation();
 
-  const statusText =
-    mobileForm.status === "completed"
-      ? t("mobile_forms.completed")
-      : t("mobile_forms.in_progress");
+  const statusText = {
+    sent: t("mobile_forms.sent"),
+    draft: t("mobile_forms.draft"),
+    assigned: t("mobile_forms.assigned"),
+  }[mobileForm.status];
 
   return (
     <div className="relative">
@@ -28,13 +30,12 @@ const MobileFormCard = ({ mobileForm }: Props) => {
         {statusText}
       </Badge>
 
-      <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-        <CardContent className="p-5 flex flex-col gap-3">
-          <h3 className="font-semibold text-gray-900 text-lg">
+      <Card className="h-full border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardContent className="p-5 flex flex-col gap-3 h-full">
+          <h3 className="font-semibold text-gray-900 text-lg flex-1">
             {mobileForm.title}
           </h3>
-
-          <span className="text-sm text-gray-600">{mobileForm.created_at}</span>
+          <span className="text-sm text-gray-600">{mobileForm.updated_at}</span>
         </CardContent>
       </Card>
     </div>

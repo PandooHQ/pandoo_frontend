@@ -15,18 +15,8 @@ export default function InputsMenuCard({ menuKey }: { menuKey: number }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          {/* {options.map(({ label, type, icon }) => (
-            <ClonableItem
-              key={type}
-              id={type}
-              label={label}
-              icon={icon}
-              type={type}
-            />
-          ))} */}
-
           {options.map((opt, i) => {
-            const id = `${opt.type}-${menuKey}-${i}`; // unico mientras menuKey no cambie
+            const id = `${opt.type}-${menuKey}-${i}`;
             return (
               <ClonableItem
                 key={id}

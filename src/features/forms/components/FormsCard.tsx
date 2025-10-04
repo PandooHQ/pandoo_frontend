@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
@@ -45,9 +44,10 @@ export const FormCards = ({ forms }: FormCardsProps) => {
     queryClient.prefetchQuery({
       queryKey: ["form", id],
       queryFn: () => getForm(id),
+      staleTime: 1000 * 60 * 5, 
     });
   };
-  
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "published":
@@ -156,11 +156,11 @@ export const FormCards = ({ forms }: FormCardsProps) => {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="pt-0">
+            {/* <CardFooter className="pt-0">
               <Button variant="outline" className="w-full bg-transparent">
                 Continuar
               </Button>
-            </CardFooter>
+            </CardFooter> */}
           </Card>
         ))}
 

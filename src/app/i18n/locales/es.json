@@ -1,4 +1,23 @@
 {
+  "routes": {
+    "login": "Iniciar sesión",
+    "register": "Registro",
+    "settings": "Configuración",
+    "personnel": "Gestión de personal",
+    "roles": "Roles",
+    "manage-users": "Gestionar usuarios",
+    "configure": "Configurar rol",
+    "forms": "Formularios",
+    "form-entry": "Ingreso de datos",
+    "data": "Datos",
+    "mobile-forms": "Formularios móviles",
+    "forms_edit": "Editar formulario",
+    "bulk-assignment": "Asignación masiva",
+    "home": "Inicio",
+    "not_found": "No encontrado",
+    "edit": "Editar",
+    "blank": "Nuevo"
+  },
   "loading": "Cargando...",
   "logout": "Cerrar sesión",
   "login": {
@@ -36,8 +55,11 @@
     }
   },
   "mobile_forms":{
-    "completed": "Completado",
-    "in_progress": "En curso"
+    "all": "Todos",
+    "sent": "Enviado",
+    "draft": "Borrador",
+    "assigned": "Pendiente",
+    "search_placeholder": "Buscar formularios..."
   },
   "form_data":{
     "title": "Envíos de Formularios",

@@ -178,7 +178,7 @@ export default function BulkFormAssignmentPage() {
                 forms?.map((form) => (
                   <Card
                     key={form.id}
-                    className={`cursor-pointer transition-all hover:shadow-md border-2 ${
+                    className={`cursor-pointer transition-all hover:shadow-md border-2 text-wrap  ${
                       selectedFormForAssignment === form.id.toString()
                         ? "border-primary bg-muted shadow-md"
                         : "border-border hover:border-muted-foreground"
@@ -190,7 +190,7 @@ export default function BulkFormAssignmentPage() {
                     <CardHeader className="pb-2 px-3 pt-3">
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm leading-tight truncate">
+                          <h4 className="font-medium text-sm leading-tight break-words whitespace-normal">
                             {form.title}
                           </h4>
                         </div>
@@ -200,7 +200,7 @@ export default function BulkFormAssignmentPage() {
                       </div>
                     </CardHeader>
                     <CardContent className="px-3 pb-3 pt-0">
-                      <p className="text-xs text-muted-foreground line-clamp-2">
+                      <p className="text-xs text-muted-foreground break-words whitespace-normal">
                         {form.description}
                       </p>
                     </CardContent>

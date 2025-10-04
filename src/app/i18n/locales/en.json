@@ -1,4 +1,23 @@
 {
+  "routes": {
+    "login": "Login",
+    "register": "Register",
+    "settings": "Settings",
+    "personnel": "Personnel Management",
+    "roles": "Roles",
+    "manage-users": "Manage Users",
+    "configure": "Configure Role",
+    "forms": "Forms",
+    "form-entry": "Form Entry",
+    "data": "Data",
+    "mobile-forms": "Mobile Forms",
+    "forms_edit": "Edit Form",
+    "bulk-assignment": "Bulk Assignment",
+    "home": "Home",
+    "not_found": "Not Found",
+    "edit": "Edit",
+    "blank": "New"
+  },
   "loading": "Loading...",
   "logout": "Logout",
   "login": {
@@ -36,8 +55,11 @@
     }
   },
   "mobile_forms":{
-    "completed": "Completed",
-    "in_progress": "In progress"
+    "all": "All",
+    "sent": "Sent",
+    "draft": "Draft",
+    "assigned": "Pending",
+    "search_placeholder": "Search forms..."
   },     
   "form_data": {
     "title": "Form Submissions",
