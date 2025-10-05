@@ -592,8 +592,8 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       case "select":
         return {
           ...baseAttributes,
-          options: (item.options || []).map((option) => ({
-            id: option.id,
+          options: (item.options || []).map((option, index) => ({
+            id: index + 1,
             value: option.label,
           })), 
         };
