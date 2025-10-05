@@ -11,65 +11,32 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Checkbox } from "@/shared/components/ui/checkbox";
-import { Save, Shield } from "lucide-react";
+import { Badge } from "@/shared/components/ui/badge";
+import { Save, Shield, ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
+import { Toaster } from "@/shared/components/ui/sonner";
 import { useRole } from "../hooks/useRole";
-
-// 🔹 Esta lista debería venir de un endpoint, pero la hardcodeamos aquí por ahora
-// const allPermissions = [
-//   {
-//     subject: "User",
-//     actions: ["assign_roles", "manage", "create", "read", "update", "destroy"],
-//   },
-//   {
-//     subject: "Form",
-//     actions: [
-//       "publish",
-//       "unpublish",
-//       "duplicate",
-//       "manage",
-//       "create",
-//       "read",
-//       "update",
-//       "destroy",
-//     ],
-//   },
-//   {
-//     subject: "FormResponse",
-//     actions: ["manage", "create", "read", "update", "destroy"],
-//   },
-//   {
-//     subject: "Role",
-//     actions: ["manage", "create", "read", "update", "destroy"],
-//   },
-//   {
-//     subject: "Permission",
-//     actions: ["manage", "create", "read", "update", "destroy"],
-//   },
-// ];
-
-
-const allPermissions = [
-  {
-    subject: "User",
-    actions: ["manage"],
-  },
-  {
-    subject: "FormResponse",
-    actions: ["create", "read", "update"],
-  },
-];
+import { actionLabels, allPermissions } from "../constant/permissions";
+import { useRoles } from "../hooks/useRoles";
 
 export default function EditRolePage() {
+  const { createPermissionMutation, deletePermissionMutation } = useRoles();
+
   const router = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { id, lang } = useParams<{ id: string; lang: string }>();
   const { data: roleData } = useRole(Number(id) || 0);
 
   const [role, setRole] = useState({
     id: 0,
     name: "",
     description: "",
-    permissions: [] as { subject_class: string; action: string; description: string }[],
+    permissions: [] as {
+      id: number;
+      subject_class: string;
+      action: string;
+      description: string;
+    }[],
   });
 
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
@@ -80,22 +47,42 @@ export default function EditRolePage() {
         id: roleData.id,
         name: roleData.name,
         description: roleData.description,
-        permissions: roleData.permissions ? roleData.permissions.map(p => ({
-          subject_class: p.subject_class,
-          action: p.action,
-          description: p.description ?? ""
-        })) : [],
+        permissions: roleData.permissions
+          ? roleData.permissions.map((p) => ({
+              id: p.id, // 🔹 Importante: Incluir el ID del permiso
+              subject_class: p.subject_class,
+              action: p.action,
+              description: p.description ?? "",
+            }))
+          : [],
       });
 
       const initialSelected = (roleData.permissions ?? []).map(
-        (p) => `${p.subject_class}:${p.action}`
+        (p) => `${p.subject_class}.${p.action}`
       );
       setSelectedPermissions(initialSelected);
     }
   }, [roleData]);
 
-  const handlePermissionChange = (subject: string, action: string, checked: boolean) => {
-    const key = `${subject}:${action}`;
+  const isPermissionSelected = (subject: string, action: string) => {
+    return selectedPermissions.includes(`${subject}.${action}`);
+  };
+
+  const isSubjectFullySelected = (subject: string, actions: string[]) => {
+    return actions.every((action) => isPermissionSelected(subject, action));
+  };
+
+  const getSelectedCount = (subject: string, actions: string[]) => {
+    return actions.filter((action) => isPermissionSelected(subject, action))
+      .length;
+  };
+
+  const handlePermissionChange = (
+    subject: string,
+    action: string,
+    checked: boolean
+  ) => {
+    const key = `${subject}.${action}`;
     if (checked) {
       setSelectedPermissions([...selectedPermissions, key]);
     } else {
@@ -103,15 +90,71 @@ export default function EditRolePage() {
     }
   };
 
-  const handleSave = () => {
-    console.log("Saving role:", {
-      ...role,
-      permissions: selectedPermissions.map((perm) => {
-        const [subject_class, action] = perm.split(":");
-        return { subject_class, action };
-      }),
+  const handleSubjectToggle = (
+    subject: string,
+    actions: string[],
+    checked: boolean
+  ) => {
+    actions.forEach((action) => {
+      const key = `${subject}.${action}`;
+      if (checked) {
+        if (!selectedPermissions.includes(key)) {
+          setSelectedPermissions((prev) => [...prev, key]);
+        }
+      } else {
+        setSelectedPermissions((prev) => prev.filter((p) => p !== key));
+      }
     });
-    router("/roles");
+  };
+
+  const handleSave = async () => {
+    try {
+      const currentPermissionKeys = role.permissions.map(
+        (p) => `${p.subject_class}.${p.action}`
+      );
+
+      const permissionsToCreate = selectedPermissions.filter(
+        (key) => !currentPermissionKeys.includes(key)
+      );
+
+      const permissionsToDelete = role.permissions.filter(
+        (p) => !selectedPermissions.includes(`${p.subject_class}.${p.action}`)
+      );
+
+      const createPromises = permissionsToCreate.map((permission) => {
+        const [subject_class, action] = permission.split(".");
+        return createPermissionMutation({
+          roleId: role.id,
+          permissionData: {
+            action,
+            subject_class,
+            description: `Permiso para ${actionLabels[action] || action} en ${subject_class}`,
+          },
+        });
+      });
+
+      const deletePromises = permissionsToDelete.map((permission) => {
+        const permissionId = permission.id;
+        if (permissionId) {
+          return deletePermissionMutation({
+            roleId: role.id,
+            permissionId: permissionId,
+          });
+        }
+        return Promise.resolve();
+      });
+
+      await Promise.all([...createPromises, ...deletePromises]);
+
+      toast.success("Los permisos del rol han sido actualizados correctamente");
+
+      setTimeout(() => {
+        router(`/${lang}/roles`);
+      }, 1500);
+    } catch (error) {
+      console.error("Error al guardar el rol:", error);
+      toast.error("Ha ocurrido un error");
+    }
   };
 
   return (
@@ -125,14 +168,21 @@ export default function EditRolePage() {
             Modificar detalles del rol y permisos
           </p>
         </div>
-        <Button onClick={handleSave}>
-          <Save className="mr-2 h-4 w-4" />
-          Guardar Cambios
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => router(`/${lang}/roles`)}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Cancelar
+          </Button>
+          <Button onClick={handleSave}>
+            <Save className="mr-2 h-4 w-4" />
+            Guardar Cambios
+          </Button>
+        </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+      <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
+        {/* Información básica del rol */}
+        <Card className="h-fit">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
@@ -147,6 +197,7 @@ export default function EditRolePage() {
                 id="role-name"
                 value={role.name}
                 onChange={(e) => setRole({ ...role, name: e.target.value })}
+                placeholder="Ej: Supervisor"
               />
             </div>
             <div className="space-y-2">
@@ -158,72 +209,167 @@ export default function EditRolePage() {
                   setRole({ ...role, description: e.target.value })
                 }
                 rows={4}
+                placeholder="Describe las responsabilidades de este rol..."
               />
             </div>
+
+            {selectedPermissions.length > 0 && (
+              <div className="pt-4 border-t">
+                <p className="text-sm font-medium mb-2">
+                  Total de permisos: {selectedPermissions.length}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {allPermissions.map((category) => {
+                    const count = getSelectedCount(
+                      category.subject,
+                      category.actions
+                    );
+                    if (count === 0) return null;
+                    return (
+                      <Badge key={category.subject} variant="secondary">
+                        {category.label}: {count}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
+        {/* Configuración de permisos */}
         <Card>
           <CardHeader>
             <CardTitle>Permisos del Rol</CardTitle>
             <CardDescription>
-              Selecciona los permisos agrupados por entidad
+              Selecciona los permisos que tendrá este rol. Puedes seleccionar
+              permisos específicos o categorías completas.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {allPermissions.map((group) => (
-                <div key={group.subject}>
-                  <h3 className="font-semibold text-lg mb-2">
-                    {group.subject}
-                  </h3>
-                  <div className="space-y-2">
-                    {group.actions.map((action) => {
-                      const key = `${group.subject}:${action}`;
-                      const assignedPermission = role.permissions.find(
-                        (p) =>
-                          p.subject_class === group.subject &&
-                          p.action === action
-                      );
-                      return (
-                        <div
-                          key={key}
-                          className="flex items-start space-x-3"
-                        >
+              {allPermissions.map((category) => {
+                const Icon = category.icon;
+                const selectedCount = getSelectedCount(
+                  category.subject,
+                  category.actions
+                );
+                const isFullySelected = isSubjectFullySelected(
+                  category.subject,
+                  category.actions
+                );
+                const isPartiallySelected =
+                  selectedCount > 0 && !isFullySelected;
+
+                return (
+                  <div
+                    key={category.subject}
+                    className="border rounded-lg p-4 hover:border-primary/50 transition-colors"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start space-x-3 flex-1">
+                        <div className="mt-0.5">
                           <Checkbox
-                            id={key}
-                            checked={selectedPermissions.includes(key)}
+                            id={`category-${category.subject}`}
+                            checked={isFullySelected}
+                            ref={(el) => {
+                              if (el) {
+                                const input = el.querySelector(
+                                  'input[type="checkbox"]'
+                                );
+                                if (input)
+                                  (input as HTMLInputElement).indeterminate =
+                                    isPartiallySelected;
+                              }
+                            }}
                             onCheckedChange={(checked) =>
-                              handlePermissionChange(
-                                group.subject,
-                                action,
+                              handleSubjectToggle(
+                                category.subject,
+                                category.actions,
                                 checked as boolean
                               )
                             }
                           />
-                          <div className="grid gap-1.5 leading-none">
-                            <label
-                              htmlFor={key}
-                              className="text-sm font-medium leading-none"
-                            >
-                              {action}
-                            </label>
-                            <p className="text-xs text-muted-foreground">
-                              {assignedPermission
-                                ? assignedPermission.description
-                                : `Permiso para ${action} ${group.subject}`}
-                            </p>
-                          </div>
                         </div>
-                      );
-                    })}
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <Icon className="h-5 w-5 text-primary" />
+                            <Label
+                              htmlFor={`category-${category.subject}`}
+                              className="text-lg font-semibold cursor-pointer"
+                            >
+                              {category.label}
+                            </Label>
+                            {selectedCount > 0 && (
+                              <Badge variant="secondary" className="ml-2">
+                                {selectedCount} / {category.actions.length}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {category.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 ml-9">
+                      {category.actions.map((action) => {
+                        const key = `${category.subject}.${action}`;
+                        const assignedPermission = role.permissions.find(
+                          (p) =>
+                            p.subject_class === category.subject &&
+                            p.action === action
+                        );
+
+                        return (
+                          <div
+                            key={key}
+                            className="flex items-center space-x-2 p-2 rounded border border-transparent hover:border-border hover:bg-muted/30 transition-colors"
+                          >
+                            <Checkbox
+                              id={key}
+                              checked={isPermissionSelected(
+                                category.subject,
+                                action
+                              )}
+                              onCheckedChange={(checked) =>
+                                handlePermissionChange(
+                                  category.subject,
+                                  action,
+                                  checked as boolean
+                                )
+                              }
+                            />
+                            <Label
+                              htmlFor={key}
+                              className="text-sm cursor-pointer flex-1"
+                              title={
+                                assignedPermission?.description ||
+                                `Permiso para ${action} ${category.label}`
+                              }
+                            >
+                              {actionLabels[action] || action}
+                            </Label>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
+            </div>
+
+            <div className="flex justify-end mt-6 pt-6 border-t">
+              <Button onClick={handleSave} size="lg">
+                <Save className="mr-2 h-4 w-4" />
+                Guardar Cambios
+              </Button>
             </div>
           </CardContent>
         </Card>
       </div>
+      <Toaster richColors />
     </div>
   );
 }

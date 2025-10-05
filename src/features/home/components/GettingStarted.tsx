@@ -21,8 +21,7 @@ export default function GettingStarted() {
             <div>
               <h4 className="font-medium">Crea tu Primer Formulario</h4>
               <p className="text-sm text-muted-foreground">
-                Diseña formularios personalizados para tus necesidades de
-                recolección de datos
+                Diseña formularios personalizados para recolectar datos.
               </p>
               <Link
                 to="forms/blank"
@@ -40,7 +39,7 @@ export default function GettingStarted() {
             <div>
               <h4 className="font-medium">Ingresa tu personal</h4>
               <p className="text-sm text-muted-foreground">
-                Crea tu personal y asignales formularios
+                Agrega tu equipo y asígnales formularios fácilmente.
               </p>
               <Link
                 to="personnel"
@@ -58,7 +57,7 @@ export default function GettingStarted() {
             <div>
               <h4 className="font-medium">Monitorea el Progreso</h4>
               <p className="text-sm text-muted-foreground">
-                Rastrea envíos y analiza tendencias de datos
+                Revisa envíos y analiza tendencias en tus datos.
               </p>
               <Link
                 to="dashboard"

@@ -75,12 +75,12 @@ export function LoginForm({
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">{t("login.password")}</Label>
-            <a
+            {/* <a
               href="#"
               className="ml-auto text-sm underline-offset-4 hover:underline"
             >
               {t("login.forgot_password")}
-            </a>
+            </a> */}
           </div>
           <Input
             id="password"
@@ -102,7 +102,7 @@ export function LoginForm({
           {t("login.button")}
         </Button>
 
-        <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+        {/* <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
           <span className="bg-background text-muted-foreground relative z-10 px-2">
             {t("login.continue_with")}
           </span>
@@ -115,15 +115,15 @@ export function LoginForm({
             className="mr-2 h-4 w-4"
           />
           {t("login.login_with_google")}
-        </Button>
+        </Button> */}
       </div>
 
-      <div className="text-center text-sm">
+      {/* <div className="text-center text-sm">
         {t("login.dont_have_account")}{" "}
         <a href="#" className="underline underline-offset-4">
           {t("login.register")}
         </a>
-      </div>
+      </div> */}
     </form>
   );
 }

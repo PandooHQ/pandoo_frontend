@@ -129,6 +129,12 @@ export function SortableItem({
             ? "Campo de firma"
             : item.type === "select"
             ? "Campo de selección"
+            : item.type === "number"
+            ? "Campo numerico"
+            : item.type === "text"
+            ? "Campo de texto"
+            : item.type === "date"
+            ? "Campo fecha"
             : `Campo ${item.type}`}
         </span>
       </div>

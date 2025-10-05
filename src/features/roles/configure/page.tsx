@@ -5,31 +5,9 @@ import { Toaster } from "@/shared/components/ui/sonner";
 import { Shield, Users, CheckCircle } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { UsersContext } from "@/shared/hooks/UsersContext";
-import { PermissionsConfiguration } from "../components/configure/PermissionsConfiguration";
-import type { PermissionType } from "../types/PermissionType";
 import { UserAssignment } from "../components/configure/UserAssignment";
 import { RolesContext } from "../hooks/RolesContext";
-
-const mockPermissions: PermissionType[] = [
-  {
-    id: "read",
-    name: "Ver",
-    description: "Puede ver formularios y datos",
-    enabled: false,
-  },
-  {
-    id: "create",
-    name: "Completar",
-    description: "Puede llenar formularios",
-    enabled: false,
-  },
-  {
-    id: "update",
-    name: "Actualizar",
-    description: "Puede actualizar formularios",
-    enabled: false,
-  },
-];
+import PermissionsConfiguration from "../components/configure/PermissionsConfiguration";
 
 export default function ConfigureRolePage() {
   const router = useNavigate();
@@ -84,25 +62,19 @@ export default function ConfigureRolePage() {
   const handleFinishRole = async () => {
     if (!roleName || selectedPermissions.length === 0) return;
 
-    console.log("Finishing role creation:", {
-      name: roleName,
-      description: roleDescription,
-      permissions: selectedPermissions,
-      assignedUsers: selectedUsers,
-    });
-
     try {
       await Promise.all(
-        selectedPermissions.map((action) =>
-          createPermissionMutation({
+        selectedPermissions.map((permission) => {
+          const [subject_class, action] = permission.split(".");
+          return createPermissionMutation({
             roleId: Number(roleName),
             permissionData: {
               action,
-              subject_class: "FormResponse",
-              description: `Permiso para ${action} FormResponse`,
+              subject_class,
+              description: `Permiso para ${action} en ${subject_class}`,
             },
-          })
-        )
+          });
+        })
       );
 
       await Promise.all(
@@ -112,11 +84,10 @@ export default function ConfigureRolePage() {
       );
 
       toast.success(`Rol "${roleDescription}" configurado con permisos`);
-      
+
       setTimeout(() => {
         router(`/${lang}/roles`);
       }, 1500);
-
     } catch (error) {
       console.error("Error configurando permisos:", error);
       toast.error("Error al configurar los permisos del rol");
@@ -127,7 +98,7 @@ export default function ConfigureRolePage() {
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight">
             Configurar Rol: {roleName}
           </h1>
           <p className="text-muted-foreground">{roleDescription}</p>
@@ -164,17 +135,14 @@ export default function ConfigureRolePage() {
         </div>
       </div>
 
-      {/* Step 1: Permissions Configuration */}
       {currentStep === 1 && (
         <PermissionsConfiguration
-          mockPermissions={mockPermissions}
           handlePermissionSelect={handlePermissionSelect}
           selectedPermissions={selectedPermissions}
           setCurrentStep={setCurrentStep}
         />
       )}
 
-      {/* Step 2: User Assignment */}
       {currentStep === 2 && (
         <UserAssignment
           searchTerm={searchTerm}
@@ -194,7 +162,7 @@ export default function ConfigureRolePage() {
           setSelectedUsers={setSelectedUsers}
         />
       )}
-      <Toaster richColors/>
+      <Toaster richColors />
     </div>
   );
 }

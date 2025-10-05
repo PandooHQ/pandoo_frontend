@@ -3,6 +3,7 @@ import {
   DragOverlay,
   MeasuringStrategy,
   useDndContext,
+  type UniqueIdentifier,
 } from "@dnd-kit/core";
 import InputsMenuCard from "./components/InputsMenuCard";
 import Section from "./components/sections/Section";
@@ -26,6 +27,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getForm } from "../forms/services/getForm";
 import { denormalizeFormFromBackend } from "@/shared/lib/denormalizedForm";
 import { Toaster } from "sonner";
+import { ConfirmModal } from "@/shared/components/ConfirmModal";
 
 export default function FormBuilderEditPage() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
@@ -71,6 +73,32 @@ export default function FormBuilderEditPage() {
 
   const { active } = useDndContext();
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpenItem, setModalOpenItem] = useState(false);
+  const [selectedFormId, setSelectedFormId] = useState<
+    number | UniqueIdentifier | null
+  >(null);
+  const [selectedFieldId, setSelectedFieldId] = useState<string>("");
+  const handleDeleteClick = (id: number | UniqueIdentifier) => {
+    setSelectedFormId(id);
+    setModalOpen(true);
+  };
+
+  const handleDeleteClickItem = (id: string) => {
+    setSelectedFieldId(id);
+    setModalOpenItem(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedFormId !== null) removeSection(selectedFormId);
+  };
+
+  const handleConfirmDeleteItem = () => {
+    if (selectedFieldId !== null) {
+      removeItem(selectedFieldId);
+    }
+  };
+
   useEffect(() => {
     if (!data) return;
 
@@ -93,7 +121,7 @@ export default function FormBuilderEditPage() {
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight">
             Editar formulario
           </h1>
           <p className="text-muted-foreground">
@@ -138,7 +166,9 @@ export default function FormBuilderEditPage() {
               </>
             )}
           </Button>
-          <Button onClick={() => handleUpdateForm("draft", formData)}>Guardar Formulario</Button>
+          <Button onClick={() => handleUpdateForm("draft", formData)}>
+            Guardar Formulario
+          </Button>
         </div>
       </div>
 
@@ -161,10 +191,10 @@ export default function FormBuilderEditPage() {
             sections={sections}
             addSection={addSection}
             isSortingContainer={isSortingContainer}
-            removeSection={removeSection}
+            removeSection={handleDeleteClick}
             updateSection={updateSection}
             updateItem={updateItem}
-            removeItem={removeItem}
+            removeItem={handleDeleteClickItem}
           />
           <DragOverlay>
             {activeId ? (
@@ -308,7 +338,27 @@ export default function FormBuilderEditPage() {
           </Card>
         </div>
       </div>
-      <Toaster richColors/>
+
+      <ConfirmModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar Seccion"
+        description="¿Estás seguro que deseas eliminar esta seccion? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
+
+      <ConfirmModal
+        isOpen={modalOpenItem}
+        onClose={() => setModalOpenItem(false)}
+        onConfirm={handleConfirmDeleteItem}
+        title="Eliminar Campo"
+        description="¿Estás seguro que deseas eliminar este campo? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
+      <Toaster richColors />
     </div>
   );
 }

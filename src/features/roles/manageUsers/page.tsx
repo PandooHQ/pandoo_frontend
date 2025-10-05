@@ -149,7 +149,7 @@ export default function ManageUsersPage() {
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight">
             Gestionar Usuarios - {name}
           </h1>
           <p className="text-muted-foreground">

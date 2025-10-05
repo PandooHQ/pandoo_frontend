@@ -14,20 +14,20 @@ import { useAssignments } from "@/shared/hooks/useAssignments";
 import type { Assignment } from "@/shared/types/AssignmentContextType";
 
 export default function FormEntryPage() {
-  const { assignments } = useAssignments()
+  const { assignments } = useAssignments();
   const [searchTerm, setSearchTerm] = useState("");
-  const filteredForms = assignments?.filter((form:Assignment) => {  
-    const matchesSearch =
-      form.title.toLowerCase().includes(searchTerm.toLowerCase()) 
+  const filteredForms = assignments?.filter((form: Assignment) => {
+    const matchesSearch = form.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
-
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight">
             Formularios Asignados
           </h1>
           <p className="text-muted-foreground">
@@ -50,7 +50,7 @@ export default function FormEntryPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {filteredForms?.map((form:Assignment) => (
+        {filteredForms?.map((form: Assignment) => (
           <Card key={form.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-3">

@@ -4,6 +4,7 @@ import { createRole } from "../services/createRole";
 import { deleteRole } from "../services/deleteRole";
 import { createPermission } from "../services/createPermission";
 import type { PermissionData } from "../types/PermissionDataType";
+import { deletePermission } from "../services/deletePermission";
 
 export const useRoles = () => {
   const queryClient = useQueryClient();
@@ -43,6 +44,15 @@ export const useRoles = () => {
     },
   });
 
+  const deletePermissionMutation = useMutation({
+    mutationKey: ["createPermission"],
+    mutationFn: (data: {roleId: number; permissionId: number}) =>
+      deletePermission(data.roleId, data.permissionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+    },
+  });
+
   return {
     roles,
     isLoading,
@@ -50,5 +60,6 @@ export const useRoles = () => {
     createRole: createRoleMutation.mutateAsync,
     deleteRole: deleteRoleMutation.mutateAsync,
     createPermissionMutation: createPermissionMutation.mutateAsync,
+    deletePermissionMutation: deletePermissionMutation.mutateAsync
   };
 };

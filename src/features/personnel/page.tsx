@@ -167,7 +167,7 @@ export default function PersonnelManagementPage() {
               <DialogHeader>
                 <DialogTitle>Agregar Nuevo Personal</DialogTitle>
                 <DialogDescription>
-                  Crear una nueva cuenta de usuario y asignar roles
+                  Crea una nueva cuenta de usuario e ingresa su informacion
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">

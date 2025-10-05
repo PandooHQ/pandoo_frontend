@@ -8,6 +8,7 @@ const defaultValue: RolesContextType = {
   createRole: () => { return Promise.resolve({ id: 0, name: '', description: '' }) },
   deleteRole: () => {},
   createPermissionMutation: () => Promise.resolve(), 
+  deletePermissionMutation: () => Promise.resolve(), 
 };
 
 export const RolesContext = createContext<RolesContextType>(defaultValue);

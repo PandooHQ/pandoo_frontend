@@ -1,6 +1,6 @@
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { BarChart3, FileText, Plus, Users } from "lucide-react";
+import { BarChart3, FileText, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function QuickActions() {
@@ -9,7 +9,6 @@ export default function QuickActions() {
     <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5 text-blue-600" />
             Acciones Rápidas
           </CardTitle>
           <CardDescription>Comienza con estas tareas comunes</CardDescription>
@@ -24,9 +23,6 @@ export default function QuickActions() {
                 <FileText className="h-6 w-6 text-blue-600" />
                 <div className="text-center">
                   <div className="font-medium">Crear Formulario</div>
-                  <div className="text-xs text-muted-foreground text-wrap">
-                    Construye nuevos formularios de recolección de datos
-                  </div>
                 </div>
               </Button>
             </Link>
@@ -39,9 +35,6 @@ export default function QuickActions() {
                 <BarChart3 className="h-6 w-6 text-green-600" />
                 <div className="text-center">
                   <div className="font-medium">Ver Formularios</div>
-                  <div className="text-xs text-muted-foreground">
-                    Gestiona formularios existentes
-                  </div>
                 </div>
               </Button>
             </Link>
@@ -54,9 +47,6 @@ export default function QuickActions() {
                 <Users className="h-6 w-6 text-purple-600" />
                 <div className="text-center">
                   <div className="font-medium">Gestionar Personal</div>
-                  <div className="text-xs text-muted-foreground">
-                    Agregar y gestionar usuarios
-                  </div>
                 </div>
               </Button>
             </Link>
@@ -69,9 +59,6 @@ export default function QuickActions() {
                 <BarChart3 className="h-6 w-6 text-orange-600" />
                 <div className="text-center">
                   <div className="font-medium">Datos De Formularios</div>
-                  <div className="text-xs text-muted-foreground">
-                    Análisis e información
-                  </div>
                 </div>
               </Button>
             </Link>
