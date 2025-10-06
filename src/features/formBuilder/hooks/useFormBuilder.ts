@@ -84,16 +84,22 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
 
       const processInput = (input: any, pos: number) => {
         const {
+          id,
           type,
           required,
           options,
           placeholder,
           minLength,
           maxLength,
+          isTemporary,
           ...rest
         } = input;
 
+        const processTest = buildAttributes(input)
+        console.log(processTest)
+
         return {
+          ...(isTemporary ? { name: id } : { id }),
           ...rest,
           position: pos + 1,
           input_config_type: type,
