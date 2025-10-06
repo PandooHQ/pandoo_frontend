@@ -104,7 +104,13 @@ export default function FormBuilderEditPage() {
 
     const payload = data.data ?? data;
     const denormalizedForm = denormalizeFormFromBackend(payload);
-    setFormData(denormalizedForm);
+    setFormData({
+      ...denormalizedForm,
+      status:
+        denormalizedForm.status === "published" || denormalizedForm.status === "draft"
+          ? denormalizedForm.status
+          : undefined,
+    });
   }, [data]);
 
   if (!formId || isNaN(formId)) {

@@ -2,6 +2,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { FormType } from "../types/FormType";
 import { getForms } from "@/shared/api/getForms";
 import { useMemo, useState } from "react";
+import { getForm } from "../services/getForm";
+import { createForm } from "@/features/formBuilder/services/createForm";
+import { toast } from "sonner";
 
 export const useMyForms = () => {
   const queryClient = useQueryClient();
@@ -47,27 +50,94 @@ export const useMyForms = () => {
     );
   };
 
-  const duplicateForm = (form: FormType) => {
-    const newId = Math.floor(Math.random() * 1000000);
+  const duplicateForm = async (form: FormType) => {
+    try {
+      const originalForm = await getForm(form.id);
+      const data = originalForm.data;
 
-    const clonedForm: FormType = {
-      ...form,
-      id: newId,
-      title: `${form.title} (copia)`,
-      created_at: new Date().toISOString(),
-      lastModified: new Date().toISOString(),
-      responses: 0,
-      sections: form?.sections?.map((section) => ({
-        ...section,
-        id: `${section.id}-${newId}`,
-        items: section.items.map((item) => ({ ...item })),
-      })),
-    };
+      type InputAttribute = {
+        label: string;
+        name: string;
+        position: number;
+        input_config_type: string;
+        input_config_attributes: {
+          required: boolean;
+        };
+      };
 
-    queryClient.setQueryData<FormType[]>(["forms"], (old = []) => [
-      ...old,
-      clonedForm,
-    ]);
+      type StepAttribute = {
+        title: string;
+        position: number;
+        inputs_attributes: Record<number, InputAttribute>;
+      };
+
+      const steps_attributes = data.steps?.reduce(
+        (
+          acc: Record<number, StepAttribute>,
+          step: {
+            title: string;
+            position: number;
+            inputs?: Array<{
+              label: string;
+              name: string;
+              position: number;
+              input_config_type: string;
+              required?: boolean;
+            }>;
+          },
+          stepIndex: number
+        ) => {
+          acc[stepIndex] = {
+            title: step.title,
+            position: step.position,
+            inputs_attributes: step.inputs?.reduce(
+              (
+                inputsAcc: Record<number, InputAttribute>,
+                input: {
+                  label: string;
+                  name: string;
+                  position: number;
+                  input_config_type: string;
+                  required?: boolean;
+                },
+                inputIndex: number
+              ) => {
+                inputsAcc[inputIndex] = {
+                  label: input.label,
+                  name: input.name,
+                  position: input.position,
+                  input_config_type: input.input_config_type,
+                  input_config_attributes: {
+                    required: input.required ?? false,
+                  },
+                };
+                return inputsAcc;
+              },
+              {} as Record<number, InputAttribute>
+            ) ?? {},
+          };
+          return acc;
+        },
+        {} as Record<number, StepAttribute>
+      );
+
+      const payload = {
+        title: `${data.title} (copia)`,
+        description: data.description,
+        status: "draft",
+        steps_attributes,
+      };
+
+      const newForm = await createForm(payload);
+
+      await queryClient.invalidateQueries({ queryKey: ["forms"] });
+
+      toast.success(`Se duplico el formulario ${data.title} correctamente`)
+
+      return newForm;
+    } catch (error) {
+      console.error("Error duplicando el formulario:", error);
+    }
   };
 
   return {

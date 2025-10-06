@@ -5,17 +5,16 @@ import { Plus, Search, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { FormCards } from "./components/FormsCard";
 import { useMyForms } from "./hooks/useMyForm";
+import { Toaster } from "sonner";
 
 export default function FormPage() {
-  const { forms, setParams } = useMyForms();
+  const { forms, setParams, params } = useMyForms();
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
       <div className="flex items-center justify-between flex-col lg:flex-row">
-        <div> 
-          <h1 className="text-2xl font-bold tracking-tight">
-            Mis Formularios
-          </h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Mis Formularios</h1>
           <p className="text-muted-foreground">
             Gestiona y organiza todos tus formularios en un solo lugar
           </p>
@@ -56,6 +55,11 @@ export default function FormPage() {
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
+            className={`transition-colors duration-300 ease-in-out ${
+              params.status === ""
+                ? "bg-black text-white"
+                : "bg-transparent text-black"
+            }`}
             size="sm"
             onClick={() =>
               setParams((prev) => ({
@@ -66,8 +70,14 @@ export default function FormPage() {
           >
             Todos los Formularios
           </Button>
+
           <Button
             variant="outline"
+            className={`transition-colors duration-300 ease-in-out ${
+              params.status === "published"
+                ? "bg-black text-white"
+                : "bg-transparent text-black"
+            }`}
             size="sm"
             onClick={() =>
               setParams((prev) => ({
@@ -80,6 +90,11 @@ export default function FormPage() {
           </Button>
           <Button
             variant="outline"
+            className={`transition-colors duration-300 ease-in-out ${
+              params.status === "draft"
+                ? "bg-black text-white"
+                : "bg-transparent text-black"
+            }`}
             size="sm"
             onClick={() =>
               setParams((prev) => ({
@@ -112,6 +127,7 @@ export default function FormPage() {
 
         <FormCards forms={forms} />
       </div>
+      <Toaster richColors/>
     </div>
   );
 }

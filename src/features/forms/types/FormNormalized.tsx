@@ -12,5 +12,5 @@ export interface Form {
   description?: string;
   steps_attributes: Step[];
   steps?: Step[]
-  status?: "draft" | "published"
+  status?: string
 }
