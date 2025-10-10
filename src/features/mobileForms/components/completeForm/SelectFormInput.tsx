@@ -8,8 +8,8 @@ import {
 } from "@/shared/components/ui/select";
 
 interface SelectOption {
+  value: string;
   id?: number;
-  value?: string;
 }
 
 interface ResponseField {
@@ -45,14 +45,13 @@ const SelectFormInput = ({ field, value, onChange }: SelectFormInputProps) => {
     response,
   } = field;
 
-  // el valor actual será: value -> response -> default_value
   const currentValue =
     value ??
     (response?.values
       ? multiple
         ? response.values
         : response.values[0]
-      : (default_value ?? (multiple ? [] : "")));
+      : (default_value ?? (multiple ? [] : null)));
 
   if (multiple) {
     return (
@@ -88,8 +87,12 @@ const SelectFormInput = ({ field, value, onChange }: SelectFormInputProps) => {
     );
   }
 
-  const selectedOption = options.find((opt) => opt.id === currentValue);
-  const selectedValue = selectedOption ? String(selectedOption.id) : "__none__";
+  const selectedValue =
+    currentValue !== null && currentValue !== undefined
+      ? Array.isArray(currentValue)
+        ? String(currentValue[0])
+        : String(currentValue)
+      : "";
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -102,7 +105,7 @@ const SelectFormInput = ({ field, value, onChange }: SelectFormInputProps) => {
         onValueChange={(val) =>
           onChange?.(val === "__none__" ? 0 : Number(val))
         }
-        value={selectedValue}
+        value={selectedValue || undefined}
       >
         <SelectTrigger id={`field-${id}`} className="w-full">
           <SelectValue placeholder="Selecciona una opción" />

@@ -1,47 +1,82 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/shared/components/ui/button";
 import { LoadingScreen } from "@/shared/components/LoadingScreen";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, Toaster } from "sonner";
-// import { buildFormResponseData } from "@/features/formEntry/hook/buildFormResponseData";
 import { getFormReponseById } from "../services/getUserResponseById";
 import { FormFieldRenderer } from "../components/completeForm/FormFieldRenderer";
 import type { FormInputField } from "../types/FormInputField";
-// import { updateUserResponse } from "../services/updateUserResponse";
+import { updateUserResponse } from "../services/updateUserResponse";
+import type { FormResponse } from "@/features/formEntry/types/FormResponse";
+import type { Step } from "@/features/formEntry/types/FormAssignment";
+import { buildFormResponseData } from "../hooks/buildFormResponseData";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const CompleteForm = () => {
-  // const router = useNavigate();
-  // const { lang } = useParams();
+  const router = useNavigate();
+  const { lang } = useParams();
   const { id } = useParams();
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-  // const mutation = useMutation({
-  //   mutationFn: () => updateUserResponse(Number(id), formData),
-  //   onSuccess: (data) => {
-  //     console.log(data);
-  //     toast.success("Respuesta guardada correctamente:");
-  //     queryClient.invalidateQueries({ queryKey: ["form_responses"] });
-  //     setTimeout(() => {
-  //       router(`/${lang}/forms/mobile-forms`);
-  //     }, 1500);
-  //   },
-  //   onError: (error) => {
-  //     console.error(error);
-  //     toast.error("Error al guardar la respuesta:");
-  //   },
-  // });
-    
+  const mutation = useMutation({
+    mutationFn: (payload: FormResponse) =>
+      updateUserResponse(Number(id), payload),
+    onSuccess: (data) => {
+      console.log(data);
+      toast.success("Respuesta guardada correctamente:");
+      queryClient.invalidateQueries({ queryKey: ["form_responses"] });
+      queryClient.invalidateQueries({ queryKey: ["form_responses", id] });
+      setTimeout(() => {
+        router(`/${lang}/forms/mobile-forms`);
+      }, 1500);
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Error al guardar la respuesta:");
+    },
+  });
 
   const { data: formData } = useQuery({
     queryKey: ["form_response", Number(id)],
-    queryFn: () => getFormReponseById(Number(id))
+    queryFn: () => getFormReponseById(Number(id)),
   });
-  
+
   const [currentStep, setCurrentStep] = useState(0);
   const [formValues, setFormValues] = useState<Record<string, unknown>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!formData) return;
+
+    const initialValues: Record<string, unknown> = {};
+
+    formData.steps?.forEach((step: Step) => {
+      step.inputs?.forEach((input) => {
+        const resp = input.response;
+
+        if (!resp) return;
+
+        if (resp && typeof resp === "object") {
+          if (
+            "value" in resp &&
+            resp.value !== null &&
+            resp.value !== undefined
+          ) {
+            initialValues[input.name] = resp.value;
+          } else if ("values" in resp && Array.isArray(resp.values)) {
+            initialValues[input.name] = resp.values;
+          }
+        }
+      });
+    });
+
+    setFormValues((prev) => {
+      if (Object.keys(prev).length > 0) return prev;
+      return initialValues;
+    });
+  }, [formData]);
 
   if (!formData) return <LoadingScreen />;
 
@@ -63,6 +98,7 @@ const CompleteForm = () => {
   };
 
   const validateForm = (): boolean => {
+    console.log(formData);
     const newErrors: Record<string, string> = {};
 
     steps.forEach((s: { inputs: FormInputField[] }) => {
@@ -78,8 +114,8 @@ const CompleteForm = () => {
   };
 
   const handleSave = () => {
-    // const payload = buildFormResponseData(formData, formValues);
-    // mutation.mutate(payload);
+    const payload = buildFormResponseData(formData, formValues);
+    mutation.mutate(payload);
   };
 
   const handleSubmit = () => {
@@ -92,8 +128,9 @@ const CompleteForm = () => {
       return;
     }
 
-    // const payload = buildFormResponseData(formData, formValues, "sent");
-    // mutation.mutate(payload);
+    console.log(formValues);
+    const payload = buildFormResponseData(formData, formValues, "sent");
+    mutation.mutate(payload);
   };
 
   return (
@@ -158,23 +195,28 @@ const CompleteForm = () => {
               onClick={handlePrev}
               disabled={currentStep === 0}
               variant="outline"
-              className="rounded-full px-6"
+              className="rounded-full px-6 flex items-center justify-center gap-2"
             >
-              ← Atrás
+              <ArrowLeft className="h-5 w-5 block md:hidden" />
+
+              <span className="hidden md:inline">← Atrás</span>
             </Button>
+
             <Button
               onClick={handleNext}
               disabled={currentStep >= totalSteps - 1}
-              className="rounded-full px-6 bg-blue-600 hover:bg-blue-700 text-white"
+              className="rounded-full px-6 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
             >
-              Siguiente →
+              <span className="hidden md:inline">Siguiente →</span>
+
+              <ArrowRight className="h-5 w-5 block md:hidden" />
             </Button>
           </div>
 
           <div className="flex gap-2">
             <Button
-              // loading={mutation.isPending}
-              // disabled={mutation.isPending}
+              loading={mutation.isPending}
+              disabled={mutation.isPending}
               onClick={handleSave}
               className="rounded-full px-6 bg-blue-500 hover:bg-blue-600 text-white"
             >
@@ -182,8 +224,8 @@ const CompleteForm = () => {
             </Button>
             {currentStep === totalSteps - 1 && (
               <Button
-                // loading={mutation.isPending}
-                // disabled={mutation.isPending}
+                loading={mutation.isPending}
+                disabled={mutation.isPending}
                 onClick={handleSubmit}
                 className="rounded-full px-8 bg-green-600 hover:bg-green-700 text-white"
               >

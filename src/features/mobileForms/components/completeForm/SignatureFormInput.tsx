@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
 interface SignatureFormInputProps {
@@ -17,6 +17,7 @@ interface SignatureFormInputProps {
 const SignatureFormInput = ({ field, onChange }: SignatureFormInputProps) => {
   const sigCanvas = useRef<SignatureCanvas | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [status, setStatus] = useState<"idle" | "drawing" | "saved" | "cleared">("idle");
 
   useEffect(() => {
     const resizeCanvas = () => {
@@ -33,6 +34,7 @@ const SignatureFormInput = ({ field, onChange }: SignatureFormInputProps) => {
     return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
 
+  // Cargar firma previa si existe
   useEffect(() => {
     if (field.response?.value && sigCanvas.current) {
       try {
@@ -46,13 +48,32 @@ const SignatureFormInput = ({ field, onChange }: SignatureFormInputProps) => {
   const clearSignature = () => {
     sigCanvas.current?.clear();
     onChange?.("");
+    setStatus("cleared");
   };
 
   const saveSignature = () => {
     if (!sigCanvas.current || sigCanvas.current.isEmpty()) return;
     const dataUrl = sigCanvas.current.getCanvas().toDataURL("image/png");
     onChange?.(dataUrl);
+    setStatus("saved");
   };
+
+  // Detectar cuando el usuario está firmando
+  const handleBeginDrawing = () => setStatus("drawing");
+
+  const statusText = {
+    idle: "",
+    saved: "✅ Firma guardada correctamente",
+    cleared: "🧹 Firma eliminada",
+    drawing: "✍️ Editando firma...",
+  }[status];
+
+  const statusColor = {
+    idle: "",
+    saved: "text-green-600",
+    cleared: "text-gray-500",
+    drawing: "text-blue-600",
+  }[status];
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -65,11 +86,16 @@ const SignatureFormInput = ({ field, onChange }: SignatureFormInputProps) => {
         <SignatureCanvas
           ref={sigCanvas}
           penColor="black"
+          onBegin={handleBeginDrawing}
           canvasProps={{
             className: "bg-white rounded-lg w-full h-[200px]",
           }}
         />
       </div>
+
+      {status !== "idle" && (
+        <p className={`text-sm mt-1 ${statusColor}`}>{statusText}</p>
+      )}
 
       <div className="flex gap-2 mt-2">
         <button

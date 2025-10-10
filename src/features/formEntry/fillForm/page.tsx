@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { buildFormResponseData } from "../hook/buildFormResponseData";
 import { createFormResponse } from "../services/createFormResponse";
 import { toast, Toaster } from "sonner";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const FillForm = () => {
   const router = useNavigate();
@@ -159,19 +160,23 @@ const FillForm = () => {
               onClick={handlePrev}
               disabled={currentStep === 0}
               variant="outline"
-              className="rounded-full px-6"
+              className="rounded-full px-6 flex items-center justify-center gap-2"
             >
-              ← Atrás
+              <ArrowLeft className="h-5 w-5 block md:hidden" />
+
+              <span className="hidden md:inline">← Atrás</span>
             </Button>
+
             <Button
               onClick={handleNext}
               disabled={currentStep >= totalSteps - 1}
-              className="rounded-full px-6 bg-blue-600 hover:bg-blue-700 text-white"
+              className="rounded-full px-6 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
             >
-              Siguiente →
+              <span className="hidden md:inline">Siguiente →</span>
+
+              <ArrowRight className="h-5 w-5 block md:hidden" />
             </Button>
           </div>
-
           <div className="flex gap-2">
             <Button
               loading={mutation.isPending}

@@ -39,6 +39,7 @@ export interface Input {
     max?:           null;
     step?:          string;
     allow_decimal?: boolean;
+    response?: unknown
 }
 
 export interface Option {

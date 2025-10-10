@@ -1,5 +1,6 @@
-import type { FormAssignment, Input, Step } from "../types/FormAssignment";
-import type { FormResponse } from "../types/FormResponse";
+import type { FormAssignment, Input, Step } from "@/features/formEntry/types/FormAssignment";
+import type { FormResponse } from "@/features/formEntry/types/FormResponse";
+
 
 export const buildFormResponseData = (
   form: FormAssignment,
@@ -15,16 +16,10 @@ export const buildFormResponseData = (
       .map((input: Input) => {
         const value = formData[input.name];
         let answer: Record<string, unknown>;
-
         if (input.type === "select") {
           const selectedValues = Array.isArray(value) ? value : [value];
-
-          const selectedIds =
-            input.options
-              ?.filter((opt) => selectedValues.includes(opt.value))
-              .map((opt) => opt.id) ?? [];
-
-          answer = { values: selectedIds };
+          
+          answer = { values: selectedValues };
         } else {
           answer = { value };
         }
