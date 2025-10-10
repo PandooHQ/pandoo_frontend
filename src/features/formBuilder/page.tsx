@@ -75,6 +75,8 @@ export default function Page() {
     }
   };
 
+  console.log(activeId)
+  
   return (
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
       <div className="flex items-center justify-between flex-col gap-4 lg:flex-row">
@@ -256,29 +258,6 @@ export default function Page() {
                   rows={3}
                 />
               </div>
-              {/* <div className="space-y-2">
-                <Label>Configuración del Formulario</Label>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <Switch id="allow-multiple" />
-                    <Label htmlFor="allow-multiple" className="text-sm">
-                      Permitir múltiples envíos
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="require-login" />
-                    <Label htmlFor="require-login" className="text-sm">
-                      Requerir inicio de sesión para enviar
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="send-confirmation" />
-                    <Label htmlFor="send-confirmation" className="text-sm">
-                      Enviar correo de confirmación
-                    </Label>
-                  </div>
-                </div>
-              </div> */}
             </CardContent>
           </Card>
           <Card>
@@ -287,6 +266,7 @@ export default function Page() {
               <CardDescription>
                 Configure los detalles y ajustes de los campos
               </CardDescription>
+              <p>{activeId}</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <img src="/ConstructSection.png" />

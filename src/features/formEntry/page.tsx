@@ -9,19 +9,32 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Search, FileText } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAssignments } from "@/shared/hooks/useAssignments";
 import type { Assignment } from "@/shared/types/AssignmentContextType";
+import { useQueryClient } from "@tanstack/react-query";
+import { getFormInputById } from "./services/getFormInputs";
 
 export default function FormEntryPage() {
+  const { lang } = useParams()
+
   const { assignments } = useAssignments();
   const [searchTerm, setSearchTerm] = useState("");
+  const queryClient = useQueryClient();
   const filteredForms = assignments?.filter((form: Assignment) => {
     const matchesSearch = form.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
+
+  const prefetchFormInput = async (id: number) => {
+    await queryClient.prefetchQuery({
+      queryKey: ["form_assignment", id],
+      queryFn: () => getFormInputById(id),
+      staleTime: 1000 * 60 * 5,
+    });
+  };
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
@@ -67,7 +80,10 @@ export default function FormEntryPage() {
             </CardHeader>
 
             <CardContent className="pt-0">
-              <Link to={`/forms/entry/${form.id}`}>
+              <Link
+                to={`/${lang}/forms/form-entry/${form.id}`}
+                onMouseEnter={() => prefetchFormInput(form.id)}
+              >
                 <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white text-sm py-2.5">
                   Nuevo Registro
                 </Button>

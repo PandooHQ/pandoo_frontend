@@ -46,7 +46,7 @@ export default function Section({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 max-h-[650px] overflow-y-auto">
+        <CardContent className="space-y-4 max-h-[50vh] md:max-h-[60vh] lg:max-h-[calc(100vh-20rem)] overflow-y-auto">
           {containers.map((sectionId: UniqueIdentifier) => {
             const section = sections?.find((s) => s.id === sectionId);
             if (!section) return null;

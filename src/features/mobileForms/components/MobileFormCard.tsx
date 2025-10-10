@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 
 interface Props {
   mobileForm: MobileForm;
+  onMouseEnter?: () => void;
+  onClick?: () => void
 }
 
 const statusColors: Record<MobileForm["status"], string> = {
@@ -13,7 +15,7 @@ const statusColors: Record<MobileForm["status"], string> = {
   assigned: "bg-red-500 text-white",
 };
 
-const MobileFormCard = ({ mobileForm }: Props) => {
+const MobileFormCard = ({ mobileForm, onMouseEnter, onClick }: Props) => {
   const { t } = useTranslation();
 
   const statusText = {
@@ -23,7 +25,7 @@ const MobileFormCard = ({ mobileForm }: Props) => {
   }[mobileForm.status];
 
   return (
-    <div className="relative">
+    <div className="relative hover:cursor-pointer" onMouseEnter={onMouseEnter} onClick={onClick}>
       <Badge
         className={`absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-medium shadow-md ${statusColors[mobileForm.status]}`}
       >
