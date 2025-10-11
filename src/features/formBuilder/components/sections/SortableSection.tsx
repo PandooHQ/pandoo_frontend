@@ -13,7 +13,17 @@ import type { UniqueIdentifier } from "@dnd-kit/core";
 import type { ItemType } from "../../types/ItemType";
 import { useEffect, useRef, useState } from "react";
 
-export function SortableSection({ section, isSortingContainer, removeSection, updateSection, updateItem, removeItem, selectedSection, setSelectedSection}: {
+export function SortableSection({
+  section,
+  isSortingContainer,
+  removeSection,
+  updateSection,
+  updateItem,
+  removeItem,
+  selectedSection,
+  setSelectedSection,
+  setSelectedInput,
+}: {
   section: SectionType;
   isSortingContainer: boolean;
   removeSection: (id: UniqueIdentifier) => void;
@@ -21,7 +31,8 @@ export function SortableSection({ section, isSortingContainer, removeSection, up
   updateItem: (itemId: string, updates: Partial<ItemType>) => void;
   removeItem: (itemId: string) => void;
   selectedSection: UniqueIdentifier | undefined;
-  setSelectedSection: (itemId: UniqueIdentifier) => void
+  setSelectedSection: (itemId: UniqueIdentifier) => void;
+  setSelectedInput: (itemId: UniqueIdentifier) => void;
 }) {
   const { id, title, items } = section;
   const { setNodeRef, transform, isDragging, attributes, listeners } =
@@ -31,7 +42,9 @@ export function SortableSection({ section, isSortingContainer, removeSection, up
     });
 
   const contentRef = useRef<HTMLDivElement>(null);
-  const [containerHeight, setContainerHeight] = useState<string | number>("auto");  
+  const [containerHeight, setContainerHeight] = useState<string | number>(
+    "auto"
+  );
 
   useEffect(() => {
     if (contentRef.current) {
@@ -50,9 +63,9 @@ export function SortableSection({ section, isSortingContainer, removeSection, up
         transform: CSS.Translate.toString(transform),
         transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
         opacity: isDragging ? 0.7 : 1,
-        background: id === selectedSection ? 'aliceblue' : "#f9fafb",
+        background: id === selectedSection ? "aliceblue" : "#f9fafb",
         border: "1px solid",
-        borderColor: id === selectedSection ? '#0097ff' : "#e5e7eb",
+        borderColor: id === selectedSection ? "#0097ff" : "#e5e7eb",
         borderRadius: "12px",
         padding: "12px",
         minWidth: "200px",
@@ -91,8 +104,8 @@ export function SortableSection({ section, isSortingContainer, removeSection, up
           placeholder="Título de la sección"
           className="flex-1 font-medium"
           onClick={(e) => {
-            setSelectedSection(id)
-            e.stopPropagation()
+            setSelectedSection(id);
+            e.stopPropagation();
           }}
         />
         <Button
@@ -131,6 +144,7 @@ export function SortableSection({ section, isSortingContainer, removeSection, up
               onUpdate={updateItem}
               section={section?.id}
               setSelectedSection={setSelectedSection}
+              setSelectedInput={setSelectedInput}
             />
           ))}
         </div>

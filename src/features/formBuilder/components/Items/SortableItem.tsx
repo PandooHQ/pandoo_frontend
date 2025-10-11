@@ -6,11 +6,10 @@ import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Trash2, Grip, Plus } from "lucide-react";
-import {
-  defaultAnimateLayoutChanges,
-} from "@dnd-kit/sortable";
+import { defaultAnimateLayoutChanges } from "@dnd-kit/sortable";
 import type { AnimateLayoutChanges } from "@dnd-kit/sortable";
 import type { UniqueIdentifier } from "@dnd-kit/core";
+import { useEffect } from "react";
 
 type SortableItemProps = {
   item: ItemType;
@@ -18,12 +17,12 @@ type SortableItemProps = {
   onUpdate: (id: string, updates: Partial<ItemType>) => void;
   onRemove: (id: string) => void;
   section: UniqueIdentifier;
-  setSelectedSection: (itemId: UniqueIdentifier) => void
+  setSelectedSection: (itemId: UniqueIdentifier) => void;
+  setSelectedInput: (itemId: UniqueIdentifier) => void;
 };
 
 const animateLayoutChanges: AnimateLayoutChanges = (args) =>
   defaultAnimateLayoutChanges({ ...args, wasDragging: true });
-
 
 export function SortableItem({
   item,
@@ -31,14 +30,21 @@ export function SortableItem({
   onUpdate,
   onRemove,
   section,
-  setSelectedSection
+  setSelectedSection,
+  setSelectedInput,
 }: SortableItemProps) {
-  const { setNodeRef, attributes, listeners, transform, transition, isDragging } =
-    useSortable({
-      id: item.id,
-      disabled,
-      animateLayoutChanges
-    });
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: item.id,
+    disabled,
+    animateLayoutChanges,
+  });
 
   const updateField = (updates: Partial<ItemType>) => {
     onUpdate(item.id, updates);
@@ -52,7 +58,10 @@ export function SortableItem({
     updateField({ options: [...(item.options ?? []), newOption] });
   };
 
-  const updateOption = (optId: number, updates: Partial<{ label: string; value: string }>) => {
+  const updateOption = (
+    optId: number,  
+    updates: Partial<{ label: string; value: string }>
+  ) => {
     updateField({
       options: (item.options ?? []).map((opt) =>
         opt.id === optId ? { ...opt, ...updates } : opt
@@ -65,6 +74,10 @@ export function SortableItem({
       options: (item.options ?? []).filter((opt) => opt.id !== optId),
     });
   };
+
+  useEffect(() => {
+    console.log("Render item id:", item.id);
+  }, [item.id]);
 
   return (
     <div
@@ -95,8 +108,9 @@ export function SortableItem({
           placeholder="Etiqueta del campo"
           className="flex-1 text-sm"
           onClick={(e) => {
-            e.stopPropagation()
-            setSelectedSection(section)
+            e.stopPropagation();
+            setSelectedSection(section);
+            setSelectedInput(item.id);
           }}
         />
 
@@ -126,20 +140,20 @@ export function SortableItem({
           {item.type === "instructions"
             ? "Bloque de instrucciones"
             : item.type === "signature"
-            ? "Campo de firma"
-            : item.type === "select"
-            ? "Campo de selección"
-            : item.type === "number"
-            ? "Campo numerico"
-            : item.type === "text"
-            ? "Campo de texto"
-            : item.type === "date"
-            ? "Campo fecha"
-            : `Campo ${item.type}`}
+              ? "Campo de firma"
+              : item.type === "select"
+                ? "Campo de selección"
+                : item.type === "number"
+                  ? "Campo numerico"
+                  : item.type === "text"
+                    ? "Campo de texto"
+                    : item.type === "date"
+                      ? "Campo fecha"
+                      : `Campo ${item.type}`}
         </span>
       </div>
 
-      {(item.type === "select" || item.type==="checkbox") && (
+      {(item.type === "select" || item.type === "checkbox") && (
         <div className="space-y-2 pl-6 border-l border-gray-200">
           {(item.options ?? []).map((opt) => (
             <div key={opt.id} className="flex items-center gap-2">

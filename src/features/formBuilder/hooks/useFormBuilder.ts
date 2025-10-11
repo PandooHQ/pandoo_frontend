@@ -625,6 +625,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       case "number":
         return {
           ...baseAttributes,
+          allow_decimal: item.allow_decimal
           // min: item.min || undefined,
           // max: item.max || undefined,
           // step: item.step || 1,

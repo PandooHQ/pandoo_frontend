@@ -25,6 +25,7 @@ export default function Section({
   updateSection,
   updateItem,
   removeItem,
+  setSelectedInput
 }: SectionProps) {
   const [selectedSection, setSelectedSection] = useState<UniqueIdentifier>();
 
@@ -62,6 +63,7 @@ export default function Section({
                 removeItem={removeItem}
                 selectedSection={selectedSection}
                 setSelectedSection={setSelectedSection}
+                setSelectedInput={setSelectedInput}
               />
             );
           })}

@@ -14,4 +14,5 @@ export interface ItemType {
     minLength?: number;
     maxLength?: number;
     options?: ItemOption[];
+    allow_decimal?: boolean
 }

@@ -8,7 +8,7 @@ import {
 import InputsMenuCard from "./components/InputsMenuCard";
 import Section from "./components/sections/Section";
 import { useFormBuilder } from "./hooks/useFormBuilder";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { CheckCircle, Redo, Undo, Upload } from "lucide-react";
 import {
@@ -23,6 +23,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { ConfirmModal } from "@/shared/components/ConfirmModal";
 import { Toaster } from "sonner";
+import { Switch } from "@/shared/components/ui/switch";
 
 export default function Page() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
@@ -46,7 +47,7 @@ export default function Page() {
     updateItem,
     removeItem,
     undo,
-    redo
+    redo,
   } = useFormBuilder();
   const { active } = useDndContext();
   const [modalOpen, setModalOpen] = useState(false);
@@ -54,7 +55,9 @@ export default function Page() {
   const [selectedFormId, setSelectedFormId] = useState<
     number | UniqueIdentifier | null
   >(null);
+  const [selectedInput, setSelectedInput] = useState<UniqueIdentifier>();
   const [selectedFieldId, setSelectedFieldId] = useState<string>("");
+
   const handleDeleteClick = (id: number | UniqueIdentifier) => {
     setSelectedFormId(id);
     setModalOpen(true);
@@ -75,8 +78,18 @@ export default function Page() {
     }
   };
 
-  console.log(activeId)
-  
+  // Encuentra el item seleccionado y fuerza actualización cuando cambian las secciones
+  const selectedItem = sections
+    .flatMap((s) => s.items)
+    .find((i) => i.id === selectedInput);
+
+  // Efecto para limpiar la selección si el item ya no existe
+  useEffect(() => {
+    if (selectedInput && !selectedItem) {
+      setSelectedInput(undefined);
+    }
+  }, [selectedItem, selectedInput]);
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
       <div className="flex items-center justify-between flex-col gap-4 lg:flex-row">
@@ -153,6 +166,7 @@ export default function Page() {
             updateSection={updateSection}
             updateItem={updateItem}
             removeItem={handleDeleteClickItem}
+            setSelectedInput={setSelectedInput}
           />
           <DragOverlay>
             {activeId ? (
@@ -260,16 +274,59 @@ export default function Page() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="flex-shrink-0">
             <CardHeader>
               <CardTitle>Campos de Configuración</CardTitle>
               <CardDescription>
                 Configure los detalles y ajustes de los campos
               </CardDescription>
-              <p>{activeId}</p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <img src="/ConstructSection.png" />
+              <div className="min-h-[200px] flex flex-col justify-center">
+                {selectedItem ? (
+                  <>
+                    {selectedItem.type === "number" && (
+                      <div
+                        key={selectedItem.id}
+                        className="flex items-center space-x-2"
+                      >
+                        <Switch
+                          checked={selectedItem.allow_decimal || false}
+                          onCheckedChange={(checked) =>
+                            updateItem(selectedItem.id, {
+                              allow_decimal: checked,
+                            })
+                          }
+                        />
+                        <Label
+                          htmlFor={`required-${selectedItem.id}`}
+                          className="font-light"
+                        >
+                          Permitir decimales
+                        </Label>
+                      </div>
+                    )}
+
+                    {selectedItem.type !== "number" && (
+                      <div className="flex items-center justify-center h-full">
+                        <img
+                          src="/ConstructSection.png"
+                          alt="Sin configuración disponible"
+                          className="max-w-full h-auto"
+                        />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <img
+                      src="/ConstructSection.png"
+                      alt="Selecciona un campo"
+                      className="max-w-full h-auto"
+                    />
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -293,7 +350,7 @@ export default function Page() {
         confirmText="Eliminar"
         cancelText="Cancelar"
       />
-      <Toaster richColors/>
+      <Toaster richColors />
     </div>
   );
 }
