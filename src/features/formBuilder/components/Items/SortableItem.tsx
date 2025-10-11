@@ -139,7 +139,7 @@ export function SortableItem({
         </span>
       </div>
 
-      {item.type === "select" && (
+      {(item.type === "select" || item.type==="checkbox") && (
         <div className="space-y-2 pl-6 border-l border-gray-200">
           {(item.options ?? []).map((opt) => (
             <div key={opt.id} className="flex items-center gap-2">

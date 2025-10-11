@@ -37,7 +37,10 @@ const MobileFormCard = ({ mobileForm, onMouseEnter, onClick }: Props) => {
           <h3 className="font-semibold text-gray-900 text-lg flex-1">
             {mobileForm.title}
           </h3>
-          <span className="text-sm text-gray-600">{mobileForm.updated_at}</span>
+          <div className="flex flex-row justify-between text-sm text-gray-600">
+            <p>ID: {mobileForm.id}</p>
+             <p>{mobileForm.updated_at}</p> 
+            </div>
         </CardContent>
       </Card>
     </div>

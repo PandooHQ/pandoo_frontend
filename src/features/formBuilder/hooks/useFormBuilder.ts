@@ -87,7 +87,6 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
           id,
           type,
           required,
-          options,
           placeholder,
           minLength,
           maxLength,
@@ -108,7 +107,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
             placeholder,
             min_length: minLength,
             max_length: maxLength,
-            options,
+            options: processTest.options,
           },
         };
       };
@@ -613,7 +612,10 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       case "checkbox":
         return {
           ...baseAttributes,
-          options: item.options || [],
+          options: (item.options || []).map((option, index) => ({
+            id: index + 1,
+            value: option.label,
+          })), 
           // inline: item.inline ?? false,
           // select_all: item.selectAll ?? false,
           // min_selections: item.minSelections || undefined,

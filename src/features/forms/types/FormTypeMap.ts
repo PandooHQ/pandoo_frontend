@@ -3,5 +3,6 @@ export const typeMap: Record<string, string> = {
   select: "InputConfigs::SelectInput",
   signature: "InputConfigs::SignatureInput",
   number: "InputConfigs::NumberInput",
-  date: "InputConfigs::DatetimeInput"
+  date: "InputConfigs::DatetimeInput",
+  checkbox: "InputConfigs::CheckboxInput"
 };
