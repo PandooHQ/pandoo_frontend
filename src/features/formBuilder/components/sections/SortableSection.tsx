@@ -32,7 +32,7 @@ export function SortableSection({
   removeItem: (itemId: string) => void;
   selectedSection: UniqueIdentifier | undefined;
   setSelectedSection: (itemId: UniqueIdentifier) => void;
-  setSelectedInput: (itemId: UniqueIdentifier) => void;
+  setSelectedInput?: (itemId: UniqueIdentifier) => void;
 }) {
   const { id, title, items } = section;
   const { setNodeRef, transform, isDragging, attributes, listeners } =

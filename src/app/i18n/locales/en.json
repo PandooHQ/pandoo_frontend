@@ -32,11 +32,49 @@
     "dont_have_account": "Don't have an account?",
     "register": "Register"
   },
-  "not_found":{
-    "title":"Page not found",
+  "not_found": {
+    "title": "Page not found",
     "button": "Go home"
   },
-  "menu":{
+  "home": {
+    "gettingStarted": {
+      "title": "Getting Started with Pandoo",
+      "description": "Follow these steps to set up your data collection workflow",
+      "steps": {
+        "1": {
+          "title": "Create Your First Form",
+          "text": "Design your customizable forms",
+          "link": "Start creating"
+        },
+        "2": {
+          "title": "Add Your Team",
+          "text": "Add your team and easily assign them forms.",
+          "link": "Manage personnel"
+        },
+        "3": {
+          "title": "Monitor Progress",
+          "text": "Review submissions and analyze trends in your data.",
+          "link": "View dashboard"
+        }
+      }
+    },
+    "banner": {
+      "welcomeTitle": "Welcome to Pandoo",
+      "subtitle": "Data Digitization",
+      "description": "Optimize your data collection processes with powerful forms, real-time analytics, and comprehensive personnel management tools."
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "description": "Start with these common tasks",
+      "actions": {
+        "createForm": "Create Form",
+        "viewForms": "View Forms",
+        "managePersonnel": "Manage Personnel",
+        "formData": "Form Data"
+      }
+    }
+  },
+  "menu": {
     "home": "Home",
     "dashboard": "Dashboard",
     "create_form": "Create Form",
@@ -47,20 +85,20 @@
     "personnel_management": "Personnel Managment",
     "roles_and_permisions": {
       "title": "Roles & Permissions",
-      "submenu":{
+      "submenu": {
         "roles_overview": "Roles Overview",
         "permission_matrix": "Permission Matrix",
-        "role_assignments": "Role Assignments" 
+        "role_assignments": "Role Assignments"
       }
     }
   },
-  "mobile_forms":{
+  "mobile_forms": {
     "all": "All",
     "sent": "Sent",
     "draft": "Draft",
     "assigned": "Pending",
     "search_placeholder": "Search forms..."
-  },     
+  },
   "form_data": {
     "title": "Form Submissions",
     "subtitle": "View and manage data from your forms",

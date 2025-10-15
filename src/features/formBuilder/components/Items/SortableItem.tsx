@@ -18,7 +18,7 @@ type SortableItemProps = {
   onRemove: (id: string) => void;
   section: UniqueIdentifier;
   setSelectedSection: (itemId: UniqueIdentifier) => void;
-  setSelectedInput: (itemId: UniqueIdentifier) => void;
+  setSelectedInput?: (itemId: UniqueIdentifier) => void;
 };
 
 const animateLayoutChanges: AnimateLayoutChanges = (args) =>
@@ -110,7 +110,7 @@ export function SortableItem({
           onClick={(e) => {
             e.stopPropagation();
             setSelectedSection(section);
-            setSelectedInput(item.id);
+            setSelectedInput?.(item.id); 
           }}
         />
 

@@ -11,5 +11,5 @@ export interface SectionProps {
   updateItem: (itemId: string, updates: Partial<ItemType>) => void;
   removeItem: (itemId: string) => void;
   isSortingContainer: boolean;
-  setSelectedInput: (itemId: UniqueIdentifier) => void
+  setSelectedInput?: (itemId: UniqueIdentifier) => void
 }

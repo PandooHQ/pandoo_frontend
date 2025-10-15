@@ -29,7 +29,7 @@ import {
   Signature,
   X,
 } from "lucide-react";
-import { useMemo, useState} from "react";
+import { useMemo, useState } from "react";
 import { getForms } from "@/shared/api/getForms";
 import { getFormResponses } from "./services/getFormResponses";
 import { exportData } from "./services/exportData";
@@ -55,7 +55,7 @@ export default function FormDataPage() {
     enabled: !!firstFormId,
   });
 
-  console.log(formResponses)
+  console.log(formResponses);
 
   const handleFormChange = (formId: string) => {
     setSelectedFormId(Number(formId));
@@ -63,12 +63,14 @@ export default function FormDataPage() {
 
   const filteredSubmissions = useMemo(() => {
     if (!formResponses?.submissions) return [];
-    return formResponses.submissions.filter((s: { created_at: string | number | Date; }) => {
-      const createdAt = new Date(s.created_at);
-      const afterStart = startDate ? createdAt >= new Date(startDate) : true;
-      const beforeEnd = endDate ? createdAt <= new Date(endDate) : true;
-      return afterStart && beforeEnd;
-    });
+    return formResponses.submissions.filter(
+      (s: { created_at: string | number | Date }) => {
+        const createdAt = new Date(s.created_at);
+        const afterStart = startDate ? createdAt >= new Date(startDate) : true;
+        const beforeEnd = endDate ? createdAt <= new Date(endDate) : true;
+        return afterStart && beforeEnd;
+      }
+    );
   }, [formResponses?.submissions, startDate, endDate]);
 
   const handleExport = async () => {
@@ -92,9 +94,7 @@ export default function FormDataPage() {
           <h1 className="text-2xl font-bold tracking-tight">
             {t("form_data.title")}
           </h1>
-          <p className="text-muted-foreground">
-            {t("form_data.subtitle")}
-          </p>
+          <p className="text-muted-foreground">{t("form_data.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <Select
@@ -113,12 +113,14 @@ export default function FormDataPage() {
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={() => handleExport()}>{t("form_data.export")}</Button>
+          <Button onClick={() => handleExport()}>
+            {t("form_data.export")}
+          </Button>
         </div>
       </div>
 
       {/* Metrics */}
-       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -204,48 +206,61 @@ export default function FormDataPage() {
                   <TableHead>ID</TableHead>
                   <TableHead>User Email</TableHead>
                   <TableHead>Created At</TableHead>
-                  {formResponses?.columns?.map((col: {id:number, label: string}) => (
-                    <TableHead key={col.id}>{col.label}</TableHead>
-                  ))}
+                  {formResponses?.columns?.map(
+                    (col: { id: number; label: string }) => (
+                      <TableHead key={col.id}>{col.label}</TableHead>
+                    )
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredSubmissions.map((s: { id: number; user: { email: string }; created_at: string | number | Date; updated_at: string | number | Date; answers: any[]; }) => (
-                  <TableRow key={s.id} className="hover:bg-muted/50">
-                    <TableCell>{s.id}</TableCell>
-                    <TableCell>{s.user.email}</TableCell>
-                    <TableCell>
-                      {new Date(s.created_at).toLocaleString()}
-                    </TableCell>
-                    {formResponses.columns.map((col: {id:number, label:string}) => {
-                      const ans = s.answers.find(
-                        (a: {form_input_id:number}) => a.form_input_id === col.id
-                      );
-                      let value: React.ReactNode = "-";
-
-                      if (col.label.toLowerCase().includes("firma")) {
-                        value =
-                          ans && ans.value ? (
-                            <span className="flex items-center text-green-600 font-semibold gap-2">
-                              <Signature /> Firmado
-                            </span>
-                          ) : (
-                            <span className="flex items-center text-red-600 font-semibold gap-2">
-                              <X /> No firmado
-                            </span>
+                {filteredSubmissions.map(
+                  (s: {
+                    id: number;
+                    user: { email: string };
+                    created_at: string | number | Date;
+                    updated_at: string | number | Date;
+                    answers: any[];
+                  }) => (
+                    <TableRow key={s.id} className="hover:bg-muted/50">
+                      <TableCell>{s.id}</TableCell>
+                      <TableCell>{s.user.email}</TableCell>
+                      <TableCell>
+                        {new Date(s.created_at).toLocaleString()}
+                      </TableCell>
+                      {formResponses.columns.map(
+                        (col: { id: number; label: string, type: string }) => {
+                          const ans = s.answers.find(
+                            (a: { form_input_id: number }) =>
+                              a.form_input_id === col.id
                           );
-                      } else if (ans) {
-                        if (Array.isArray(ans.value)) {
-                          value = ans.value.join(", ");
-                        } else if (typeof ans.value === "string") {
-                          value = ans.value;
-                        }
-                      }
+                          let value: React.ReactNode = "-";
 
-                      return <TableCell key={col.id}>{value}</TableCell>;
-                    })}
-                  </TableRow>
-                ))}
+                          if (col.type.includes("InputConfigs::SignatureInput")) {
+                            value =
+                              ans && ans.value ? (
+                                <span className="flex items-center text-green-600 font-semibold gap-2">
+                                  <Signature /> Firmado
+                                </span>
+                              ) : (
+                                <span className="flex items-center text-red-600 font-semibold gap-2">
+                                  <X /> No firmado
+                                </span>
+                              );
+                          } else if (ans) {
+                            if (Array.isArray(ans.value)) {
+                              value = ans.value.join(", ");
+                            } else if (typeof ans.value === "string") {
+                              value = ans.value;
+                            }
+                          }
+
+                          return <TableCell key={col.id}>{value}</TableCell>;
+                        }
+                      )}
+                    </TableRow>
+                  )
+                )}
               </TableBody>
             </Table>
           </div>

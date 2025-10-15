@@ -60,7 +60,6 @@ export function PrivateLayout() {
                                 Pandoo
                               </span>
                               <span className="text-xs text-muted-foreground">
-                                Constructora LN
                               </span>
                             </div>
                           </div>

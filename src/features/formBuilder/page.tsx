@@ -24,6 +24,7 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { ConfirmModal } from "@/shared/components/ConfirmModal";
 import { Toaster } from "sonner";
 import { Switch } from "@/shared/components/ui/switch";
+import { typeActiveId } from "../forms/types/FormTypeMap";
 
 export default function Page() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
@@ -234,7 +235,8 @@ export default function Page() {
                 >
                   {sections
                     ?.flatMap((s) => s.items)
-                    .find((i) => i.id === activeId)?.label || activeId}
+                    .find((i) => i.id === activeId)?.label ||
+                    typeActiveId[String(activeId).split("-")[0]]}
                 </div>
               )
             ) : null}

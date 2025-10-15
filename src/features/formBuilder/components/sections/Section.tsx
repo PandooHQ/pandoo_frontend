@@ -2,7 +2,6 @@ import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
@@ -36,10 +35,6 @@ export default function Section({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Campos del Formulario</CardTitle>
-              <CardDescription>
-                Haga clic en una sección para seleccionarla, luego agregue
-                campos
-              </CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={() => addSection()}>
               <FolderPlus className="mr-2 h-4 w-4" />

@@ -36,6 +36,44 @@
     "title": "La pagina que buscas no existe",
     "button": "Volver al dashboard"
   },
+  "home": {
+    "gettingStarted": {
+      "title": "Comenzando con Pandoo",
+      "description": "Sigue estos pasos para configurar tu flujo de trabajo de recolección de datos",
+      "steps": {
+        "1": {
+          "title": "Crea tu Primer Formulario",
+          "text": "Diseña tus formularios personalizables",
+          "link": "Comenzar a crear"
+        },
+        "2": {
+          "title": "Ingresa tu personal",
+          "text": "Agrega tu equipo y asígnales formularios fácilmente.",
+          "link": "Gestionar personal"
+        },
+        "3": {
+          "title": "Monitorea el Progreso",
+          "text": "Revisa envíos y analiza tendencias en tus datos.",
+          "link": "Ver panel de control"
+        }
+      }
+    },
+    "banner": {
+      "welcomeTitle": "Bienvenido a Pandoo",
+      "subtitle": "Digitalización de datos",
+      "description": "Optimiza tus procesos de recolección de datos con formularios potentes, análisis en tiempo real y herramientas integrales de gestión de personal."
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "description": "Comienza con estas tareas comunes",
+      "actions": {
+        "createForm": "Crear Formulario",
+        "viewForms": "Ver Formularios",
+        "managePersonnel": "Gestionar Personal",
+        "formData": "Datos De Formularios"
+      }
+    }
+  },
   "menu": {
     "home": "Home",
     "dashboard": "Panel de control",
@@ -54,14 +92,14 @@
       }
     }
   },
-  "mobile_forms":{
+  "mobile_forms": {
     "all": "Todos",
     "sent": "Enviado",
     "draft": "Borrador",
     "assigned": "Pendiente",
     "search_placeholder": "Buscar formularios..."
   },
-  "form_data":{
+  "form_data": {
     "title": "Envíos de Formularios",
     "subtitle": "Ver y administrar datos de tus formularios",
     "export": "Exportar datos",

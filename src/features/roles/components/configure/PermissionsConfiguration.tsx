@@ -18,7 +18,7 @@ interface Props {
   setCurrentStep: (step: number) => void;
 }
 
-export default function PermissionsConfiguration  ({
+export default function PermissionsConfiguration({
   handlePermissionSelect,
   selectedPermissions,
   setCurrentStep,
@@ -31,7 +31,11 @@ export default function PermissionsConfiguration  ({
     return actions.every((action) => isPermissionSelected(subject, action));
   };
 
-  const handleSubjectToggle = (subject: string, actions: string[], checked: boolean) => {
+  const handleSubjectToggle = (
+    subject: string,
+    actions: string[],
+    checked: boolean
+  ) => {
     actions.forEach((action) => {
       const permissionId = `${subject}.${action}`;
       handlePermissionSelect(permissionId, checked);
@@ -39,7 +43,8 @@ export default function PermissionsConfiguration  ({
   };
 
   const getSelectedCount = (subject: string, actions: string[]) => {
-    return actions.filter((action) => isPermissionSelected(subject, action)).length;
+    return actions.filter((action) => isPermissionSelected(subject, action))
+      .length;
   };
 
   return (
@@ -47,16 +52,22 @@ export default function PermissionsConfiguration  ({
       <CardHeader>
         <CardTitle>Permisos del Rol</CardTitle>
         <CardDescription>
-          Selecciona los permisos que tendrá este rol. Puedes seleccionar permisos específicos
-          o categorías completas.
+          Selecciona los permisos que tendrá este rol. Puedes seleccionar
+          permisos específicos o categorías completas.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
           {allPermissions.map((category) => {
             const Icon = category.icon;
-            const selectedCount = getSelectedCount(category.subject, category.actions);
-            const isFullySelected = isSubjectFullySelected(category.subject, category.actions);
+            const selectedCount = getSelectedCount(
+              category.subject,
+              category.actions
+            );
+            const isFullySelected = isSubjectFullySelected(
+              category.subject,
+              category.actions
+            );
             const isPartiallySelected = selectedCount > 0 && !isFullySelected;
 
             return (
@@ -80,10 +91,14 @@ export default function PermissionsConfiguration  ({
                             checked as boolean
                           )
                         }
-                        ref={el => {
+                        ref={(el) => {
                           if (el) {
-                            const input = el.querySelector('input[type="checkbox"]');
-                            if (input) (input as HTMLInputElement).indeterminate = isPartiallySelected;
+                            const input = el.querySelector(
+                              'input[type="checkbox"]'
+                            );
+                            if (input)
+                              (input as HTMLInputElement).indeterminate =
+                                isPartiallySelected;
                           }
                         }}
                       />
@@ -120,9 +135,15 @@ export default function PermissionsConfiguration  ({
                       >
                         <Checkbox
                           id={permissionId}
-                          checked={isPermissionSelected(category.subject, action)}
+                          checked={isPermissionSelected(
+                            category.subject,
+                            action
+                          )}
                           onCheckedChange={(checked) =>
-                            handlePermissionSelect(permissionId, checked as boolean)
+                            handlePermissionSelect(
+                              permissionId,
+                              checked as boolean
+                            )
                           }
                         />
                         <Label
@@ -140,23 +161,20 @@ export default function PermissionsConfiguration  ({
           })}
         </div>
 
-        {selectedPermissions.length > 0 && (
-          <div className="mt-6 p-4 bg-muted rounded-lg">
-            <p className="text-sm font-medium mb-2">
-              Permisos seleccionados: {selectedPermissions.length}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {selectedPermissions.slice(0, 10).map((permission) => (
-                <Badge key={permission} variant="secondary">
-                  {permission}
-                </Badge>
-              ))}
-              {selectedPermissions.length > 10 && (
-                <Badge variant="outline">+{selectedPermissions.length - 10} más</Badge>
-              )}
-            </div>
-          </div>
-        )}
+        {selectedPermissions.slice(0, 10).map((permission) => {
+          const [subject, action] = permission.split(".");
+
+          const category = allPermissions.find((p) => p.subject === subject);
+          const subjectLabel = category ? category.label : subject;
+
+          const actionLabel = actionLabels[action] || action;
+
+          return (
+            <Badge key={permission} variant="secondary" className="ml-2">
+              {subjectLabel}: {actionLabel}
+            </Badge>
+          );
+        })}
 
         <div className="flex justify-between mt-6">
           <Button variant="outline" onClick={() => window.history.back()}>

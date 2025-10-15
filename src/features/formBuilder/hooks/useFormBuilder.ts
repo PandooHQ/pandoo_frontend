@@ -184,6 +184,11 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   ) => {
     const formToUpdate = { ...newForm, status, sections };
 
+    if(newForm.title == ''){
+      toast.error("Necesitas ponerle un titulo al formulario");
+      return
+    }
+
     const formToSend = buildPayload(initialForm, formToUpdate);
     formToSend.title = formToUpdate.title;
     formToSend.description = formToUpdate.description;
@@ -213,6 +218,12 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     activeId != null ? containers.includes(activeId) : false;
 
   const saveForm = async (status: "draft" | "published" = "draft") => {
+
+    if(newForm.title == ''){
+      toast.error("Necesitas ponerle un titulo al formulario");
+      return;
+    }
+
     const formToSave = { ...newForm, status, sections };
     const formToSend = normalizeAndValidateForm(formToSave);
     try{

@@ -28,6 +28,7 @@ import { getForm } from "../forms/services/getForm";
 import { denormalizeFormFromBackend } from "@/shared/lib/denormalizedForm";
 import { Toaster } from "sonner";
 import { ConfirmModal } from "@/shared/components/ConfirmModal";
+import { typeActiveId } from "../forms/types/FormTypeMap";
 
 export default function FormBuilderEditPage() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
@@ -107,7 +108,8 @@ export default function FormBuilderEditPage() {
     setFormData({
       ...denormalizedForm,
       status:
-        denormalizedForm.status === "published" || denormalizedForm.status === "draft"
+        denormalizedForm.status === "published" ||
+        denormalizedForm.status === "draft"
           ? denormalizedForm.status
           : undefined,
     });
@@ -268,7 +270,8 @@ export default function FormBuilderEditPage() {
                 >
                   {sections
                     ?.flatMap((s) => s.items)
-                    .find((i) => i.id === activeId)?.label || activeId}
+                    .find((i) => i.id === activeId)?.label ||
+                    typeActiveId[String(activeId).split("-")[0]]}
                 </div>
               )
             ) : null}
