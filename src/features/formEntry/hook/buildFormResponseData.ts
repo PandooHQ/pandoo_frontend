@@ -16,7 +16,7 @@ export const buildFormResponseData = (
         const value = formData[input.name];
         let answer: Record<string, unknown>;
 
-        if (input.type === "select") {
+        if (input.type === "select" || input.type==="checkbox") {
           const selectedValues = Array.isArray(value) ? value : [value];
 
           const selectedIds =

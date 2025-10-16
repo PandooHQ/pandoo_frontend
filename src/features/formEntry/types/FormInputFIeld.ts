@@ -33,6 +33,12 @@ type SelectField = BaseField & {
   options?: SelectOption[];
 };
 
+type CheckBoxField = BaseField & {
+  type: "checkbox";
+  include_blank?: boolean;
+  options?: SelectOption[];
+};
+
 type SignatureField = BaseField & {
   type: "signature";
 };
@@ -42,4 +48,5 @@ export type FormInputField =
   | NumberField
   | DateField
   | SelectField
-  | SignatureField;
+  | SignatureField
+  | CheckBoxField;

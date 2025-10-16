@@ -229,14 +229,16 @@ export default function FormDataPage() {
                         {new Date(s.created_at).toLocaleString()}
                       </TableCell>
                       {formResponses.columns.map(
-                        (col: { id: number; label: string, type: string }) => {
+                        (col: { id: number; label: string; type: string }) => {
                           const ans = s.answers.find(
                             (a: { form_input_id: number }) =>
                               a.form_input_id === col.id
                           );
                           let value: React.ReactNode = "-";
 
-                          if (col.type.includes("InputConfigs::SignatureInput")) {
+                          if (
+                            col.type.includes("InputConfigs::SignatureInput")
+                          ) {
                             value =
                               ans && ans.value ? (
                                 <span className="flex items-center text-green-600 font-semibold gap-2">
@@ -249,8 +251,19 @@ export default function FormDataPage() {
                               );
                           } else if (ans) {
                             if (Array.isArray(ans.value)) {
-                              value = ans.value.join(", ");
-                            } else if (typeof ans.value === "string") {
+                              value = (
+                                <ul className="list-disc list-inside">
+                                  {ans.value.map(
+                                    (v: string | number, i: number) => (
+                                      <li key={i}>{v}</li>
+                                    )
+                                  )}
+                                </ul>
+                              );
+                            } else if (
+                              typeof ans.value === "string" ||
+                              typeof ans.value === "number"
+                            ) {
                               value = ans.value;
                             }
                           }

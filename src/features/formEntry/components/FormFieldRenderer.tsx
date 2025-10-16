@@ -5,6 +5,7 @@ import SignatureFormInput from "./SignatureFormInput";
 import DateFormInput from "./DateFormInput";
 import TextFormInput from "./TextFormInput";
 import type { FormInputField } from "../types/FormInputFIeld";
+import CheckboxFormInput from "./CheckboxFormInput";
 
 interface FormFieldRendererProps {
   input: FormInputField;
@@ -28,6 +29,8 @@ export const FormFieldRenderer = ({ input, value, onChange }: FormFieldRendererP
       return <SelectFormInput field={input} value={value} onChange={handleFieldChange} />;
     case "signature":
       return <SignatureFormInput field={input} value={value} onChange={handleFieldChange} />;
+    case "checkbox":
+      return <CheckboxFormInput field={input} value={value} onChange={handleFieldChange} />
     default:
       return <p>Tipo no soportado: {(input as any).type}</p>;
   }
