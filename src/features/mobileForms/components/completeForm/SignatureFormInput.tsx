@@ -17,16 +17,28 @@ interface SignatureFormInputProps {
 const SignatureFormInput = ({ field, onChange }: SignatureFormInputProps) => {
   const sigCanvas = useRef<SignatureCanvas | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [status, setStatus] = useState<"idle" | "drawing" | "saved" | "cleared">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "drawing" | "saved" | "cleared"
+  >("idle");
 
   useEffect(() => {
     const resizeCanvas = () => {
       const canvas = sigCanvas.current;
       const container = containerRef.current;
-      if (canvas && container) {
-        const canvasEl = canvas.getCanvas();
-        canvasEl.width = container.offsetWidth;
-      }
+      if (!canvas || !container) return;
+
+      const canvasEl = canvas.getCanvas();
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+      const data = canvas.isEmpty() ? null : canvas.toDataURL();
+
+      canvasEl.width = container.offsetWidth * ratio;
+      canvasEl.height = container.offsetHeight * ratio;
+
+      const ctx = canvasEl.getContext("2d");
+      if (ctx) ctx.scale(ratio, ratio);
+
+      if (data) canvas.fromDataURL(data);
     };
 
     resizeCanvas();
@@ -34,7 +46,6 @@ const SignatureFormInput = ({ field, onChange }: SignatureFormInputProps) => {
     return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
 
-  // Cargar firma previa si existe
   useEffect(() => {
     if (field.response?.value && sigCanvas.current) {
       try {
@@ -58,7 +69,6 @@ const SignatureFormInput = ({ field, onChange }: SignatureFormInputProps) => {
     setStatus("saved");
   };
 
-  // Detectar cuando el usuario está firmando
   const handleBeginDrawing = () => setStatus("drawing");
 
   const statusText = {

@@ -24,7 +24,7 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { ConfirmModal } from "@/shared/components/ConfirmModal";
 import { Toaster } from "sonner";
 import { Switch } from "@/shared/components/ui/switch";
-import { typeActiveId } from "../forms/types/FormTypeMap";
+import { typeActiveId, typeIcon } from "../forms/types/FormTypeMap";
 
 export default function Page() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
@@ -224,20 +224,33 @@ export default function Page() {
                   {active.data.current.label}
                 </div>
               ) : (
-                <div
-                  style={{
-                    background: "#fff",
-                    border: "1px solid #ddd",
-                    borderRadius: "8px",
-                    padding: "8px 12px",
-                    boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
-                  }}
-                >
-                  {sections
+                (() => {
+                  const typeKey = String(activeId).split("-")[0];
+                  const type = typeActiveId[typeKey];
+                  const activeLabel = sections
                     ?.flatMap((s) => s.items)
-                    .find((i) => i.id === activeId)?.label ||
-                    typeActiveId[String(activeId).split("-")[0]]}
-                </div>
+                    .find((i) => i.id === activeId)?.label;
+                  const IconComponent = typeIcon[typeKey];
+                  console.log(IconComponent, type)
+
+                  return (
+                    <div
+                      style={{
+                        background: "#fff",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        padding: "8px 12px",
+                        boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      {IconComponent && <IconComponent className="h-4 w-4" />}
+                      {activeLabel || type}
+                    </div>
+                  );
+                })()
               )
             ) : null}
           </DragOverlay>

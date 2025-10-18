@@ -54,10 +54,14 @@ import { usePositions } from "@/shared/hooks/usePositions";
 import { useDepartments } from "@/shared/hooks/useDepartments";
 import { toast, Toaster } from "sonner";
 import { DepartmentCombobox } from "./components/DepartmentCombobox";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function PersonnelManagementPage() {
   const { users } = useContext(UsersContext);
   const { roles } = useContext(RolesContext);
+
+  const router = useNavigate();
+  const { lang } = useParams()
 
   const { departments, createDepartment } = useDepartments();
   const { positions, createPositions } = usePositions();
@@ -115,9 +119,8 @@ export default function PersonnelManagementPage() {
   });
 
   const handleViewProfile = (userId: number) => {
-    console.log("Ver perfil de usuario con ID:", userId);
-    toast.info("Confirma manuel si hay q hacer esto xd, Redirigiendo al perfil...");
-  };
+    router(`/${lang}/personnel/${userId}`);
+  };  
 
   const handleCreateUser = async () => {
     try {

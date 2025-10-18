@@ -23,6 +23,7 @@ import FormBuilderEditPage from "@/features/formBuilder/pageEdit"
 import BulkFormAssignmentPage from "@/features/forms/assignment/page"
 import FillForm from "@/features/formEntry/fillForm/page"
 import CompleteForm from "@/features/mobileForms/completeForm/page"
+import EditPersonnelPage from "@/features/personnel/editPersonnel/page"
 
 const SUPPORTED_LANGUAGES = ["en", "es"]
 const DEFAULT_LANGUAGE = "es"
@@ -88,7 +89,9 @@ export function AppRouter() {
           >
             <Route path="" element={<HomePage />} />
             <Route path="settings" element={<SettingsPage />} />
+
             <Route path="personnel" element={<PersonnelManagementPage />} />
+            <Route path="personnel/:id" element={<EditPersonnelPage />} />
            
             <Route path="roles" element={<RolesPage />} />
             <Route path="roles/edit/:id" element={<EditRolePage />} />

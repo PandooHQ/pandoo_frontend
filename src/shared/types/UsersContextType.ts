@@ -45,5 +45,9 @@ export interface Role {
 
 
 export type UpdateUserInput = Partial<
-  Omit<User, "id">
-> & { id: string };
+  Omit<User, "id" | "position_id" | "department_id">
+> & { 
+  id: string;
+  position_id?: number | null;
+  department_id?: number | null;
+};

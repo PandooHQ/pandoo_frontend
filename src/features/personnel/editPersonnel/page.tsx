@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -16,7 +16,6 @@ import {
 } from "@/shared/components/ui/avatar";
 import { Mail, Phone, Calendar, Edit, Save, X, Upload } from "lucide-react";
 
-import { useAuthStore } from "@/shared/stores/auth";
 import { updateUser } from "@/shared/api/updateUser";
 import {
   Select,
@@ -26,9 +25,19 @@ import {
 } from "@/shared/components/ui/select";
 import { useDepartments } from "@/shared/hooks/useDepartments";
 import { usePositions } from "@/shared/hooks/usePositions";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getUser } from "@/features/settings/services/getUser";
 
-export default function SettingsPage() {
-  const { user: userData, updateUser: updateState } = useAuthStore();
+export default function EditPersonnelPage() {
+  const { id } = useParams();
+
+  const { data: userData, isLoading } = useQuery({
+    queryKey: ["user", id],
+    queryFn: () => getUser(Number(id)), 
+    enabled: !!id, 
+  });
+
   const { departments } = useDepartments();
   const { positions } = usePositions();
 
@@ -46,22 +55,42 @@ export default function SettingsPage() {
 
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [formData, setFormData] = useState({
-    id: userData?.id || 0,
-    first_name: userData?.first_name || "",
-    last_name: userData?.last_name || "",
-    email: userData?.email || "",
-    phone: userData?.phone || "",
-    location: userData?.location || "",
-    position_id: userData?.position_id || null,
-    department_id: userData?.department_id || null,
-    position: getPositionName(userData?.position) || "",
-    department: getDepartmentName(userData?.department) || "",
-    profile_picture: userData?.profile_picture || "/placeholder.svg",
-    created_at: userData?.created_at,
-    status: userData?.status,
+    id: 0,
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    location: "",
+    position_id: null as number | null,
+    department_id: null as number | null,
+    position: "",
+    department: "",
+    profile_picture: "/placeholder.svg" as string | File, 
+    created_at: "",
+    status: "",
   });
 
   const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (userData) {
+      setFormData({
+        id: userData.id || 0,
+        first_name: userData.first_name || "",
+        last_name: userData.last_name || "",
+        email: userData.email || "",
+        phone: userData.phone || "",
+        location: userData.location || "",
+        position_id: userData.position_id || null,
+        department_id: userData.department_id || null,
+        position: getPositionName(userData.position) || "",
+        department: getDepartmentName(userData.department) || "",
+        profile_picture: userData.profile_picture || "/placeholder.svg",
+        created_at: userData.created_at || "",
+        status: userData.status || "",
+      });
+    }
+  }, [userData]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -74,20 +103,20 @@ export default function SettingsPage() {
   };
 
   const user = {
-    id: formData?.id,
-    name: `${formData?.first_name} ${formData?.last_name}`,
-    email: formData?.email,
-    phone: formData?.phone || "+56 9 8765 4321",
-    position: formData?.position, 
-    department: formData?.department,
-    status: formData?.status,
-    joinDate: formData?.created_at,
-    location: formData?.location,
-    avatar: formData?.profile_picture,
+    id: formData.id,
+    name: `${formData.first_name} ${formData.last_name}`,
+    email: formData.email,
+    phone: formData.phone || "+56 9 8765 4321",
+    position: formData.position,
+    department: formData.department,
+    status: formData.status,
+    joinDate: formData.created_at,
+    location: formData.location,
+    avatar: formData.profile_picture,
   };
 
   const handleSave = async () => {
-    const resp = await updateUser(formData.id, {
+    await updateUser(formData.id, {
       first_name: formData.first_name,
       last_name: formData.last_name,
       email: formData.email,
@@ -98,14 +127,46 @@ export default function SettingsPage() {
       profile_picture: profilePicture || undefined,
     });
 
-    updateState(resp.data);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setFormData(userData! as typeof formData);
+    if (userData) {
+      setFormData({
+        id: userData.id || 0,
+        first_name: userData.first_name || "",
+        last_name: userData.last_name || "",
+        email: userData.email || "",
+        phone: userData.phone || "",
+        location: userData.location || "",
+        position_id: userData.position_id || null,
+        department_id: userData.department_id || null,
+        position: getPositionName(userData.position) || "",
+        department: getDepartmentName(userData.department) || "",
+        profile_picture: userData.profile_picture || "/placeholder.svg",
+        created_at: userData.created_at || "",
+        status: userData.status || "",
+      });
+    }
+    setProfilePicture(null);
     setIsEditing(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-4">
+        <p>Cargando...</p>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-4">
+        <p>Usuario no encontrado</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 max-w-4xl mx-auto">
@@ -157,11 +218,14 @@ export default function SettingsPage() {
                 <h1 className="text-2xl font-bold">{user.name}</h1>
                 <p className="text-base text-muted-foreground">
                   {positions.find((p) => p.id === formData.position_id)?.name ||
-                    user.position}
+                    formData.position ||
+                    "Sin cargo asignado"}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {departments.find((d) => d.id === formData.department_id)
-                    ?.name || user.department}
+                    ?.name ||
+                    formData.department ||
+                    "Sin departamento asignado"}
                 </p>
               </div>
             </div>
@@ -204,7 +268,7 @@ export default function SettingsPage() {
                   <Label htmlFor="firstName">Nombre</Label>
                   <Input
                     id="firstName"
-                    value={formData.first_name!}
+                    value={formData.first_name}
                     onChange={(e) =>
                       setFormData({ ...formData, first_name: e.target.value })
                     }
@@ -214,7 +278,7 @@ export default function SettingsPage() {
                   <Label htmlFor="lastName">Apellido</Label>
                   <Input
                     id="lastName"
-                    value={formData.last_name!}
+                    value={formData.last_name}
                     onChange={(e) =>
                       setFormData({ ...formData, last_name: e.target.value })
                     }
@@ -279,9 +343,7 @@ export default function SettingsPage() {
         {/* Work Information */}
         <Card>
           <CardHeader>
-            <CardTitle>
-              {isEditing ? "Información Laboral" : "Información Laboral"}
-            </CardTitle>
+            <CardTitle>Información Laboral</CardTitle>
             <CardDescription>
               {isEditing
                 ? "Configuración del cargo del usuario"
@@ -299,9 +361,9 @@ export default function SettingsPage() {
                       setFormData({ ...formData, position_id: Number(value) })
                     }
                   >
-                    <SelectTrigger className="w-[220px]">
+                    <SelectTrigger className="w-full">
                       {positions.find((p) => p.id === formData.position_id)
-                        ?.name || "Seleccione"}
+                        ?.name || "Seleccione un cargo"}
                     </SelectTrigger>
                     <SelectContent>
                       {positions.map((pos) => (
@@ -320,9 +382,9 @@ export default function SettingsPage() {
                       setFormData({ ...formData, department_id: Number(value) })
                     }
                   >
-                    <SelectTrigger className="w-[220px]">
+                    <SelectTrigger className="w-full">
                       {departments.find((d) => d.id === formData.department_id)
-                        ?.name || "Seleccione"}
+                        ?.name || "Seleccione un departamento"}
                     </SelectTrigger>
                     <SelectContent>
                       {departments.map((dept) => (
@@ -340,14 +402,18 @@ export default function SettingsPage() {
                   <h4 className="font-medium mb-2">Cargo Actual</h4>
                   <p className="text-muted-foreground">
                     {positions.find((p) => p.id === formData.position_id)
-                      ?.name || user.position}
+                      ?.name ||
+                      formData.position ||
+                      "Sin cargo asignado"}
                   </p>
                 </div>
                 <div className="p-4 rounded-lg border">
                   <h4 className="font-medium mb-2">Departamento</h4>
                   <p className="text-muted-foreground">
                     {departments.find((d) => d.id === formData.department_id)
-                      ?.name || user.department}
+                      ?.name ||
+                      formData.department ||
+                      "Sin departamento asignado"}
                   </p>
                 </div>
               </>

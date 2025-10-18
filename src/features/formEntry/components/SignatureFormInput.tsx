@@ -26,7 +26,16 @@ const SignatureFormInput = ({ field, onChange }: SignatureFormInputProps) => {
       const container = containerRef.current;
       if (canvas && container) {
         const canvasEl = canvas.getCanvas();
-        canvasEl.width = container.offsetWidth;
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+        canvasEl.width = container.offsetWidth * ratio;
+        canvasEl.height = container.offsetHeight * ratio;
+
+        canvasEl.getContext("2d")?.scale(ratio, ratio);
+
+        if (sigCanvas.current) {
+          sigCanvas.current.clear();
+        }
       }
     };
 

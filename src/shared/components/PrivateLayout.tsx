@@ -59,8 +59,7 @@ export function PrivateLayout() {
                               <span className="text-lg font-semibold">
                                 Pandoo
                               </span>
-                              <span className="text-xs text-muted-foreground">
-                              </span>
+                              <span className="text-xs text-muted-foreground"></span>
                             </div>
                           </div>
                         </div>
@@ -111,7 +110,9 @@ export function PrivateLayout() {
                                   {user?.first_name} {user?.last_name}
                                 </p>
                                 <p className="text-xs text-muted-foreground truncate">
-                                  {user?.position}
+                                  {typeof user?.position === "string"
+                                    ? user.position
+                                    : user?.position?.name}
                                 </p>
                               </div>
                               <Button variant="ghost" size="sm" asChild>
