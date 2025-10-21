@@ -320,13 +320,13 @@ export default function PersonnelManagementPage() {
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-1 items-center space-x-2">
-          <Search className="h-4 w-4 text-muted-foreground" />
+        <div className="relative flex-1 w-full max-w-sm">        
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar personal..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
+            className="pl-9 w-full"
           />
         </div>
         <div className="flex items-center space-x-2">
@@ -334,7 +334,7 @@ export default function PersonnelManagementPage() {
             value={selectedDepartment}
             onValueChange={setSelectedDepartment}
           >
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[210px]">
               <SelectValue placeholder="Departamento" />
             </SelectTrigger>
             <SelectContent>

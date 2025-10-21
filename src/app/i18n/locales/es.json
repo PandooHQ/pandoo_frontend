@@ -103,6 +103,7 @@
     "title": "Envíos de Formularios",
     "subtitle": "Ver y administrar datos de tus formularios",
     "export": "Exportar datos",
+    "not_found": "No se encontraron respuestas",
     "filters": {
       "from": "Desde:",
       "to": "Hasta:"

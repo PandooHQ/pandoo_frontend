@@ -29,12 +29,11 @@ interface FormBuilderInitialValues {
 }
 
 export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
-
   const [history, setHistory] = useState<SectionType[][]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const createMutation = useFormMutation(createForm);
-  const { lang } = useParams()
-  const router = useNavigate()
+  const { lang } = useParams();
+  const router = useNavigate();
 
   const [newForm, setNewForm] = useState<FormType>({
     id: Math.floor(Math.random() * 100),
@@ -47,7 +46,13 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     sections: [],
   });
 
-  const [sections, setSections] = useState<SectionType[]>([]);
+  const [sections, setSections] = useState<SectionType[]>([
+    {
+      id: `Sortable-${Date.now()}`,
+      title: `Nueva Sección`,
+      items: [],
+    },
+  ]);
 
   useEffect(() => {
     if (initialValues?.form) setNewForm(initialValues.form);
@@ -94,8 +99,8 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
           ...rest
         } = input;
 
-        const processTest = buildAttributes(input)
-        console.log(processTest)
+        const processTest = buildAttributes(input);
+        console.log(processTest);
 
         return {
           ...(isTemporary ? { name: id } : { id }),
@@ -166,7 +171,6 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
           })),
         });
       }
-
     });
     return {
       title: original.title,
@@ -184,9 +188,9 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   ) => {
     const formToUpdate = { ...newForm, status, sections };
 
-    if(newForm.title == ''){
+    if (newForm.title == "") {
       toast.error("Necesitas ponerle un titulo al formulario");
-      return
+      return;
     }
 
     const formToSend = buildPayload(initialForm, formToUpdate);
@@ -194,21 +198,19 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     formToSend.description = formToUpdate.description;
     formToSend.status = status;
 
-
-    try{
+    try {
       await updateFormMutation({ form: formToSend });
 
-      toast.success("El formulario ha sido actualizado correctamente")
-    
+      toast.success("El formulario ha sido actualizado correctamente");
+
       setTimeout(() => {
-        router(`/${lang}/forms`)
+        router(`/${lang}/forms`);
       }, 1500);
-    }catch(e){
-      console.error(e)
-      toast.error("Ha ocurrido un error durante la actualizacion" )
+    } catch (e) {
+      console.error(e);
+      toast.error("Ha ocurrido un error durante la actualizacion");
     }
   };
-
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const lastOverId = useRef<UniqueIdentifier | null>(null);
@@ -218,24 +220,23 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     activeId != null ? containers.includes(activeId) : false;
 
   const saveForm = async (status: "draft" | "published" = "draft") => {
-
-    if(newForm.title == ''){
+    if (newForm.title == "") {
       toast.error("Necesitas ponerle un titulo al formulario");
       return;
     }
 
     const formToSave = { ...newForm, status, sections };
     const formToSend = normalizeAndValidateForm(formToSave);
-    try{
+    try {
       await createMutation.mutate(formToSend);
-      toast.success("Formulario creado exitosamente")
+      toast.success("Formulario creado exitosamente");
 
       setTimeout(() => {
-        router(`/${lang}/forms`)
+        router(`/${lang}/forms`);
       }, 1500);
-    }catch(e){
-      console.error(e)
-      toast.error("Ha ocurrido un error ")
+    } catch (e) {
+      console.error(e);
+      toast.error("Ha ocurrido un error ");
     }
   };
 
@@ -517,7 +518,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   };
 
   const updateItem = (itemId: string, updates: Partial<ItemType>) => {
-    console.log(updates, itemId)
+    console.log(updates, itemId);
     setSections((prevSections) =>
       prevSections.map((section) => ({
         ...section,
@@ -572,7 +573,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
                   inputsAcc[itemIndex] = {
                     ...keepIdIfNumber(item.id),
                     label: item.label,
-                    name: item.id, 
+                    name: item.id,
                     position: itemIndex + 1,
                     input_config_type: typeMap[item.type] ?? item.type,
                     input_config_attributes: buildAttributes(item),
@@ -611,7 +612,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
           options: (item.options || []).map((option, index) => ({
             id: index + 1,
             value: option.label,
-          })), 
+          })),
         };
 
       case "radio":
@@ -626,7 +627,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
           options: (item.options || []).map((option, index) => ({
             id: index + 1,
             value: option.label,
-          })), 
+          })),
           // inline: item.inline ?? false,
           // select_all: item.selectAll ?? false,
           // min_selections: item.minSelections || undefined,
@@ -636,7 +637,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       case "number":
         return {
           ...baseAttributes,
-          allow_decimal: item.allow_decimal
+          allow_decimal: item.allow_decimal,
           // min: item.min || undefined,
           // max: item.max || undefined,
           // step: item.step || 1,
@@ -646,9 +647,9 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       case "date":
         return {
           ...baseAttributes,
-          field_type: item.type
+          field_type: item.type,
         };
-      case "datetime": 
+      case "datetime":
       case "time":
         return {
           ...baseAttributes,
@@ -674,11 +675,13 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
 
   const normalizeAndValidateForm = (form: FormType) => {
     if (!form.sections || form.sections.length === 0) {
+      toast.error("El formulario debe tener al menos una sección")
       throw new Error("El formulario debe tener al menos una sección");
     }
 
     form.sections.forEach((section, index) => {
       if (!section.items || section.items.length === 0) {
+        toast.error(`La sección ${index + 1} debe tener al menos un campo`)
         throw new Error(`La sección ${index + 1} debe tener al menos un campo`);
       }
 

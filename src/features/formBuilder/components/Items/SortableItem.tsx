@@ -106,7 +106,7 @@ export function SortableItem({
           value={item.label}
           onChange={(e) => updateField({ label: e.target.value })}
           placeholder="Etiqueta del campo"
-          className="flex-1 text-sm"
+          className="flex-1 text-sm mr-2"
           onClick={(e) => {
             e.stopPropagation();
             setSelectedSection(section);

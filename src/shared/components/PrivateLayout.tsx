@@ -103,7 +103,10 @@ export function PrivateLayout() {
                                   }
                                   alt="User"
                                 />
-                                <AvatarFallback>JD</AvatarFallback>
+                                <AvatarFallback>
+                                  {user?.first_name?.[0]?.toUpperCase() || ""}
+                                  {user?.last_name?.[0]?.toUpperCase() || ""}
+                                </AvatarFallback>
                               </Avatar>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium truncate">

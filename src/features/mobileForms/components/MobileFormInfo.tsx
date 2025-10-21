@@ -12,6 +12,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Eye, ClipboardType, Download } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getFormReponseById } from "../services/getUserResponseById";
+import { Separator } from "@/shared/components/ui/separator";
 
 interface Props {
   open: boolean;
@@ -129,7 +130,7 @@ const MobileFormInfo = ({ open, onClose, formId }: Props) => {
             <Button
               variant="outline"
               onClick={handleDownloadPDF}
-              className="no-export w-full"
+              className="no-export"
             >
               <Download className="w-4 h-4 mr-2" /> Exportar
             </Button>
@@ -139,7 +140,8 @@ const MobileFormInfo = ({ open, onClose, formId }: Props) => {
                   <ClipboardType className="w-5 h-5" />
                   {section.title}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Separator />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                   {section.inputs.map((input) => (
                     <div key={input.id} className="flex flex-col">
                       <span className="text-gray-500 text-sm">

@@ -1,10 +1,10 @@
 import { createContext } from "react";
-import type { Position, PositionsContextType } from "../types/PositionsContextType";
+import type { PositionResp, PositionsContextType } from "../types/PositionsContextType";
 
 const defaultValue: PositionsContextType = {
   positions: [],
   createPositions: async () => {
-    return {} as Position;
+    return {} as PositionResp;
   },
 };
 

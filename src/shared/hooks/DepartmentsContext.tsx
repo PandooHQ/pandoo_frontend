@@ -1,10 +1,10 @@
 import { createContext } from "react";
-import type { Department, DepartmentsContextType } from "../types/DepartmentsContextType";
+import type { DepartmentResp, DepartmentsContextType } from "../types/DepartmentsContextType";
 
 const defaultValue: DepartmentsContextType = {
   departments: [],
   createDepartment: async () => {
-    return {} as Department;
+    return {} as DepartmentResp;
   },
 };
 

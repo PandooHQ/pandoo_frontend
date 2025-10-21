@@ -102,7 +102,7 @@ export function SortableSection({
           value={title}
           onChange={(e) => updateSection(id, e.target.value)}
           placeholder="Título de la sección"
-          className="flex-1 font-medium"
+          className="flex-1 font-medium mr-2"
           onClick={(e) => {
             setSelectedSection(id);
             e.stopPropagation();

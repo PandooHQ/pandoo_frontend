@@ -1,7 +1,14 @@
 
 export interface DepartmentsContextType {
     departments: Department[];
-    createDepartment: (deparment: CreateDeparmentInput) => Promise<Department>;
+    createDepartment: (deparment: CreateDeparmentInput) => Promise<DepartmentResp>;
+}
+
+export interface DepartmentResp {
+     data: {
+        id: number,
+        name: string
+    }
 }
 
 export interface Department {

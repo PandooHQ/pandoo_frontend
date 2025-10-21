@@ -15,14 +15,14 @@ import {
   PopoverTrigger,
 } from "@/shared/components/ui/popover"
 import { cn } from "@/shared/lib/utils"
-import type { CreatePositionInput, Position } from "@/shared/types/PositionsContextType"
+import type { CreatePositionInput, Position, PositionResp } from "@/shared/types/PositionsContextType"
 import { toast } from "sonner"
 
 
 export function PositionCombobox({ positions, onSelect, createPositions }: { 
   positions: Position[], 
   onSelect: (position: Position | null) => void,
-  createPositions: (userData: CreatePositionInput) => Promise<Position>
+  createPositions: (userData: CreatePositionInput) => Promise<PositionResp>
 }) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
@@ -31,24 +31,44 @@ export function PositionCombobox({ positions, onSelect, createPositions }: {
 
   const selectedPosition = positions.find((pos) => pos.name === value)
 
+  React.useEffect(() => {
+    if (!open) {
+      setSearchValue("")
+    }
+  }, [open])
+
   const handleCreatePosition = async () => {
     if (!searchValue.trim()) return
     
+    const positionName = searchValue.trim()
     setIsCreating(true)
+    
     try {
-      const newPosition = await createPositions({ name: searchValue.trim() })
+      const response = await createPositions({ name: positionName })
       
+      const newPosition = response.data
+      
+      setOpen(false)
+
       setValue(newPosition.name)
       onSelect(newPosition)
-      setOpen(false)
+      
       setSearchValue("")
-      toast.success(`Cargo "${searchValue}" creado`)
+      
+      toast.success(`Cargo "${newPosition.name}" creado y seleccionado`)
     } catch (error) {
       console.error("Error al crear posición:", error)
       toast.error("Error al crear cargo")
     } finally {
       setIsCreating(false)
     }
+  }
+
+  const handleSelect = (currentValue: string, position: Position) => {
+    setValue(currentValue)
+    setOpen(false)
+    onSelect(position)
+    setSearchValue("")
   }
 
   return (
@@ -92,12 +112,7 @@ export function PositionCombobox({ positions, onSelect, createPositions }: {
                 <CommandItem
                   key={pos.id}
                   value={pos.name}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue)
-                    setOpen(false)
-                    onSelect(pos)
-                    setSearchValue("")
-                  }}
+                  onSelect={(currentValue) => handleSelect(currentValue, pos)}
                 >
                   {pos.name}
                   <Check

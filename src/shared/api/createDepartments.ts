@@ -1,7 +1,7 @@
-import type { CreateDeparmentInput, Department } from "../types/DepartmentsContextType";
+import type { CreateDeparmentInput, DepartmentResp } from "../types/DepartmentsContextType";
 import api from "./api";
 
-export const createDepartments = async (name : CreateDeparmentInput): Promise<Department> => {
+export const createDepartments = async (name : CreateDeparmentInput): Promise<DepartmentResp> => {
   
     const resp = await api.post("/departments", name );
   

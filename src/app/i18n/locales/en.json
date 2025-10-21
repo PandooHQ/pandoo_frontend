@@ -103,6 +103,7 @@
     "title": "Form Submissions",
     "subtitle": "View and manage data from your forms",
     "export": "Export data",
+    "not_found": "No submissions found",
     "filters": {
       "from": "From:",
       "to": "To:"

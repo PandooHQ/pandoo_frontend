@@ -178,112 +178,123 @@ export default function FormDataPage() {
         </Card>
       </div>
 
-      {/* Data Table */}
-      <div className="flex w-full justify-end">
-        <div className="flex gap-2 items-center">
-          <label>{t("form_data.filters.from")}</label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="border rounded p-1"
-          />
-          <label>{t("form_data.filters.to")}</label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="border rounded p-1"
-          />
-        </div>
-      </div>
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>User Email</TableHead>
-                  <TableHead>Created At</TableHead>
-                  {formResponses?.columns?.map(
-                    (col: { id: number; label: string }) => (
-                      <TableHead key={col.id}>{col.label}</TableHead>
-                    )
-                  )}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredSubmissions.map(
-                  (s: {
-                    id: number;
-                    user: { email: string };
-                    created_at: string | number | Date;
-                    updated_at: string | number | Date;
-                    answers: any[];
-                  }) => (
-                    <TableRow key={s.id} className="hover:bg-muted/50">
-                      <TableCell>{s.id}</TableCell>
-                      <TableCell>{s.user.email}</TableCell>
-                      <TableCell>
-                        {new Date(s.created_at).toLocaleString()}
-                      </TableCell>
-                      {formResponses.columns.map(
-                        (col: { id: number; label: string; type: string }) => {
-                          const ans = s.answers.find(
-                            (a: { form_input_id: number }) =>
-                              a.form_input_id === col.id
-                          );
-                          let value: React.ReactNode = "-";
+      {filteredSubmissions.length !== 0 && (
+        <>
+          <div className="flex w-full justify-end">
+            <div className="flex gap-2 items-center">
+              <label>{t("form_data.filters.from")}</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="border rounded p-1"
+              />
+              <label>{t("form_data.filters.to")}</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="border rounded p-1"
+              />
+            </div>
+          </div>
 
-                          if (
-                            col.type.includes("InputConfigs::SignatureInput")
-                          ) {
-                            value =
-                              ans && ans.value ? (
-                                <span className="flex items-center text-green-600 font-semibold gap-2">
-                                  <Signature /> Firmado
-                                </span>
-                              ) : (
-                                <span className="flex items-center text-red-600 font-semibold gap-2">
-                                  <X /> No firmado
-                                </span>
-                              );
-                          } else if (ans) {
-                            if (Array.isArray(ans.value)) {
-                              value = (
-                                <ul className="list-disc list-inside">
-                                  {ans.value.map(
-                                    (v: string | number, i: number) => (
-                                      <li key={i}>{v}</li>
-                                    )
-                                  )}
-                                </ul>
-                              );
-                            } else if (
-                              typeof ans.value === "string" ||
-                              typeof ans.value === "number"
-                            ) {
-                              value = ans.value;
-                            }
-                          }
-
-                          return <TableCell key={col.id}>{value}</TableCell>;
-                        }
+          <Card>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>User Email</TableHead>
+                      <TableHead>Created At</TableHead>
+                      {formResponses?.columns?.map(
+                        (col: { id: number; label: string }) => (
+                          <TableHead key={col.id}>{col.label}</TableHead>
+                        )
                       )}
                     </TableRow>
-                  )
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredSubmissions.map(
+                      (s: {
+                        id: number;
+                        user: { email: string };
+                        created_at: string | number | Date;
+                        updated_at: string | number | Date;
+                        answers: any[];
+                      }) => (
+                        <TableRow key={s.id} className="hover:bg-muted/50">
+                          <TableCell>{s.id}</TableCell>
+                          <TableCell>{s.user.email}</TableCell>
+                          <TableCell>
+                            {new Date(s.created_at).toLocaleString()}
+                          </TableCell>
+                          {formResponses.columns.map(
+                            (col: {
+                              id: number;
+                              label: string;
+                              type: string;
+                            }) => {
+                              const ans = s.answers.find(
+                                (a: { form_input_id: number }) =>
+                                  a.form_input_id === col.id
+                              );
+                              let value: React.ReactNode = "-";
+
+                              if (
+                                col.type.includes(
+                                  "InputConfigs::SignatureInput"
+                                )
+                              ) {
+                                value =
+                                  ans && ans.value ? (
+                                    <span className="flex items-center text-green-600 font-semibold gap-2">
+                                      <Signature /> Firmado
+                                    </span>
+                                  ) : (
+                                    <span className="flex items-center text-red-600 font-semibold gap-2">
+                                      <X /> No firmado
+                                    </span>
+                                  );
+                              } else if (ans) {
+                                if (Array.isArray(ans.value)) {
+                                  value = (
+                                    <ul className="list-disc list-inside">
+                                      {ans.value.map(
+                                        (v: string | number, i: number) => (
+                                          <li key={i}>{v}</li>
+                                        )
+                                      )}
+                                    </ul>
+                                  );
+                                } else if (
+                                  typeof ans.value === "string" ||
+                                  typeof ans.value === "number"
+                                ) {
+                                  value = ans.value;
+                                }
+                              }
+
+                              return (
+                                <TableCell key={col.id}>{value}</TableCell>
+                              );
+                            }
+                          )}
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
       {filteredSubmissions.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12">
           <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">No submissions found</h3>
-          <p className="text-muted-foreground">Try changing the filters</p>
+          <h3 className="text-lg font-medium">{t("form_data.not_found")}</h3>
         </div>
       )}
     </div>

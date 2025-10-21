@@ -155,7 +155,12 @@ export default function FormBuilderEditPage() {
           </Button>
           <Button
             onClick={() => handleUpdateForm("published", formData)}
-            disabled={newForm.status == "published"}
+            disabled={
+              newForm.status === "published" ||
+              sections?.length === 0 ||
+              newForm.title === '' ||
+              !sections?.some(section => section.items?.length > 0)
+            }
             className={
               newForm.status == "published"
                 ? "bg-green-600 hover:bg-green-700"

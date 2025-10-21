@@ -79,12 +79,10 @@ export default function Page() {
     }
   };
 
-  // Encuentra el item seleccionado y fuerza actualización cuando cambian las secciones
   const selectedItem = sections
     .flatMap((s) => s.items)
     .find((i) => i.id === selectedInput);
 
-  // Efecto para limpiar la selección si el item ya no existe
   useEffect(() => {
     if (selectedInput && !selectedItem) {
       setSelectedInput(undefined);
@@ -121,7 +119,12 @@ export default function Page() {
           </Button>
           <Button
             onClick={() => saveForm("published")}
-            disabled={newForm.status == "published"}
+            disabled={
+              newForm.status === "published" ||
+              sections?.length === 0 ||
+              newForm.title === '' ||
+              !sections?.some(section => section.items?.length > 0)
+            }
             className={
               newForm.status == "published"
                 ? "bg-green-600 hover:bg-green-700"
@@ -231,7 +234,6 @@ export default function Page() {
                     ?.flatMap((s) => s.items)
                     .find((i) => i.id === activeId)?.label;
                   const IconComponent = typeIcon[typeKey];
-                  console.log(IconComponent, type)
 
                   return (
                     <div

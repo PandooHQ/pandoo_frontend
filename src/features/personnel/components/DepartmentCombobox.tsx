@@ -16,12 +16,12 @@ import {
 } from "@/shared/components/ui/popover"
 import { cn } from "@/shared/lib/utils"
 import { toast } from "sonner"
-import type { CreateDeparmentInput, Department } from "@/shared/types/DepartmentsContextType"
+import type { CreateDeparmentInput, Department, DepartmentResp } from "@/shared/types/DepartmentsContextType"
 
 export function DepartmentCombobox({ departments, onSelect, createDepartments }: { 
   departments: Department[], 
   onSelect: (position: Department | null) => void,
-  createDepartments: (userData: CreateDeparmentInput) => Promise<Department>
+  createDepartments: (userData: CreateDeparmentInput) => Promise<DepartmentResp>
 }) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
@@ -35,7 +35,9 @@ export function DepartmentCombobox({ departments, onSelect, createDepartments }:
     
     setIsCreating(true)
     try {
-      const newDepartment = await createDepartments({ name: searchValue.trim() })
+      const response = await createDepartments({ name: searchValue.trim() })
+
+      const newDepartment = response.data
       
       setValue(newDepartment.name)
       onSelect(newDepartment)
