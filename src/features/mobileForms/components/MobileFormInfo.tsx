@@ -1,6 +1,4 @@
 import { useRef } from "react";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas-pro";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +11,7 @@ import { Eye, ClipboardType, Download } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getFormReponseById } from "../services/getUserResponseById";
 import { Separator } from "@/shared/components/ui/separator";
+import { exportFormResponse } from "../services/exportFormResponse";
 
 interface Props {
   open: boolean;
@@ -32,7 +31,13 @@ interface MobileFormStep {
   inputs: MobileFormInput[];
 }
 
-type InputType = "text" | "number" | "datetime" | "select" | "signature";
+type InputType =
+  | "text"
+  | "number"
+  | "datetime"
+  | "select"
+  | "signature"
+  | "checkbox";
 
 interface MobileFormInput {
   id: number;
@@ -42,6 +47,10 @@ interface MobileFormInput {
     value?: string;
     values?: string[];
   };
+  options?: {
+    id: string;
+    value: string;
+  }[];
 }
 
 const MobileFormInfo = ({ open, onClose, formId }: Props) => {
@@ -56,58 +65,13 @@ const MobileFormInfo = ({ open, onClose, formId }: Props) => {
     queryFn: () => getFormReponseById(formId),
     enabled: open,
   });
-
+  
   const handleDownloadPDF = async () => {
-    if (!contentRef.current) return;
-
-    const element = contentRef.current;
-    const canvas = await html2canvas(element, {
-      scale: 3,
-      useCORS: true, 
-      backgroundColor: "#ffffff",
-      ignoreElements: (el) => el.classList.contains("no-export"),
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgProps = pdf.getImageProperties(imgData);
-
-    const pdfWidth = pageWidth - 20;
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-    if (pdfHeight < pageHeight - 20) {
-      pdf.addImage(imgData, "PNG", 10, 10, pdfWidth, pdfHeight);
-    } else {
-      let y = 0;
-      while (y < canvas.height) {
-        const pageCanvas = document.createElement("canvas");
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = pageHeight * (canvas.width / pageWidth);
-
-        const ctx = pageCanvas.getContext("2d")!;
-        ctx.drawImage(
-          canvas,
-          0,
-          y,
-          canvas.width,
-          pageCanvas.height,
-          0,
-          0,
-          canvas.width,
-          pageCanvas.height
-        );
-
-        const pageData = pageCanvas.toDataURL("image/png");
-        pdf.addImage(pageData, "PNG", 10, 10, pdfWidth, pdfHeight);
-        y += pageCanvas.height;
-        if (y < canvas.height) pdf.addPage();
-      }
+    try {
+      await exportFormResponse(formId);
+    } catch (err) {
+      console.error("Error al exportar PDF:", err);
     }
-
-    pdf.save(`${mobileForm?.title || "formulario"}.pdf`);
   };
 
   if (!mobileForm || isLoading) return null;
@@ -142,28 +106,58 @@ const MobileFormInfo = ({ open, onClose, formId }: Props) => {
                 </div>
                 <Separator />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                  {section.inputs.map((input) => (
-                    <div key={input.id} className="flex flex-col">
-                      <span className="text-gray-500 text-sm">
-                        {input.label}
-                      </span>
-                      {input.type === "signature" ? (
-                        <img
-                          src={input.response?.value}
-                          alt="Firma del usuario"
-                          className="w-40 h-20 border border-gray-300 rounded"
-                        />
-                      ) : input.type === "select" ? (
-                        <span className="text-gray-900 font-medium">
-                          {input.response?.values?.join(", ") || "-"}
-                        </span>
-                      ) : (
+                    {section.inputs.map((input) => {
+                    const renderValue = () => {
+                      if (input.type === "signature") {
+                        return (
+                          <img
+                            src={input.response?.value}
+                            alt="Firma del usuario"
+                            className="w-40 h-20 border border-gray-300 rounded"
+                          />
+                        );
+                      }
+
+                      if (
+                        input.type === "checkbox" ||
+                        input.type === "select"
+                      ) {
+                        const selectedValues = input.response?.values || [];
+
+                        const selectedLabels =
+                          input.options
+                            ?.filter((opt) => selectedValues.includes(opt.id))
+                            .map((opt) => opt.value) || [];
+
+                        return selectedLabels.length > 0 ? (
+                          <ul className="list-disc list-inside text-gray-900 font-medium">
+                            {selectedLabels.map((label, i) => (
+                              <li key={i}>{label}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="text-gray-400 italic">
+                            Sin selección
+                          </span>
+                        );
+                      }
+
+                      return (
                         <span className="text-gray-900 font-medium">
                           {input.response?.value || "-"}
                         </span>
-                      )}
-                    </div>
-                  ))}
+                      );
+                    };
+
+                    return (
+                      <div key={input.id} className="flex flex-col">
+                        <span className="text-gray-500 text-sm">
+                          {input.label}
+                        </span>
+                        {renderValue()}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
