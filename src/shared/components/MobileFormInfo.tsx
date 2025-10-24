@@ -9,9 +9,9 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Eye, ClipboardType, Download } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { getFormReponseById } from "../services/getUserResponseById";
+import { getFormReponseById } from "../../features/mobileForms/services/getUserResponseById";
 import { Separator } from "@/shared/components/ui/separator";
-import { exportFormResponse } from "../services/exportFormResponse";
+import { exportFormResponse } from "../api/exportFormResponse";
 
 interface Props {
   open: boolean;

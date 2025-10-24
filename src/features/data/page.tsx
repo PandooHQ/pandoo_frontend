@@ -29,12 +29,14 @@ import {
   Signature,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getForms } from "@/shared/api/getForms";
 import { getFormResponses } from "./services/getFormResponses";
 import { exportData } from "./services/exportData";
 import { Button } from "@/shared/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { DropdownMenuDialog } from "./components/DropdownMenuDialog";
+import MobileFormInfo from "../../shared/components/MobileFormInfo";
 
 export default function FormDataPage() {
   const { t } = useTranslation();
@@ -48,14 +50,16 @@ export default function FormDataPage() {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const firstFormId = selectedFormId ?? forms?.[0]?.id ?? 0;
+  const [selectedResponseId, setSelectedResponseId] = useState<number | null>(
+    null
+  );
+  const [openModal, setOpenModal] = useState(false);
 
   const { data: formResponses } = useQuery({
     queryKey: ["forms", `${firstFormId}`, "responses"],
     queryFn: () => getFormResponses(firstFormId),
     enabled: !!firstFormId,
   });
-
-  console.log(formResponses);
 
   const handleFormChange = (formId: string) => {
     setSelectedFormId(Number(formId));
@@ -86,6 +90,10 @@ export default function FormDataPage() {
     link.click();
     link.remove();
   };
+
+  useEffect(() => {
+    console.log(selectedResponseId);
+  }, [selectedResponseId]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
@@ -213,6 +221,7 @@ export default function FormDataPage() {
                           <TableHead key={col.id}>{col.label}</TableHead>
                         )
                       )}
+                      <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -281,6 +290,13 @@ export default function FormDataPage() {
                               );
                             }
                           )}
+                          <TableCell>
+                            <DropdownMenuDialog
+                              formId={s.id}
+                              setSelectedResponseId={setSelectedResponseId}
+                              setOpenModal={setOpenModal}
+                            />
+                          </TableCell>
                         </TableRow>
                       )
                     )}
@@ -297,6 +313,12 @@ export default function FormDataPage() {
           <h3 className="text-lg font-medium">{t("form_data.not_found")}</h3>
         </div>
       )}
+
+      <MobileFormInfo
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        formId={selectedResponseId!}
+      />
     </div>
   );
 }

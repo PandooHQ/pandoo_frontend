@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { MobileForm } from "../types/MobileFormType";
 import MobileFormCard from "./MobileFormCard";
 import { getFormReponseById } from "../services/getUserResponseById";
-import MobileFormInfo from "./MobileFormInfo";
+import MobileFormInfo from "../../../shared/components/MobileFormInfo";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
