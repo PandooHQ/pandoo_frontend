@@ -1,36 +1,33 @@
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/ui/avatar";
-import { Mail, Phone, Calendar, Edit, Save, X, Upload } from "lucide-react";
+import { Edit, Save, X, Upload } from "lucide-react";
 
 import { useAuthStore } from "@/shared/stores/auth";
 import { updateUser } from "@/shared/api/updateUser";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/shared/components/ui/select";
-import { useDepartments } from "@/shared/hooks/useDepartments";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
+import UserProfile from "./components/UserProfile";
 import { usePositions } from "@/shared/hooks/usePositions";
+import { useDepartments } from "@/shared/hooks/useDepartments";
+import { useOrganization } from "./hooks/useOrganization";
+import OrganizationProfile from "./components/OrganizationProfile";
+import { updateOrganization } from "./services/updateOrganization";
 
 export default function SettingsPage() {
   const { user: userData, updateUser: updateState } = useAuthStore();
-  const { departments } = useDepartments();
   const { positions } = usePositions();
+  const { departments } = useDepartments();
+  const { organization } = useOrganization();
 
   const getPositionName = (
     position?: string | { name: string; id: number }
@@ -61,7 +58,30 @@ export default function SettingsPage() {
     status: userData?.status,
   });
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [orgFormData, setOrgFormData] = useState({
+    id: organization?.id || "",
+    name: organization?.name || "",
+    business_name: organization?.business_name || "",
+    rut: organization?.rut || "",
+    address: organization?.address || "",
+    phone_number: organization?.phone_number || "",
+    email: organization?.email || "",
+    website: organization?.website || "",
+    health_resolution: organization?.health_resolution || "",
+    sag_resolution: organization?.sag_resolution || "",
+    technical_representative_name:
+      organization?.technical_representative_name || "",
+    technical_representative_rut:
+      organization?.technical_representative_rut || "",
+    additional_info: organization?.additional_info || "",
+    logo: organization?.logo || '',
+  });
+  
+  const [orgLogoFile, setOrgLogoFile] = useState<File | null>(null);
+
+  const [isEditingUser, setIsEditingUser] = useState(false);
+  const [isEditingOrg, setIsEditingOrg] = useState(false);
+  const [activeTab, setActiveTab] = useState("user");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -78,7 +98,7 @@ export default function SettingsPage() {
     name: `${formData?.first_name} ${formData?.last_name}`,
     email: formData?.email,
     phone: formData?.phone || "+56 9 8765 4321",
-    position: formData?.position, 
+    position: formData?.position,
     department: formData?.department,
     status: formData?.status,
     joinDate: formData?.created_at,
@@ -99,12 +119,65 @@ export default function SettingsPage() {
     });
 
     updateState(resp.data);
-    setIsEditing(false);
+    setIsEditingUser(false);
   };
 
   const handleCancel = () => {
     setFormData(userData! as typeof formData);
-    setIsEditing(false);
+    setIsEditingUser(false);
+  };
+
+  const handleSaveOrg = async () => {
+    try {
+      const form = new FormData();
+      form.append("organization[name]", orgFormData.name);
+      form.append("organization[business_name]", orgFormData.business_name || "");
+      form.append("organization[rut]", orgFormData.rut || "");
+      form.append("organization[address]", orgFormData.address || "");
+      form.append("organization[phone_number]", orgFormData.phone_number || "");
+      form.append("organization[email]", orgFormData.email || "");
+      form.append("organization[website]", orgFormData.website || "");
+      form.append("organization[health_resolution]", orgFormData.health_resolution || "");
+      form.append("organization[sag_resolution]", orgFormData.sag_resolution || "");
+      form.append("organization[technical_representative_name]", orgFormData.technical_representative_name || "");
+      form.append("organization[technical_representative_rut]", orgFormData.technical_representative_rut || "");
+      form.append("organization[additional_info]", orgFormData.additional_info || "");
+
+      if (orgLogoFile) {
+        form.append("organization[logo]", orgLogoFile);
+      }
+
+      const updatedOrg = await updateOrganization(form);
+      setOrgFormData({
+        ...updatedOrg,
+      });
+      setOrgLogoFile(updatedOrg.logo); 
+      setIsEditingOrg(false);
+    } catch (error) {
+      console.error("Error al actualizar la organización:", error);
+    }
+  };
+
+  const handleCancelOrg = () => {
+    setOrgFormData({
+      id: organization?.id || "",
+      name: organization?.name || "",
+      business_name: organization?.business_name || "",
+      rut: organization?.rut || "",
+      address: organization?.address || "",
+      phone_number: organization?.phone_number || "",
+      email: organization?.email || "",
+      website: organization?.website || "",
+      health_resolution: organization?.health_resolution || "",
+      sag_resolution: organization?.sag_resolution || "",
+      technical_representative_name:
+        organization?.technical_representative_name || "",
+      technical_representative_rut:
+        organization?.technical_representative_rut || "",
+      additional_info: organization?.additional_info || "",
+      logo: organization?.logo, 
+    });
+    setIsEditingOrg(false);
   };
 
   return (
@@ -131,7 +204,7 @@ export default function SettingsPage() {
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
-                {isEditing && (
+                {isEditingUser && (
                   <>
                     <input
                       type="file"
@@ -166,195 +239,72 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="flex space-x-2">
-              {isEditing ? (
-                <>
-                  <Button variant="outline" onClick={handleCancel}>
-                    <X className="mr-2 h-4 w-4" />
-                    Cancelar
+              {activeTab === "user" ? (
+                isEditingUser ? (
+                  <>
+                    <Button variant="outline" onClick={handleCancel}>
+                      <X className="mr-2 h-4 w-4" />
+                      Cancelar
+                    </Button>
+                    <Button onClick={handleSave}>
+                      <Save className="mr-2 h-4 w-4" />
+                      Guardar Cambios
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={() => setIsEditingUser(true)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Editar Usuario
                   </Button>
-                  <Button onClick={handleSave}>
-                    <Save className="mr-2 h-4 w-4" />
-                    Guardar Cambios
+                )
+              ) : activeTab === "organization" ? (
+                isEditingOrg ? (
+                  <>
+                    <Button variant="outline" onClick={handleCancelOrg}>
+                      <X className="mr-2 h-4 w-4" />
+                      Cancelar
+                    </Button>
+                    <Button onClick={handleSaveOrg}>
+                      <Save className="mr-2 h-4 w-4" />
+                      Guardar Cambios
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={() => setIsEditingOrg(true)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Editar Empresa
                   </Button>
-                </>
-              ) : (
-                <Button onClick={() => setIsEditing(true)}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Editar Usuario
-                </Button>
-              )}
+                )
+              ) : null}
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Contact Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Información de Contacto</CardTitle>
-            <CardDescription>
-              Datos personales y de contacto del usuario
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {isEditing ? (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">Nombre</Label>
-                  <Input
-                    id="firstName"
-                    value={formData.first_name!}
-                    onChange={(e) =>
-                      setFormData({ ...formData, first_name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Apellido</Label>
-                  <Input
-                    id="lastName"
-                    value={formData.last_name!}
-                    onChange={(e) =>
-                      setFormData({ ...formData, last_name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Teléfono</Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex items-center space-x-3 p-3 rounded-lg border">
-                  <Mail className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">Email</p>
-                    <p className="text-sm text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 p-3 rounded-lg border">
-                  <Phone className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">Teléfono</p>
-                    <p className="text-sm text-muted-foreground">
-                      {user.phone}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 p-3 rounded-lg border">
-                  <Calendar className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">Fecha de Ingreso</p>
-                    <p className="text-sm text-muted-foreground">
-                      {user.joinDate}
-                    </p>
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Work Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {isEditing ? "Información Laboral" : "Información Laboral"}
-            </CardTitle>
-            <CardDescription>
-              {isEditing
-                ? "Configuración del cargo del usuario"
-                : "Detalles del puesto de trabajo"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {isEditing ? (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="position">Cargo</Label>
-                  <Select
-                    value={formData.position_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, position_id: Number(value) })
-                    }
-                  >
-                    <SelectTrigger className="w-[220px]">
-                      {positions.find((p) => p.id === formData.position_id)
-                        ?.name || "Seleccione"}
-                    </SelectTrigger>
-                    <SelectContent>
-                      {positions.map((pos) => (
-                        <SelectItem key={pos.id} value={pos.id.toString()}>
-                          {pos.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="department">Departamento</Label>
-                  <Select
-                    value={formData.department_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, department_id: Number(value) })
-                    }
-                  >
-                    <SelectTrigger className="w-[220px]">
-                      {departments.find((d) => d.id === formData.department_id)
-                        ?.name || "Seleccione"}
-                    </SelectTrigger>
-                    <SelectContent>
-                      {departments.map((dept) => (
-                        <SelectItem key={dept.id} value={dept.id.toString()}>
-                          {dept.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Cargo Actual</h4>
-                  <p className="text-muted-foreground">
-                    {positions.find((p) => p.id === formData.position_id)
-                      ?.name || user.position}
-                  </p>
-                </div>
-                <div className="p-4 rounded-lg border">
-                  <h4 className="font-medium mb-2">Departamento</h4>
-                  <p className="text-muted-foreground">
-                    {departments.find((d) => d.id === formData.department_id)
-                      ?.name || user.department}
-                  </p>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="lg:w-[400px] w-[300px]">
+          <TabsTrigger value="user">Usuario</TabsTrigger>
+          <TabsTrigger value="organization">Empresa</TabsTrigger>
+        </TabsList>
+        <TabsContent value="user">
+          <UserProfile
+            departments={departments}
+            positions={positions}
+            formData={formData}
+            user={user}
+            isEditing={isEditingUser}
+            setFormData={setFormData}
+          />
+        </TabsContent>
+        <TabsContent value="organization">
+          <OrganizationProfile
+            isEditing={isEditingOrg}
+            organizationFormData={orgFormData}
+            setOrganizationFormData={setOrgFormData}
+            setOrgLogoFile={setOrgLogoFile}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

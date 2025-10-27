@@ -7,11 +7,7 @@ export const exportFormResponse = async (id: number) => {
     if (resp.data?.url) {
       const { url } = resp.data
 
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `formulario_${id}.pdf`
-      link.target = "_blank" 
-      link.click()
+      window.open(url, "_blank")
     } else {
       throw new Error("No se recibió una URL de exportación válida")
     }
