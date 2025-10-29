@@ -9,7 +9,42 @@ import { Trash2, Grip, Plus } from "lucide-react";
 import { defaultAnimateLayoutChanges } from "@dnd-kit/sortable";
 import type { AnimateLayoutChanges } from "@dnd-kit/sortable";
 import type { UniqueIdentifier } from "@dnd-kit/core";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createEditor, type SerializedEditorState } from "lexical";
+import { Editor } from "@/components/blocks/editor-00/editor";
+import {$generateHtmlFromNodes} from '@lexical/html';
+import { nodes } from '../../../../components/blocks/editor-00/nodes';
+
+const initialValue = {
+  root: {
+    children: [
+      {
+        children: [
+          {
+            detail: 0,
+            format: 0,
+            mode: "normal",
+            style: "",
+            text: "",
+            type: "text",
+            version: 1,
+          },
+        ],
+        direction: "ltr",
+        format: "",
+        indent: 0,
+        type: "paragraph",
+        version: 1,
+      },
+    ],
+    direction: "ltr",
+    format: "",
+    indent: 0,
+    type: "root",
+    version: 1,
+  },
+} as unknown as SerializedEditorState
+ 
 
 type SortableItemProps = {
   item: ItemType;
@@ -49,6 +84,19 @@ export function SortableItem({
   const updateField = (updates: Partial<ItemType>) => {
     onUpdate(item.id, updates);
   };
+  const [editorState, setEditorState] =
+    useState<SerializedEditorState>(initialValue) 
+
+  useEffect(() => {
+    const editor = createEditor({ nodes }); // asegúrate de pasar los nodos
+    editor.setEditorState(editor.parseEditorState(editorState));
+
+    editor.update(() => {
+      const html = $generateHtmlFromNodes(editor);
+      console.log("HTML generado:", html);
+    });
+  }, [editorState]);
+
 
   const addOption = () => {
     const newOption = {
@@ -125,32 +173,54 @@ export function SortableItem({
           <Trash2 className="h-3 w-3" />
         </Button>
       </div>
-
+      
+      {item.type === "instruction" && (
+            <div className="flex w-full">
+              <div
+                style={{
+                  width: "680px",       
+                  minHeight: "120px", 
+                  maxHeight: "300px", 
+                  overflow: "auto",
+                  border: "1px solid #ddd",
+                  borderRadius: "8px",
+                  padding: "8px",
+                }}
+              >
+                <Editor
+                  editorSerializedState={editorState}
+                  onSerializedChange={(value) => setEditorState(value)}
+                />
+              </div>
+            </div>
+          )}
       <div className="flex items-center space-x-2">
-        <Switch
-          id={`required-${item.id}`}
-          checked={item.required}
-          onCheckedChange={(checked) => updateField({ required: checked })}
-          onClick={(e) => e.stopPropagation()}
-        />
-        <Label htmlFor={`required-${item.id}`} className="text-xs">
-          Requerido
-        </Label>
-        <span className="text-xs text-muted-foreground capitalize">
-          {item.type === "instructions"
-            ? "Bloque de instrucciones"
-            : item.type === "signature"
-              ? "Campo de firma"
-              : item.type === "select"
-                ? "Campo de selección"
-                : item.type === "number"
-                  ? "Campo numerico"
-                  : item.type === "text"
-                    ? "Campo de texto"
-                    : item.type === "date"
-                      ? "Campo fecha"
-                      : `Campo ${item.type}`}
-        </span>
+          <Switch
+            id={`required-${item.id}`}
+            checked={item.required}
+            onCheckedChange={(checked) => updateField({ required: checked })}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <Label htmlFor={`required-${item.id}`} className="text-xs">
+            Requerido
+          </Label>
+          <span className="text-xs text-muted-foreground capitalize">
+            {item.type === "instructions"
+              ? "Bloque de instrucciones"
+              : item.type === "signature"
+                ? "Campo de firma"
+                : item.type === "select"
+                  ? "Campo de selección"
+                  : item.type === "number"
+                    ? "Campo numerico"
+                    : item.type === "text"
+                      ? "Campo de texto"
+                      : item.type === "date"
+                        ? "Campo fecha"
+                        : item.type === "instruction"
+                          ? "Campo instrucciones" 
+                          :`Campo ${item.type}`}
+          </span>
       </div>
 
       {(item.type === "select" || item.type === "checkbox") && (

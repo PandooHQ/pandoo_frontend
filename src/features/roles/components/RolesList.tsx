@@ -106,7 +106,7 @@ export const RolesList = ({ roles }: Props) => {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEditRole(role.id)}>
                         <Edit className="mr-2 h-4 w-4" />
-                        Editar Rol
+                        Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleManageUsers(role)}
@@ -120,7 +120,7 @@ export const RolesList = ({ roles }: Props) => {
                         onClick={() => openDeleteModal(role)}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Eliminar Rol
+                        Eliminar
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

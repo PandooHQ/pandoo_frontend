@@ -1,4 +1,4 @@
-import { ChevronDown, Hash, PenTool, Type, Calendar, ListChecks } from "lucide-react";
+import { ChevronDown, Hash, PenTool, Type, Calendar, ListChecks, Footprints } from "lucide-react";
 import type { InputOptionType } from "./types/InputOptionType";
 
 export const options: InputOptionType[] = [
@@ -8,4 +8,5 @@ export const options: InputOptionType[] = [
   { id: "4", label: "Firma", type: "signature", icon: PenTool },
   { id: "5", label: "Fecha", type: "date", icon: Calendar },
   { id: "6", label: "Checkbox", type: "checkbox", icon: ListChecks },
+  { id: "7", label: "Instrucciones", type: "instruction", icon: Footprints },
 ];

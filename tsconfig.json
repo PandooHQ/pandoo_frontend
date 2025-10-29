@@ -16,5 +16,9 @@
       "@components/*": ["shared/components/*"],
       "@lib/*": ["shared/lib/*"]
     }
-  }
+  },
+   "exclude": [
+    "src/components/editor",
+    "src/components/blocks"
+  ]
 }

@@ -7,7 +7,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { exportFormResponse } from "@/shared/api/exportFormResponse";
@@ -45,7 +44,6 @@ export function DropdownMenuDialog({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-44" align="end">
-        <DropdownMenuLabel>Opciones</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={handleViewDetails}>
             <div className="flex items-center gap-2">
