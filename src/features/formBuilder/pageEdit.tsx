@@ -55,6 +55,7 @@ export default function FormBuilderEditPage() {
     activeId,
     containers,
     historyIndex,
+    history,
     sections,
     newForm,
     undo,
@@ -141,7 +142,7 @@ export default function FormBuilderEditPage() {
             variant="outline"
             size="sm"
             onClick={undo}
-            disabled={historyIndex <= 0}
+            disabled={historyIndex <= 1}
           >
             <Undo className="h-4 w-4" />
           </Button>

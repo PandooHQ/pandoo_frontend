@@ -47,7 +47,7 @@ export function Plugins() {
       <div className="relative">
         <RichTextPlugin
           contentEditable={
-            <div className="h-36">
+            <div className="h-36 overflow-auto">
               <div className="" ref={onRef}>
                 <ContentEditable placeholder={"Escribe aqui ..."} />
               </div>

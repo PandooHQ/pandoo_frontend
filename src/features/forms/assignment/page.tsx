@@ -20,6 +20,7 @@ export default function BulkFormAssignmentPage() {
   const router = useNavigate();
   const { lang } = useParams();
 
+  const publishedForms = forms.filter((form) => form.status === "published");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [batchLoading, setBatchLoading] = useState(false);
   const [selectedFormForAssignment, setSelectedFormForAssignment] =
@@ -92,12 +93,12 @@ export default function BulkFormAssignmentPage() {
       </div>
 
       <AssignmentMetrics
-        totalForms={forms?.length || 0}
+        totalForms={publishedForms?.length || 0}
         totalUsers={users?.length || 0}
       />
 
       <AssignmentForms
-        forms={forms}
+        forms={publishedForms}
         selectedFormForAssignment={selectedFormForAssignment}
         setSelectedFormForAssignment={setSelectedFormForAssignment}
       />

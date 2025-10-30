@@ -710,6 +710,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
     containers,
     sections,
     historyIndex,
+    history,
     newForm,
     setNewForm,
     sensors,

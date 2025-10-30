@@ -51,8 +51,7 @@ export const RolesList = ({ roles }: Props) => {
 
     try {
       await deleteRole(roleToDelete.id);
-      toast.success('Se elimino el rol correctamente');
-
+      toast.success("Se elimino el rol correctamente");
     } catch (error) {
       console.error("Error eliminando rol:", error);
       toast.error("Error al eliminar el rol");
@@ -104,23 +103,26 @@ export const RolesList = ({ roles }: Props) => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEditRole(role.id)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleManageUsers(role)}
-                      >
+                      {role.name !== "admin" && (
+                        <>
+                          <DropdownMenuItem
+                            onClick={() => handleEditRole(role.id)}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-red-600"
+                            onClick={() => openDeleteModal(role)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Eliminar
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      <DropdownMenuItem onClick={() => handleManageUsers(role)}>
                         <UserCheck className="mr-2 h-4 w-4" />
                         Gestionar Usuarios
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-red-600"
-                        disabled={role.name === "Administrator"}
-                        onClick={() => openDeleteModal(role)}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Eliminar
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -130,7 +132,7 @@ export const RolesList = ({ roles }: Props) => {
           </TableBody>
         </Table>
       </CardContent>
-      <Toaster richColors/>
+      <Toaster richColors />
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}

@@ -49,7 +49,7 @@ export default function EditRolePage() {
         description: roleData.description,
         permissions: roleData.permissions
           ? roleData.permissions.map((p) => ({
-              id: p.id, // 🔹 Importante: Incluir el ID del permiso
+              id: p.id,
               subject_class: p.subject_class,
               action: p.action,
               description: p.description ?? "",
@@ -197,6 +197,7 @@ export default function EditRolePage() {
                 id="role-name"
                 value={role.name}
                 onChange={(e) => setRole({ ...role, name: e.target.value })}
+                disabled= {role.name === "admin"}
                 placeholder="Ej: Supervisor"
               />
             </div>

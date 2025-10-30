@@ -1,4 +1,4 @@
-import { ChevronDown, Hash, PenTool, Type, Calendar, ListChecks } from "lucide-react";
+import { ChevronDown, Hash, PenTool, Type, Calendar, ListChecks, Footprints } from "lucide-react";
 
 export const typeMap: Record<string, string> = {
   text: "InputConfigs::TextInput",
@@ -6,7 +6,8 @@ export const typeMap: Record<string, string> = {
   signature: "InputConfigs::SignatureInput",
   number: "InputConfigs::NumberInput",
   date: "InputConfigs::DatetimeInput",
-  checkbox: "InputConfigs::CheckboxInput"
+  checkbox: "InputConfigs::CheckboxInput",
+  instruction: "InputConfigs::InstructionBlock"
 };
 
 export const typeActiveId : Record<string, string> = {
@@ -15,7 +16,8 @@ export const typeActiveId : Record<string, string> = {
   number: "Número",
   signature: "Firma",
   date: "Fecha",
-  checkbox: "Checkbox"
+  checkbox: "Checkbox",
+  instruction: "Instrucciones"
 }
 
 export const typeIcon: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -25,4 +27,5 @@ export const typeIcon: Record<string, React.ComponentType<{ className?: string }
   signature: PenTool,
   date: Calendar,
   checkbox: ListChecks,
+  instruction: Footprints
 };

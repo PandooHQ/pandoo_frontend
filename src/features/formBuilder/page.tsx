@@ -31,6 +31,7 @@ export default function Page() {
   const {
     sensors,
     historyIndex,
+    history,
     collisionDetectionStrategy,
     handleDragStart,
     handleDragEnd,
