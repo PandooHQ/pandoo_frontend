@@ -84,19 +84,44 @@ export function SortableItem({
   const updateField = (updates: Partial<ItemType>) => {
     onUpdate(item.id, updates);
   };
+
+  const [editor] = useState(() => createEditor({ nodes }));
   const [editorState, setEditorState] =
     useState<SerializedEditorState>(initialValue) 
 
   useEffect(() => {
-    const editor = createEditor({ nodes }); // asegúrate de pasar los nodos
-    editor.setEditorState(editor.parseEditorState(editorState));
+    try {
+      const parsedState = editor.parseEditorState(editorState);
+      editor.setEditorState(parsedState);
 
-    editor.update(() => {
-      const html = $generateHtmlFromNodes(editor);
-      console.log("HTML generado:", html);
-    });
+      editor.update(() => {
+        const html = $generateHtmlFromNodes(editor);
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        const images = Array.from(doc.querySelectorAll("img")).map(img => img.src);
+
+        doc.querySelectorAll("img").forEach(img => img.remove());
+        const textOnlyHtml = doc.body.innerHTML.trim();
+
+        if (
+          item.description !== textOnlyHtml ||
+          JSON.stringify(item.image_data) !== JSON.stringify(images)
+        ) {
+          onUpdate(item.id, {
+            description: textOnlyHtml,
+            image_data: {
+              filename: images[0] || "",
+              content_type: images.length > 0 ? "image/png" : "",
+            },
+          });
+        }
+      });
+    } catch (err) {
+      console.warn("Error al procesar contenido del editor:", err);
+    }
   }, [editorState]);
-
 
   const addOption = () => {
     const newOption = {
@@ -122,10 +147,6 @@ export function SortableItem({
       options: (item.options ?? []).filter((opt) => opt.id !== optId),
     });
   };
-
-  useEffect(() => {
-    console.log("Render item id:", item.id);
-  }, [item.id]);
 
   return (
     <div
@@ -175,25 +196,25 @@ export function SortableItem({
       </div>
       
       {item.type === "instruction" && (
-            <div className="flex w-full">
-              <div
-                style={{
-                  width: "680px",       
-                  minHeight: "120px", 
-                  maxHeight: "300px", 
-                  overflow: "auto",
-                  border: "1px solid #ddd",
-                  borderRadius: "8px",
-                  padding: "8px",
-                }}
-              >
-                <Editor
-                  editorSerializedState={editorState}
-                  onSerializedChange={(value) => setEditorState(value)}
-                />
-              </div>
-            </div>
-          )}
+        <div className="flex w-full">
+          <div
+            style={{
+              width: "680px",       
+              minHeight: "120px", 
+              maxHeight: "300px", 
+              overflow: "auto",
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+              padding: "8px",
+            }}
+          >
+            <Editor
+              editorSerializedState={editorState}
+              onSerializedChange={(value) => setEditorState(value)}
+            />
+          </div>
+        </div>
+      )}
       <div className="flex items-center space-x-2">
           <Switch
             id={`required-${item.id}`}

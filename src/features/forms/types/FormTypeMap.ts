@@ -7,7 +7,7 @@ export const typeMap: Record<string, string> = {
   number: "InputConfigs::NumberInput",
   date: "InputConfigs::DatetimeInput",
   checkbox: "InputConfigs::CheckboxInput",
-  instruction: "InputConfigs::InstructionBlock"
+  instruction: "InputConfigs::InstructionsInput"
 };
 
 export const typeActiveId : Record<string, string> = {

@@ -570,7 +570,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
               position: sectionIndex + 1,
               inputs_attributes: section.items.reduce<Record<string, unknown>>(
                 (inputsAcc, item: ItemType, itemIndex) => {
-                  inputsAcc[itemIndex] = {
+                  const baseInput = {
                     ...keepIdIfNumber(item.id),
                     label: item.label,
                     name: item.id,
@@ -578,6 +578,25 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
                     input_config_type: typeMap[item.type] ?? item.type,
                     input_config_attributes: buildAttributes(item),
                   };
+
+                  if (
+                    item.type === "instruction" &&
+                    item.image_data?.filename
+                  ) {
+                    const firstImage = item.image_data.filename; 
+                    return {
+                      ...inputsAcc,
+                      [itemIndex]: {
+                        ...baseInput,
+                        image_data: {
+                          filename: firstImage,   
+                          content_type: "image/png",
+                        },
+                      },
+                    };
+                  }
+
+                  inputsAcc[itemIndex] = baseInput;
                   return inputsAcc;
                 },
                 {}
@@ -600,10 +619,6 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       case "text":
         return {
           ...baseAttributes,
-          // placeholder:
-          //   item.placeholder || `Ingrese ${item.label.toLowerCase()}`,
-          // min_length: item.minLength || undefined,
-          // max_length: item.maxLength || 255,
         };
 
       case "select":
@@ -613,6 +628,12 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
             id: index + 1,
             value: option.label,
           })),
+        };
+
+      case "instruction":
+        return {
+          ...baseAttributes,
+          description: item.description || "",
         };
 
       case "radio":
@@ -628,20 +649,12 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
             id: index + 1,
             value: option.label,
           })),
-          // inline: item.inline ?? false,
-          // select_all: item.selectAll ?? false,
-          // min_selections: item.minSelections || undefined,
-          // max_selections: item.maxSelections || undefined,
         };
 
       case "number":
         return {
           ...baseAttributes,
           allow_decimal: item.allow_decimal,
-          // min: item.min || undefined,
-          // max: item.max || undefined,
-          // step: item.step || 1,
-          // default_value: item.defaultValue?.toString() || undefined,
         };
 
       case "date":
@@ -664,8 +677,6 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       case "file":
         return {
           ...baseAttributes,
-          // accept: item.accept || undefined,
-          // max_size: item.maxSize || undefined,
         };
 
       default:
@@ -675,13 +686,13 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
 
   const normalizeAndValidateForm = (form: FormType) => {
     if (!form.sections || form.sections.length === 0) {
-      toast.error("El formulario debe tener al menos una sección")
+      toast.error("El formulario debe tener al menos una sección");
       throw new Error("El formulario debe tener al menos una sección");
     }
 
     form.sections.forEach((section, index) => {
       if (!section.items || section.items.length === 0) {
-        toast.error(`La sección ${index + 1} debe tener al menos un campo`)
+        toast.error(`La sección ${index + 1} debe tener al menos un campo`);
         throw new Error(`La sección ${index + 1} debe tener al menos un campo`);
       }
 
