@@ -42,7 +42,7 @@ export const createForm = async (data: any) => {
             input.image_data.content_type || "image/png"
           );
 
-          formData.append(`${inputKey}[image_data]`, file);
+          formData.append(`${inputKey}[input_config_attributes][image]`, file);
         } catch (err) {
           console.error("❌ Error al convertir base64 a File:", err);
         }
