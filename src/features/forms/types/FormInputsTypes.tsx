@@ -21,7 +21,7 @@ interface NumberInput extends BaseInput {
 interface SelectInput extends BaseInput {
   input_config_type: "InputConfigs::SelectInput";
   input_config_attributes: {
-    options: { id: number; name: string }[];
+    options: { id: number; label: string }[];
     required?: boolean;
   };
 }
@@ -33,4 +33,15 @@ interface SignatureInput extends BaseInput {
   };
 }
 
-export type Input = TextInput | NumberInput | SelectInput | SignatureInput;
+interface InstructionInput extends BaseInput {
+  input_config_type: "InputConfigs::InstructionInput";
+  input_config_attributes: {
+    description: string;
+  };
+  image_data?: {
+    filename: string;
+    content_type?: string;
+  }
+}
+
+export type Input = TextInput | NumberInput | SelectInput | SignatureInput | InstructionInput;

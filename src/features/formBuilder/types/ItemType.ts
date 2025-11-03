@@ -20,5 +20,6 @@ export interface ItemType {
     maxLength?: number;
     options?: ItemOption[];
     image_data?: ItemImageData;
-    allow_decimal?: boolean
+    allow_decimal?: boolean;
+    imageUrl?: string;
 }

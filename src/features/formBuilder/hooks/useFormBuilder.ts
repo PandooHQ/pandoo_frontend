@@ -22,6 +22,7 @@ import { useFormMutation } from "@/shared/hooks/useFormMutation";
 import { useEditForm } from "./useEditForm";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FormBuilderInitialValues {
   form?: FormType;
@@ -34,6 +35,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   const createMutation = useFormMutation(createForm);
   const { lang } = useParams();
   const router = useNavigate();
+  const queryClient = useQueryClient();
 
   const [newForm, setNewForm] = useState<FormType>({
     id: Math.floor(Math.random() * 100),
@@ -96,23 +98,26 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
           minLength,
           maxLength,
           isTemporary,
+          description,
+          imageUrl,
           ...rest
         } = input;
 
         const processTest = buildAttributes(input);
-        console.log(processTest);
 
         return {
           ...(isTemporary ? { name: id } : { id }),
           ...rest,
           position: pos + 1,
-          input_config_type: type,
+          input_config_type: typeMap[type],
           input_config_attributes: {
             required,
             placeholder,
             min_length: minLength,
             max_length: maxLength,
+            description: description,
             options: processTest.options,
+            image: imageUrl
           },
         };
       };
@@ -204,6 +209,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
       toast.success("El formulario ha sido actualizado correctamente");
 
       setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["forms", initialForm.id] });
         router(`/${lang}/forms`);
       }, 1500);
     } catch (e) {
@@ -518,7 +524,6 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
   };
 
   const updateItem = (itemId: string, updates: Partial<ItemType>) => {
-    console.log(updates, itemId);
     setSections((prevSections) =>
       prevSections.map((section) => ({
         ...section,

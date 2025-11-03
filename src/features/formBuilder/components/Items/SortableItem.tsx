@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ItemType } from "../../types/ItemType";
@@ -9,42 +10,10 @@ import { Trash2, Grip, Plus } from "lucide-react";
 import { defaultAnimateLayoutChanges } from "@dnd-kit/sortable";
 import type { AnimateLayoutChanges } from "@dnd-kit/sortable";
 import type { UniqueIdentifier } from "@dnd-kit/core";
-import { useEffect, useState } from "react";
-import { createEditor, type SerializedEditorState } from "lexical";
+import { useMemo, useCallback } from "react";
+import type { SerializedEditorState } from "lexical";
 import { Editor } from "@/components/blocks/editor-00/editor";
-import {$generateHtmlFromNodes} from '@lexical/html';
-import { nodes } from '../../../../components/blocks/editor-00/nodes';
-
-const initialValue = {
-  root: {
-    children: [
-      {
-        children: [
-          {
-            detail: 0,
-            format: 0,
-            mode: "normal",
-            style: "",
-            text: "",
-            type: "text",
-            version: 1,
-          },
-        ],
-        direction: "ltr",
-        format: "",
-        indent: 0,
-        type: "paragraph",
-        version: 1,
-      },
-    ],
-    direction: "ltr",
-    format: "",
-    indent: 0,
-    type: "root",
-    version: 1,
-  },
-} as unknown as SerializedEditorState
- 
+import { createInitialEditorState } from "../../hooks/lexicalHelpers";
 
 type SortableItemProps = {
   item: ItemType;
@@ -81,47 +50,63 @@ export function SortableItem({
     animateLayoutChanges,
   });
 
+  const initialEditorState = useMemo(() => {
+    const imgSrc = item.imageUrl || item.image_data?.filename;
+    return createInitialEditorState(item.description, imgSrc);
+  }, [item.description, item.imageUrl, item.image_data]);
+
+  const handleEditorChange = useCallback((editorSerializedState: SerializedEditorState) => {
+    console.log('Editor cambió:', editorSerializedState);
+    
+    const root = editorSerializedState.root;
+    let textContent = '';
+    const images: string[] = [];
+
+    root.children.forEach((child: any) => {
+      if (child.type === 'paragraph' && child.children) {
+        child.children.forEach((node: any) => {
+          if (node.type === 'text') {
+            textContent += node.text;
+          } else if (node.type === 'image') {
+            images.push(node.src);
+          }
+        });
+      }
+    });
+
+    const htmlDescription = textContent.trim() 
+      ? `<p>${textContent}</p>` 
+      : '';
+
+    const updates: Partial<ItemType> = {
+      description: htmlDescription,
+    };
+
+    if (images.length > 0) {
+      updates.image_data = {
+        filename: images[0],
+        content_type: "image/png",
+      };
+      updates.imageUrl = images[0];
+    } else {
+      updates.image_data = {
+        filename: "",
+        content_type: "",
+      };
+      updates.imageUrl = "";
+    }
+
+    if (
+      item.description !== htmlDescription ||
+      (item.imageUrl || item.image_data?.filename) !== (images[0] || '')
+    ) {
+      onUpdate(item.id, updates);
+    }
+  }, [item.id, item.description, item.imageUrl, item.image_data, onUpdate]);
+
   const updateField = (updates: Partial<ItemType>) => {
     onUpdate(item.id, updates);
   };
-
-  const [editor] = useState(() => createEditor({ nodes }));
-  const [editorState, setEditorState] =
-    useState<SerializedEditorState>(initialValue) 
-
-  useEffect(() => {
-    try {
-      const parsedState = editor.parseEditorState(editorState);
-      editor.setEditorState(parsedState);
-
-      editor.update(() => {
-        const html = $generateHtmlFromNodes(editor);
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
-
-        const images = Array.from(doc.querySelectorAll("img")).map(img => img.src);
-
-        doc.querySelectorAll("img").forEach(img => img.remove());
-        const textOnlyHtml = doc.body.innerHTML.trim();
-
-        if (
-          item.description !== textOnlyHtml ||
-          JSON.stringify(item.image_data) !== JSON.stringify(images)
-        ) {
-          onUpdate(item.id, {
-            description: textOnlyHtml,
-            image_data: {
-              filename: images[0] || "",
-              content_type: images.length > 0 ? "image/png" : "",
-            },
-          });
-        }
-      });
-    } catch (err) {
-      console.warn("Error al procesar contenido del editor:", err);
-    }
-  }, [editorState]);
 
   const addOption = () => {
     const newOption = {
@@ -132,7 +117,7 @@ export function SortableItem({
   };
 
   const updateOption = (
-    optId: number,  
+    optId: number,
     updates: Partial<{ label: string; value: string }>
   ) => {
     updateField({
@@ -179,7 +164,7 @@ export function SortableItem({
           onClick={(e) => {
             e.stopPropagation();
             setSelectedSection(section);
-            setSelectedInput?.(item.id); 
+            setSelectedInput?.(item.id);
           }}
         />
 
@@ -194,14 +179,14 @@ export function SortableItem({
           <Trash2 className="h-3 w-3" />
         </Button>
       </div>
-      
-      {item.type === "instruction" && (
+
+      {(item.type === "instruction" || item.type === "instructions") && (
         <div className="flex w-full">
           <div
             style={{
-              width: "680px",       
-              minHeight: "120px", 
-              maxHeight: "300px", 
+              width: "680px",
+              minHeight: "120px",
+              maxHeight: "300px",
               overflow: "auto",
               border: "1px solid #ddd",
               borderRadius: "8px",
@@ -209,39 +194,40 @@ export function SortableItem({
             }}
           >
             <Editor
-              editorSerializedState={editorState}
-              onSerializedChange={(value) => setEditorState(value)}
+              editorSerializedState={initialEditorState}
+              onSerializedChange={handleEditorChange}
             />
           </div>
         </div>
       )}
+      
       <div className="flex items-center space-x-2">
-          <Switch
-            id={`required-${item.id}`}
-            checked={item.required}
-            onCheckedChange={(checked) => updateField({ required: checked })}
-            onClick={(e) => e.stopPropagation()}
-          />
-          <Label htmlFor={`required-${item.id}`} className="text-xs">
-            Requerido
-          </Label>
-          <span className="text-xs text-muted-foreground capitalize">
-            {item.type === "instructions"
-              ? "Bloque de instrucciones"
-              : item.type === "signature"
-                ? "Campo de firma"
-                : item.type === "select"
-                  ? "Campo de selección"
-                  : item.type === "number"
-                    ? "Campo numerico"
-                    : item.type === "text"
-                      ? "Campo de texto"
-                      : item.type === "date"
-                        ? "Campo fecha"
-                        : item.type === "instruction"
-                          ? "Campo instrucciones" 
-                          :`Campo ${item.type}`}
-          </span>
+        <Switch
+          id={`required-${item.id}`}
+          checked={item.required}
+          onCheckedChange={(checked) => updateField({ required: checked })}
+          onClick={(e) => e.stopPropagation()}
+        />
+        <Label htmlFor={`required-${item.id}`} className="text-xs">
+          Requerido
+        </Label>
+        <span className="text-xs text-muted-foreground capitalize">
+          {item.type === "instructions"
+            ? "Bloque de instrucciones"
+            : item.type === "signature"
+              ? "Campo de firma"
+              : item.type === "select"
+                ? "Campo de selección"
+                : item.type === "number"
+                  ? "Campo numerico"
+                  : item.type === "text"
+                    ? "Campo de texto"
+                    : item.type === "date"
+                      ? "Campo fecha"
+                      : item.type === "instruction"
+                        ? "Campo instrucciones"
+                        : `Campo ${item.type}`}
+        </span>
       </div>
 
       {(item.type === "select" || item.type === "checkbox") && (

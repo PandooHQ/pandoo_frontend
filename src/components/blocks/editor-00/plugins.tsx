@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 
@@ -13,10 +13,35 @@ import { FontFormatToolbarPlugin } from "@/components/editor/plugins/toolbar/fon
 import { ImagesPlugin } from "@/components/editor/plugins/images-plugin";
 import { ImagePickerPlugin } from "@/components/editor/plugins/picker/image-picker-plugin";
 import { ComponentPickerMenuPlugin } from "@/components/editor/plugins/component-picker-menu-plugin";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import type { SerializedEditorState } from "lexical";
 
-export function Plugins() {
-  const [, setFloatingAnchorElem] =
-    useState<HTMLDivElement | null>(null);
+function LoadStatePlugin({
+  editorSerializedState,
+}: {
+  editorSerializedState?: SerializedEditorState;
+}) {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (!editorSerializedState) return;
+
+    const newState = editor.parseEditorState(
+      JSON.stringify(editorSerializedState)
+    );
+
+    editor.setEditorState(newState);
+  }, [editor, editorSerializedState]);
+
+  return null;
+}
+
+export function Plugins({
+  editorSerializedState,
+}: {
+  editorSerializedState?: SerializedEditorState;
+}) {
+  const [, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
@@ -26,6 +51,7 @@ export function Plugins() {
 
   return (
     <div className="relative">
+      <LoadStatePlugin editorSerializedState={editorSerializedState} />
       <ToolbarPlugin>
         {({ blockType }) => (
           <div className="vertical-align-middle sticky top-0 z-10 flex items-center gap-2 overflow-auto border-b p-1">
@@ -56,11 +82,7 @@ export function Plugins() {
           ErrorBoundary={LexicalErrorBoundary}
         />
         <ImagesPlugin />
-        <ComponentPickerMenuPlugin
-          baseOptions={[
-            ImagePickerPlugin(),
-          ]}
-        />
+        <ComponentPickerMenuPlugin baseOptions={[ImagePickerPlugin()]} />
       </div>
     </div>
   );

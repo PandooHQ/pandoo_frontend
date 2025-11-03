@@ -128,7 +128,11 @@ export const useMyForms = () => {
         steps_attributes,
       };
 
-      const newForm = await createForm(payload);
+      const sendForm = {
+        form: payload,
+      }
+
+      const newForm = await createForm(sendForm);
 
       await queryClient.invalidateQueries({ queryKey: ["forms"] });
 
