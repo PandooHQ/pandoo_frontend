@@ -15,6 +15,7 @@ export interface ItemType {
     required: boolean;
     description?: string;
     type: string;
+    field_type: string;
     placeholder?: string;
     minLength?: number;
     maxLength?: number;

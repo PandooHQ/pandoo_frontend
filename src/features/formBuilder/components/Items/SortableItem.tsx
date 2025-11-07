@@ -14,6 +14,7 @@ import { useMemo, useCallback } from "react";
 import type { SerializedEditorState } from "lexical";
 import { Editor } from "@/components/blocks/editor-00/editor";
 import { createInitialEditorState } from "../../hooks/lexicalHelpers";
+import { typeLabels } from "@/features/forms/types/FormTypeMap";
 
 type SortableItemProps = {
   item: ItemType;
@@ -55,54 +56,53 @@ export function SortableItem({
     return createInitialEditorState(item.description, imgSrc);
   }, [item.description, item.imageUrl, item.image_data]);
 
-  const handleEditorChange = useCallback((editorSerializedState: SerializedEditorState) => {
-    console.log('Editor cambió:', editorSerializedState);
-    
-    const root = editorSerializedState.root;
-    let textContent = '';
-    const images: string[] = [];
+  const handleEditorChange = useCallback(
+    (editorSerializedState: SerializedEditorState) => {
+      const root = editorSerializedState.root;
+      let textContent = "";
+      const images: string[] = [];
 
-    root.children.forEach((child: any) => {
-      if (child.type === 'paragraph' && child.children) {
-        child.children.forEach((node: any) => {
-          if (node.type === 'text') {
-            textContent += node.text;
-          } else if (node.type === 'image') {
-            images.push(node.src);
-          }
-        });
+      root.children.forEach((child: any) => {
+        if (child.type === "paragraph" && child.children) {
+          child.children.forEach((node: any) => {
+            if (node.type === "text") {
+              textContent += node.text;
+            } else if (node.type === "image") {
+              images.push(node.src);
+            }
+          });
+        }
+      });
+
+      const htmlDescription = textContent.trim() ? `<p>${textContent}</p>` : "";
+
+      const updates: Partial<ItemType> = {
+        description: htmlDescription,
+      };
+
+      if (images.length > 0) {
+        updates.image_data = {
+          filename: images[0],
+          content_type: "image/png",
+        };
+        updates.imageUrl = images[0];
+      } else {
+        updates.image_data = {
+          filename: "",
+          content_type: "",
+        };
+        updates.imageUrl = "";
       }
-    });
 
-    const htmlDescription = textContent.trim() 
-      ? `<p>${textContent}</p>` 
-      : '';
-
-    const updates: Partial<ItemType> = {
-      description: htmlDescription,
-    };
-
-    if (images.length > 0) {
-      updates.image_data = {
-        filename: images[0],
-        content_type: "image/png",
-      };
-      updates.imageUrl = images[0];
-    } else {
-      updates.image_data = {
-        filename: "",
-        content_type: "",
-      };
-      updates.imageUrl = "";
-    }
-
-    if (
-      item.description !== htmlDescription ||
-      (item.imageUrl || item.image_data?.filename) !== (images[0] || '')
-    ) {
-      onUpdate(item.id, updates);
-    }
-  }, [item.id, item.description, item.imageUrl, item.image_data, onUpdate]);
+      if (
+        item.description !== htmlDescription ||
+        (item.imageUrl || item.image_data?.filename) !== (images[0] || "")
+      ) {
+        onUpdate(item.id, updates);
+      }
+    },
+    [item.id, item.description, item.imageUrl, item.image_data, onUpdate]
+  );
 
   const updateField = (updates: Partial<ItemType>) => {
     onUpdate(item.id, updates);
@@ -200,7 +200,7 @@ export function SortableItem({
           </div>
         </div>
       )}
-      
+
       <div className="flex items-center space-x-2">
         <Switch
           id={`required-${item.id}`}
@@ -212,21 +212,11 @@ export function SortableItem({
           Requerido
         </Label>
         <span className="text-xs text-muted-foreground capitalize">
-          {item.type === "instructions"
-            ? "Bloque de instrucciones"
-            : item.type === "signature"
-              ? "Campo de firma"
-              : item.type === "select"
-                ? "Campo de selección"
-                : item.type === "number"
-                  ? "Campo numerico"
-                  : item.type === "text"
-                    ? "Campo de texto"
-                    : item.type === "date"
-                      ? "Campo fecha"
-                      : item.type === "instruction"
-                        ? "Campo instrucciones"
-                        : `Campo ${item.type}`}
+          {
+            item.type == 'datetime' ? 
+               typeLabels[item.field_type] ?? `Campo ${item.type}`
+              : typeLabels[item.type] ?? `Campo ${item.type}`
+          }
         </span>
       </div>
 

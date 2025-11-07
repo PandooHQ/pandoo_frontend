@@ -20,7 +20,7 @@ export const useOrganization = () => {
   });
 
   return {
-    organization: data || [],
+    organization: data,
     updateOrganization: updateOrganizationMutation.mutateAsync,
   };
 };

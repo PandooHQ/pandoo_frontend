@@ -2,8 +2,6 @@
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/shared/components/ui/card";
 import {
   Table,
@@ -23,13 +21,13 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import {
   FileText,
-  User,
-  Settings,
   FormInput,
   Signature,
   X,
+  Filter,
+  XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { getForms } from "@/shared/api/getForms";
 import { getFormResponses } from "./services/getFormResponses";
 import { exportData } from "./services/exportData";
@@ -47,8 +45,14 @@ export default function FormDataPage() {
     queryFn: getForms,
   });
 
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
+  // Estados temporales para las fechas (antes de aplicar el filtro)
+  const [tempStartDate, setTempStartDate] = useState<string>("");
+  const [tempEndDate, setTempEndDate] = useState<string>("");
+  
+  // Estados aplicados para el filtro real
+  const [appliedStartDate, setAppliedStartDate] = useState<string>("");
+  const [appliedEndDate, setAppliedEndDate] = useState<string>("");
+  
   const firstFormId = selectedFormId ?? forms?.[0]?.id ?? 0;
   const [selectedResponseId, setSelectedResponseId] = useState<number | null>(
     null
@@ -65,35 +69,50 @@ export default function FormDataPage() {
     setSelectedFormId(Number(formId));
   };
 
+  // Función para aplicar el filtro
+  const handleApplyFilter = () => {
+    setAppliedStartDate(tempStartDate);
+    setAppliedEndDate(tempEndDate);
+  };
+
+  // Función para limpiar el filtro
+  const handleClearFilter = () => {
+    setTempStartDate("");
+    setTempEndDate("");
+    setAppliedStartDate("");
+    setAppliedEndDate("");
+  };
+
   const filteredSubmissions = useMemo(() => {
     if (!formResponses?.submissions) return [];
     return formResponses.submissions.filter(
       (s: { created_at: string | number | Date }) => {
         const createdAt = new Date(s.created_at);
-        const afterStart = startDate ? createdAt >= new Date(startDate) : true;
-        const beforeEnd = endDate ? createdAt <= new Date(endDate) : true;
+        const afterStart = appliedStartDate ? createdAt >= new Date(appliedStartDate) : true;
+        const beforeEnd = appliedEndDate ? createdAt <= new Date(appliedEndDate) : true;
         return afterStart && beforeEnd;
       }
     );
-  }, [formResponses?.submissions, startDate, endDate]);
+  }, [formResponses?.submissions, appliedStartDate, appliedEndDate]);
 
   const handleExport = async () => {
-    const blob = await exportData(selectedFormId! || firstFormId);
-    const url = window.URL.createObjectURL(new Blob([blob]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      `form_${selectedFormId || firstFormId}_responses.xlsx`
-    );
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  };
+    try {
+      const blob = await exportData(selectedFormId! || firstFormId, appliedStartDate, appliedEndDate);
 
-  useEffect(() => {
-    console.log(selectedResponseId);
-  }, [selectedResponseId]);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `form_${selectedFormId || firstFormId}_responses.xlsx`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error exporting data:", error);
+    }
+  };
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-8 pt-0">
@@ -127,187 +146,163 @@ export default function FormDataPage() {
         </div>
       </div>
 
-      {/* Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t("form_data.metrics.total_submissions.title")}
-            </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formResponses?.total_submissions ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {t("form_data.metrics.total_submissions.subtitle")}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t("form_data.metrics.active_users.title")}
-            </CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formResponses?.active_users ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {t("form_data.metrics.active_users.subtitle")}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t("form_data.metrics.completion_rate.title")}
-            </CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formResponses
-                ? Math.round(
-                    (formResponses.total_submissions /
-                      formResponses.total_submissions) *
-                      100
-                  )
-                : 0}
-              %
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {t("form_data.metrics.completion_rate.subtitle")}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {filteredSubmissions.length !== 0 && (
+      {formResponses?.submissions && formResponses.submissions.length > 0 && (
         <>
           <div className="flex w-full justify-end">
             <div className="flex gap-2 items-center">
               <label>{t("form_data.filters.from")}</label>
               <input
                 type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                value={tempStartDate}
+                onChange={(e) => setTempStartDate(e.target.value)}
                 className="border rounded p-1"
               />
               <label>{t("form_data.filters.to")}</label>
               <input
                 type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                value={tempEndDate}
+                onChange={(e) => setTempEndDate(e.target.value)}
                 className="border rounded p-1"
               />
+              <Button 
+                onClick={handleApplyFilter}
+                size="sm"
+                variant="default"
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Aplicar
+              </Button>
+              {(appliedStartDate || appliedEndDate) && (
+                <Button 
+                  onClick={handleClearFilter}
+                  size="sm"
+                  variant="outline"
+                >
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Limpiar
+                </Button>
+              )}
             </div>
           </div>
 
-          <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>User Email</TableHead>
-                      <TableHead>Created At</TableHead>
-                      {formResponses?.columns?.map(
-                        (col: { id: number; label: string }) => (
-                          <TableHead key={col.id}>{col.label}</TableHead>
+          {filteredSubmissions.length > 0 ? (
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>User Email</TableHead>
+                        <TableHead>Created At</TableHead>
+                        {formResponses?.columns?.map(
+                          (col: { id: number; label: string }) => (
+                            <TableHead key={col.id}>{col.label}</TableHead>
+                          )
+                        )}
+                        <TableCell>Acciones</TableCell>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredSubmissions.map(
+                        (s: {
+                          id: number;
+                          user: { email: string };
+                          created_at: string | number | Date;
+                          updated_at: string | number | Date;
+                          answers: any[];
+                        }) => (
+                          <TableRow key={s.id} className="hover:bg-muted/50">
+                            <TableCell>{s.id}</TableCell>
+                            <TableCell>{s.user.email}</TableCell>
+                            <TableCell>
+                              {new Date(s.created_at).toLocaleString()}
+                            </TableCell>
+                            {formResponses.columns.map(
+                              (col: {
+                                id: number;
+                                label: string;
+                                type: string;
+                              }) => {
+                                const ans = s.answers.find(
+                                  (a: { form_input_id: number }) =>
+                                    a.form_input_id === col.id
+                                );
+                                let value: React.ReactNode = "-";
+
+                                if (
+                                  col.type.includes(
+                                    "InputConfigs::SignatureInput"
+                                  )
+                                ) {
+                                  value =
+                                    ans && ans.value ? (
+                                      <span className="flex items-center text-green-600 font-semibold gap-2">
+                                        <Signature /> Firmado
+                                      </span>
+                                    ) : (
+                                      <span className="flex items-center text-red-600 font-semibold gap-2">
+                                        <X /> No firmado
+                                      </span>
+                                    );
+                                } else if (ans) {
+                                  if (Array.isArray(ans.value)) {
+                                    value = (
+                                      <ul className="list-disc list-inside">
+                                        {ans.value.map(
+                                          (v: string | number, i: number) => (
+                                            <li key={i}>{v}</li>
+                                          )
+                                        )}
+                                      </ul>
+                                    );
+                                  } else if (
+                                    typeof ans.value === "string" ||
+                                    typeof ans.value === "number"
+                                  ) {
+                                    value = ans.value;
+                                  }
+                                }
+
+                                return (
+                                  <TableCell key={col.id}>{value}</TableCell>
+                                );
+                              }
+                            )}
+                            <TableCell>
+                              <DropdownMenuDialog
+                                formId={s.id}
+                                setSelectedResponseId={setSelectedResponseId}
+                                setOpenModal={setOpenModal}
+                              />
+                            </TableCell>
+                          </TableRow>
                         )
                       )}
-                      <TableCell>Acciones</TableCell>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredSubmissions.map(
-                      (s: {
-                        id: number;
-                        user: { email: string };
-                        created_at: string | number | Date;
-                        updated_at: string | number | Date;
-                        answers: any[];
-                      }) => (
-                        <TableRow key={s.id} className="hover:bg-muted/50">
-                          <TableCell>{s.id}</TableCell>
-                          <TableCell>{s.user.email}</TableCell>
-                          <TableCell>
-                            {new Date(s.created_at).toLocaleString()}
-                          </TableCell>
-                          {formResponses.columns.map(
-                            (col: {
-                              id: number;
-                              label: string;
-                              type: string;
-                            }) => {
-                              const ans = s.answers.find(
-                                (a: { form_input_id: number }) =>
-                                  a.form_input_id === col.id
-                              );
-                              let value: React.ReactNode = "-";
-
-                              if (
-                                col.type.includes(
-                                  "InputConfigs::SignatureInput"
-                                )
-                              ) {
-                                value =
-                                  ans && ans.value ? (
-                                    <span className="flex items-center text-green-600 font-semibold gap-2">
-                                      <Signature /> Firmado
-                                    </span>
-                                  ) : (
-                                    <span className="flex items-center text-red-600 font-semibold gap-2">
-                                      <X /> No firmado
-                                    </span>
-                                  );
-                              } else if (ans) {
-                                if (Array.isArray(ans.value)) {
-                                  value = (
-                                    <ul className="list-disc list-inside">
-                                      {ans.value.map(
-                                        (v: string | number, i: number) => (
-                                          <li key={i}>{v}</li>
-                                        )
-                                      )}
-                                    </ul>
-                                  );
-                                } else if (
-                                  typeof ans.value === "string" ||
-                                  typeof ans.value === "number"
-                                ) {
-                                  value = ans.value;
-                                }
-                              }
-
-                              return (
-                                <TableCell key={col.id}>{value}</TableCell>
-                              );
-                            }
-                          )}
-                          <TableCell>
-                            <DropdownMenuDialog
-                              formId={s.id}
-                              setSelectedResponseId={setSelectedResponseId}
-                              setOpenModal={setOpenModal}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium">
+                No se encontraron resultados con los filtros aplicados
+              </h3>
+              <Button 
+                onClick={handleClearFilter}
+                variant="outline"
+                className="mt-4"
+              >
+                Limpiar filtros
+              </Button>
+            </div>
+          )}
         </>
       )}
-      {filteredSubmissions.length === 0 && (
+      
+      {(!formResponses?.submissions || formResponses.submissions.length === 0) && (
         <div className="flex flex-col items-center justify-center py-12">
           <FileText className="h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium">{t("form_data.not_found")}</h3>

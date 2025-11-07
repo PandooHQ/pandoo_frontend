@@ -100,6 +100,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
           isTemporary,
           description,
           imageUrl,
+          field_type,
           ...rest
         } = input;
 
@@ -117,7 +118,8 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
             max_length: maxLength,
             description: description,
             options: processTest.options,
-            image: imageUrl
+            image: imageUrl,
+            field_type: field_type
           },
         };
       };
@@ -349,6 +351,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
                       type: type,
                       required: false,
                       isTemporary: true,
+                      field_type: type,
                     },
                   ],
                 }
@@ -369,6 +372,7 @@ export const useFormBuilder = (initialValues?: FormBuilderInitialValues) => {
                       label: active.data.current.label,
                       type: active.data.current.type,
                       required: false,
+                      field_type: active.data.current.type,
                     },
                   ],
                 }

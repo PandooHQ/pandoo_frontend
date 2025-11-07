@@ -129,6 +129,9 @@ export const editForm = async (id: number, data: any) => {
             if (config.max_length !== null && config.max_length !== undefined) {
               formData.append(`${configPrefix}[max_length]`, config.max_length.toString());
             }
+            if (config.type !== null && config.type !== undefined) {
+              formData.append(`${configPrefix}[type]`, config.type);
+            }
 
             // Opciones (para select, checkbox, radio)
             if (config.options && Array.isArray(config.options)) {

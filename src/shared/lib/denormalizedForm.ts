@@ -18,6 +18,7 @@ export const denormalizeFormFromBackend = (backendForm: Form) => {
             id: input.id,
             label: input.label,
             type: input.type,
+            field_type: input.field_type,
             required: input.required ?? false,
 
             // Opciones (select o checkbox)
