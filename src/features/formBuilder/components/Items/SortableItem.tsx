@@ -6,7 +6,7 @@ import { Switch } from "@/shared/components/ui/switch";
 import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
-import { Trash2, Grip, Plus } from "lucide-react";
+import { Trash2, Plus, GripVertical } from "lucide-react";
 import { defaultAnimateLayoutChanges } from "@dnd-kit/sortable";
 import type { AnimateLayoutChanges } from "@dnd-kit/sortable";
 import type { UniqueIdentifier } from "@dnd-kit/core";
@@ -151,7 +151,7 @@ export function SortableItem({
       className="space-y-3"
     >
       <div className="flex items-center gap-2">
-        <Grip
+        <GripVertical
           className="h-4 w-4 cursor-grab text-muted-foreground"
           {...listeners}
         />

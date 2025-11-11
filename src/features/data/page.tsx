@@ -35,6 +35,7 @@ import { Button } from "@/shared/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { DropdownMenuDialog } from "./components/DropdownMenuDialog";
 import MobileFormInfo from "../../shared/components/MobileFormInfo";
+import { DatePicker } from "@/shared/components/DatePicker";
 
 export default function FormDataPage() {
   const { t } = useTranslation();
@@ -45,11 +46,9 @@ export default function FormDataPage() {
     queryFn: getForms,
   });
 
-  // Estados temporales para las fechas (antes de aplicar el filtro)
   const [tempStartDate, setTempStartDate] = useState<string>("");
   const [tempEndDate, setTempEndDate] = useState<string>("");
   
-  // Estados aplicados para el filtro real
   const [appliedStartDate, setAppliedStartDate] = useState<string>("");
   const [appliedEndDate, setAppliedEndDate] = useState<string>("");
   
@@ -69,13 +68,11 @@ export default function FormDataPage() {
     setSelectedFormId(Number(formId));
   };
 
-  // Función para aplicar el filtro
   const handleApplyFilter = () => {
     setAppliedStartDate(tempStartDate);
     setAppliedEndDate(tempEndDate);
   };
 
-  // Función para limpiar el filtro
   const handleClearFilter = () => {
     setTempStartDate("");
     setTempEndDate("");
@@ -150,24 +147,22 @@ export default function FormDataPage() {
         <>
           <div className="flex w-full justify-end">
             <div className="flex gap-2 items-center">
-              <label>{t("form_data.filters.from")}</label>
-              <input
-                type="date"
+              <DatePicker
+                title={t("form_data.filters.from")}
                 value={tempStartDate}
-                onChange={(e) => setTempStartDate(e.target.value)}
-                className="border rounded p-1"
+                onChange={setTempStartDate}
               />
-              <label>{t("form_data.filters.to")}</label>
-              <input
-                type="date"
+
+              <DatePicker
+                title={t("form_data.filters.to")}
                 value={tempEndDate}
-                onChange={(e) => setTempEndDate(e.target.value)}
-                className="border rounded p-1"
+                onChange={setTempEndDate}
               />
               <Button 
                 onClick={handleApplyFilter}
                 size="sm"
                 variant="default"
+                className="mt-6"
               >
                 <Filter className="mr-2 h-4 w-4" />
                 Aplicar
@@ -177,6 +172,7 @@ export default function FormDataPage() {
                   onClick={handleClearFilter}
                   size="sm"
                   variant="outline"
+                  className="mt-6"
                 >
                   <XCircle className="mr-2 h-4 w-4" />
                   Limpiar
