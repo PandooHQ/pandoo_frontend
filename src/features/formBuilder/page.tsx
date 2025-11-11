@@ -292,7 +292,7 @@ export default function Page() {
               </div>
             </CardContent>
           </Card>
-          <Card className="flex-shrink-0">
+          <Card className="shrink-0">
             <CardHeader>
               <CardTitle>Campos de Configuración</CardTitle>
               <CardDescription>

@@ -18,18 +18,31 @@ export const denormalizeFormFromBackend = (backendForm: Form) => {
             id: input.id,
             label: input.label,
             type: input.type,
+            field_type: input.field_type,
             required: input.required ?? false,
-            // Normalizar opciones si existen
+
+            // Opciones (select o checkbox)
             options: input.options
               ? input.options.map((o: any) => ({
                   id: o.id,
                   label: o.value ?? o.label,
+                  value: o.value ?? o.label,
                 }))
               : [],
-            // Campos específicos
+
+            // TextInput
             placeholder: input.placeholder ?? null,
             minLength: input.min_length ?? null,
             maxLength: input.max_length ?? null,
+
+            // NumberInput
+
+            // Checkbox / Select config
+            // Instructions
+            description: input.description ?? null,
+            imageUrl: input.image_url ?? null,
+
+            // Default value (text, number, select)
           })
         ),
       })

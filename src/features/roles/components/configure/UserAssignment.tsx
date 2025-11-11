@@ -25,6 +25,7 @@ import {
 } from "@/shared/components/ui/table";
 import type { User } from "@/shared/types/UsersContextType";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
+import { useState, useMemo } from "react";
 
 interface Props {
     searchTerm: string;
@@ -44,6 +45,8 @@ interface Props {
     handleFinishRole: () => void;
 }
 
+const USERS_PER_PAGE = 10;
+
 export const UserAssignment = ({
     searchTerm,
     setSearchTerm,
@@ -54,13 +57,53 @@ export const UserAssignment = ({
     departments,
     jobTitles,
     filteredUsers,
-    users,
     selectedUsers,
     setSelectedUsers,
     handleUserSelect,
     setCurrentStep,
     handleFinishRole
 }: Props) => {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Calcular el total de páginas
+  const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
+
+  // Obtener usuarios de la página actual
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * USERS_PER_PAGE;
+    const endIndex = startIndex + USERS_PER_PAGE;
+    return filteredUsers.slice(startIndex, endIndex);
+  }, [filteredUsers, currentPage]);
+
+  // Reiniciar a la página 1 cuando cambian los filtros
+  const handleFilterChange = (filterFn: (value: string) => void, value: string) => {
+    filterFn(value);
+    setCurrentPage(1);
+  };
+
+  // Generar números de página para mostrar
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    
+    if (totalPages <= 5) {
+      // Mostrar todas las páginas si son 5 o menos
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Mostrar páginas con elipsis
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 4, '...', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -78,11 +121,14 @@ export const UserAssignment = ({
             <Input
               placeholder="Buscar usuarios por nombre o email..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleFilterChange(setSearchTerm, e.target.value)}
               className="pl-8"
             />
           </div>
-          <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+          <Select 
+            value={departmentFilter} 
+            onValueChange={(value) => handleFilterChange(setDepartmentFilter, value)}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Todos los Departamentos" />
             </SelectTrigger>
@@ -95,7 +141,10 @@ export const UserAssignment = ({
               ))}
             </SelectContent>
           </Select>
-          <Select value={jobTitleFilter} onValueChange={setJobTitleFilter}>
+          <Select 
+            value={jobTitleFilter} 
+            onValueChange={(value) => handleFilterChange(setJobTitleFilter, value)}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Todos los Cargos" />
             </SelectTrigger>
@@ -118,14 +167,25 @@ export const UserAssignment = ({
                 <TableHead className="w-12">
                   <Checkbox
                     checked={
-                      selectedUsers.length === filteredUsers.length &&
-                      filteredUsers.length > 0
+                      paginatedUsers.length > 0 &&
+                      paginatedUsers.every((user) => 
+                        selectedUsers.includes(parseInt(user.id))
+                      )
                     }
                     onCheckedChange={(checked) => {
                       if (checked) {
-                        setSelectedUsers(filteredUsers.map((user) => parseInt(user.id)));
+                        const newSelections = [
+                          ...selectedUsers,
+                          ...paginatedUsers
+                            .map((user) => parseInt(user.id))
+                            .filter((id) => !selectedUsers.includes(id))
+                        ];
+                        setSelectedUsers(newSelections);
                       } else {
-                        setSelectedUsers([]);
+                        const pageUserIds = paginatedUsers.map((user) => parseInt(user.id));
+                        setSelectedUsers(
+                          selectedUsers.filter((id) => !pageUserIds.includes(id))
+                        );
                       }
                     }}
                   />
@@ -137,7 +197,7 @@ export const UserAssignment = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user) => (
+              {paginatedUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <Checkbox
@@ -172,29 +232,41 @@ export const UserAssignment = ({
 
         <div className="flex items-center justify-between mt-4">
           <div className="text-sm text-muted-foreground">
-            Mostrando {filteredUsers.length} de {users.length} usuarios
+            Mostrando {((currentPage - 1) * USERS_PER_PAGE) + 1} - {Math.min(currentPage * USERS_PER_PAGE, filteredUsers.length)} de {filteredUsers.length} usuarios
           </div>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" disabled>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+            >
               <ArrowLeft className="h-4 w-4" />
               Anterior
             </Button>
             <div className="flex items-center space-x-1">
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-primary text-primary-foreground"
-              >
-                1
-              </Button>
-              <Button variant="outline" size="sm">
-                2
-              </Button>
-              <Button variant="outline" size="sm">
-                3
-              </Button>
+              {getPageNumbers().map((page, index) => (
+                page === '...' ? (
+                  <span key={`ellipsis-${index}`} className="px-2">...</span>
+                ) : (
+                  <Button
+                    key={page}
+                    variant="outline"
+                    size="sm"
+                    className={currentPage === page ? "bg-primary text-primary-foreground" : ""}
+                    onClick={() => setCurrentPage(page as number)}
+                  >
+                    {page}
+                  </Button>
+                )
+              ))}
             </div>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              disabled={currentPage === totalPages || totalPages === 0}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+            >
               Siguiente
               <ArrowRight className="h-4 w-4" />
             </Button>

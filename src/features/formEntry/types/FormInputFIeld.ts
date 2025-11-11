@@ -43,10 +43,15 @@ type SignatureField = BaseField & {
   type: "signature";
 };
 
+type InstructionField = BaseField & {
+  type: "instructions";
+};
+
 export type FormInputField =
   | TextField
   | NumberField
   | DateField
   | SelectField
   | SignatureField
-  | CheckBoxField;
+  | CheckBoxField
+  | InstructionField;

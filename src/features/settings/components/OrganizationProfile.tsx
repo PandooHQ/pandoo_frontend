@@ -8,6 +8,7 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
+import { Progress } from "@radix-ui/react-progress";
 import {
   Mail,
   Phone,
@@ -18,8 +19,15 @@ import {
   Building2,
   FilePenLine,
   Image,
+  Loader2,
+  ImageIcon,
 } from "lucide-react";
-import { type Dispatch, type SetStateAction, type ChangeEvent } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  type ChangeEvent,
+  useState,
+} from "react";
 
 interface OrganizationData {
   id: string;
@@ -51,6 +59,12 @@ const OrganizationProfile = ({
   setOrganizationFormData,
   setOrgLogoFile,
 }: Props) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    organizationFormData.logo || null
+  );
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -61,12 +75,35 @@ const OrganizationProfile = ({
     }));
   };
 
+  // const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0] || null;
+  //   setOrgLogoFile(file);
+  //   setOrganizationFormData((prev) => ({
+  //     ...prev,
+  //   }));
+  // };
   const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
+    if (!file) return;
+
     setOrgLogoFile(file);
-    setOrganizationFormData((prev) => ({
-      ...prev,
-    }));
+    const preview = URL.createObjectURL(file);
+    setPreviewUrl(preview);
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    // Simular subida con progreso (reemplázalo con tu API si ya la tienes)
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => {
+        const next = prev + 15;
+        if (next >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setIsUploading(false), 400);
+          return 100;
+        }
+        return next;
+      });
+    }, 200);
   };
 
   return (
@@ -121,7 +158,7 @@ const OrganizationProfile = ({
 
               <div className="space-y-2">
                 <Label htmlFor="logo">Logo</Label>
-                {(organizationFormData.logo) && (
+                {/* {organizationFormData.logo && (
                   <img
                     src={organizationFormData.logo}
                     alt="Logo"
@@ -132,7 +169,45 @@ const OrganizationProfile = ({
                   type="file"
                   accept="image/*"
                   onChange={handleLogoChange}
-                />
+                /> */}
+                <div className="relative flex items-center justify-center w-28 h-28 border rounded-xl bg-background shadow-sm overflow-hidden">
+                  {previewUrl ? (
+                    <>
+                      <img
+                        src={previewUrl}
+                        alt="Logo de la organización"
+                        className="w-full h-full object-contain"
+                      />
+                      {isUploading && (
+                        <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white text-xs">
+                          <Loader2 className="animate-spin mb-1" />
+                          Subiendo...
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-muted-foreground text-xs">
+                      <ImageIcon className="w-4 h-4 mb-1" />
+                      Sin logo
+                    </div>
+                  )}
+                </div>
+
+                {isUploading && (
+                  <Progress
+                    value={uploadProgress}
+                    className="w-40 transition-all duration-300"
+                  />
+                )}
+
+                {isEditing && (
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="mt-2"
+                  />
+                )}
               </div>
             </>
           ) : (
