@@ -38,6 +38,8 @@ export default function ConfigureRolePage() {
     return matchesSearch && matchesDepartment && matchesJobTitle;
   });
 
+  console.log(filteredUsers)
+
   const departments = [...new Set(users.map((user) => user?.department?.name))];
   const jobTitles = [...new Set(users.map((user) => user?.position?.name))];
 
