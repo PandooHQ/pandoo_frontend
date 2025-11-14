@@ -22,12 +22,14 @@ import { useDepartments } from "@/shared/hooks/useDepartments";
 import { useOrganization } from "./hooks/useOrganization";
 import OrganizationProfile from "./components/OrganizationProfile";
 import { updateOrganization } from "./services/updateOrganization";
+import { toast, Toaster } from "sonner";
 
 export default function SettingsPage() {
   const { user: userData, updateUser: updateState } = useAuthStore();
   const { positions } = usePositions();
   const { departments } = useDepartments();
   const { organization } = useOrganization();
+  const [loading, setLoading] = useState(false)
 
   const getPositionName = (
     position?: string | { name: string; id: number }
@@ -147,6 +149,7 @@ export default function SettingsPage() {
   };
 
   const handleSaveOrg = async () => {
+    setLoading(true)
     try {
       const form = new FormData();
       form.append("organization[name]", orgFormData.name);
@@ -180,7 +183,7 @@ export default function SettingsPage() {
         orgFormData.additional_info || ""
       );
 
-      if (orgLogoFile) {
+      if (orgLogoFile instanceof File) {
         form.append("organization[logo]", orgLogoFile);
       }
 
@@ -190,8 +193,14 @@ export default function SettingsPage() {
       });
       setOrgLogoFile(updatedOrg.logo);
       setIsEditingOrg(false);
+
+      if(updatedOrg){
+        toast.success("Organización actualizada con éxito")
+      }
     } catch (error) {
-      console.error("Error al actualizar la organización:", error);
+      toast.error(`Error al actualizar la organización: ${error}`);
+    } finally{
+      setLoading(false)
     }
   };
 
@@ -283,7 +292,7 @@ export default function SettingsPage() {
                       <X className="mr-2 h-4 w-4" />
                       Cancelar
                     </Button>
-                    <Button onClick={handleSave}>
+                    <Button onClick={handleSave} loading={loading}>
                       <Save className="mr-2 h-4 w-4" />
                       Guardar Cambios
                     </Button>
@@ -301,7 +310,7 @@ export default function SettingsPage() {
                       <X className="mr-2 h-4 w-4" />
                       Cancelar
                     </Button>
-                    <Button onClick={handleSaveOrg}>
+                    <Button onClick={handleSaveOrg} loading={loading}>
                       <Save className="mr-2 h-4 w-4" />
                       Guardar Cambios
                     </Button>
@@ -342,6 +351,7 @@ export default function SettingsPage() {
           />
         </TabsContent>
       </Tabs>
+      <Toaster richColors/>
     </div>
   );
 }

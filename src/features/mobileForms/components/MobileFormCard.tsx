@@ -39,7 +39,7 @@ const MobileFormCard = ({ mobileForm, onMouseEnter, onClick }: Props) => {
           </h3>
           <div className="flex flex-row justify-between text-sm text-gray-600">
             <p>ID: {mobileForm.id}</p>
-             <p>{mobileForm.updated_at}</p> 
+             <p>{mobileForm.updated_at.split('T')[0]}</p> 
             </div>
         </CardContent>
       </Card>
