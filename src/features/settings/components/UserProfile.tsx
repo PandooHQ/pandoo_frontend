@@ -112,7 +112,7 @@ const UserProfile = ({formData, setFormData, departments, positions, isEditing, 
                 <div>
                   <p className="text-sm font-medium">Fecha de Ingreso</p>
                   <p className="text-sm text-muted-foreground">
-                    {user.joinDate}
+                    {user.joinDate?.split("T")[0]}
                   </p>
                 </div>
               </div>

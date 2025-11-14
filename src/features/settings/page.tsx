@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -59,29 +59,48 @@ export default function SettingsPage() {
   });
 
   const [orgFormData, setOrgFormData] = useState({
-    id: organization?.id || "",
-    name: organization?.name || "",
-    business_name: organization?.business_name || "",
-    rut: organization?.rut || "",
-    address: organization?.address || "",
-    phone_number: organization?.phone_number || "",
-    email: organization?.email || "",
-    website: organization?.website || "",
-    health_resolution: organization?.health_resolution || "",
-    sag_resolution: organization?.sag_resolution || "",
-    technical_representative_name:
-      organization?.technical_representative_name || "",
-    technical_representative_rut:
-      organization?.technical_representative_rut || "",
-    additional_info: organization?.additional_info || "",
-    logo: organization?.logo || '',
+    id: "",
+    name: "",
+    business_name: "",
+    rut: "",
+    address: "",
+    phone_number: "",
+    email: "",
+    website: "",
+    health_resolution: "",
+    sag_resolution: "",
+    technical_representative_name: "",
+    technical_representative_rut: "",
+    additional_info: "",
+    logo: "",
   });
-  
+
   const [orgLogoFile, setOrgLogoFile] = useState<File | null>(null);
 
   const [isEditingUser, setIsEditingUser] = useState(false);
   const [isEditingOrg, setIsEditingOrg] = useState(false);
   const [activeTab, setActiveTab] = useState("user");
+
+  useEffect(() => {
+    setOrgFormData({
+      id: organization?.id || "",
+      name: organization?.name || "",
+      business_name: organization?.business_name || "",
+      rut: organization?.rut || "",
+      address: organization?.address || "",
+      phone_number: organization?.phone_number || "",
+      email: organization?.email || "",
+      website: organization?.website || "",
+      health_resolution: organization?.health_resolution || "",
+      sag_resolution: organization?.sag_resolution || "",
+      technical_representative_name:
+        organization?.technical_representative_name || "",
+      technical_representative_rut:
+        organization?.technical_representative_rut || "",
+      additional_info: organization?.additional_info || "",
+      logo: organization?.logo || "",
+    });
+  }, [organization]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -131,17 +150,35 @@ export default function SettingsPage() {
     try {
       const form = new FormData();
       form.append("organization[name]", orgFormData.name);
-      form.append("organization[business_name]", orgFormData.business_name || "");
+      form.append(
+        "organization[business_name]",
+        orgFormData.business_name || ""
+      );
       form.append("organization[rut]", orgFormData.rut || "");
       form.append("organization[address]", orgFormData.address || "");
       form.append("organization[phone_number]", orgFormData.phone_number || "");
       form.append("organization[email]", orgFormData.email || "");
       form.append("organization[website]", orgFormData.website || "");
-      form.append("organization[health_resolution]", orgFormData.health_resolution || "");
-      form.append("organization[sag_resolution]", orgFormData.sag_resolution || "");
-      form.append("organization[technical_representative_name]", orgFormData.technical_representative_name || "");
-      form.append("organization[technical_representative_rut]", orgFormData.technical_representative_rut || "");
-      form.append("organization[additional_info]", orgFormData.additional_info || "");
+      form.append(
+        "organization[health_resolution]",
+        orgFormData.health_resolution || ""
+      );
+      form.append(
+        "organization[sag_resolution]",
+        orgFormData.sag_resolution || ""
+      );
+      form.append(
+        "organization[technical_representative_name]",
+        orgFormData.technical_representative_name || ""
+      );
+      form.append(
+        "organization[technical_representative_rut]",
+        orgFormData.technical_representative_rut || ""
+      );
+      form.append(
+        "organization[additional_info]",
+        orgFormData.additional_info || ""
+      );
 
       if (orgLogoFile) {
         form.append("organization[logo]", orgLogoFile);
@@ -151,7 +188,7 @@ export default function SettingsPage() {
       setOrgFormData({
         ...updatedOrg,
       });
-      setOrgLogoFile(updatedOrg.logo); 
+      setOrgLogoFile(updatedOrg.logo);
       setIsEditingOrg(false);
     } catch (error) {
       console.error("Error al actualizar la organización:", error);
@@ -175,7 +212,7 @@ export default function SettingsPage() {
       technical_representative_rut:
         organization?.technical_representative_rut || "",
       additional_info: organization?.additional_info || "",
-      logo: organization?.logo, 
+      logo: organization?.logo,
     });
     setIsEditingOrg(false);
   };

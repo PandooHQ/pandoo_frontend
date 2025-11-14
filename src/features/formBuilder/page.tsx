@@ -25,25 +25,21 @@ import { ConfirmModal } from "@/shared/components/ConfirmModal";
 import { Toaster } from "sonner";
 import { Switch } from "@/shared/components/ui/switch";
 import { typeActiveId, typeIcon } from "../forms/types/FormTypeMap";
+import { useDnd } from "./hooks/useDnd";
 
 export default function Page() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
   const {
-    sensors,
     historyIndex,
     history,
-    collisionDetectionStrategy,
-    handleDragStart,
-    handleDragEnd,
-    handleDragOver,
-    activeId,
     containers,
     sections,
+    setSections,
+    setContainers,
     newForm,
     setNewForm,
     saveForm,
     addSection,
-    isSortingContainer,
     removeSection,
     updateSection,
     updateItem,
@@ -51,6 +47,21 @@ export default function Page() {
     undo,
     redo,
   } = useFormBuilder();
+  
+  const {
+    sensors,
+    collisionDetectionStrategy,
+    handleDragStart,
+    handleDragEnd,
+    handleDragOver,
+    activeId,
+    isSortingContainer,
+  } = useDnd({
+    sections,
+    setSections,
+    containers,
+    setContainers,
+  });
   const { active } = useDndContext();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalOpenItem, setModalOpenItem] = useState(false);

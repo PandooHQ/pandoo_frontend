@@ -29,11 +29,12 @@ import { denormalizeFormFromBackend } from "@/shared/lib/denormalizedForm";
 import { Toaster } from "sonner";
 import { ConfirmModal } from "@/shared/components/ConfirmModal";
 import { typeActiveId, typeIcon } from "../forms/types/FormTypeMap";
+import { useDnd } from "./hooks/useDnd";
 
 export default function FormBuilderEditPage() {
   const [menuKey, setMenuKey] = useState(() => Date.now());
   const { id } = useParams<{ id: string }>();
-  const [formData, setFormData] = useState<FormType | null>(null);
+  const [formData, setFormData] = useState<FormType | null>(null);  
 
   const formId = id ? parseInt(id, 10) : undefined;
 
@@ -47,23 +48,18 @@ export default function FormBuilderEditPage() {
   });
 
   const {
-    sensors,
-    collisionDetectionStrategy,
-    handleDragStart,
-    handleDragEnd,
-    handleDragOver,
-    activeId,
     containers,
     historyIndex,
     history,
     sections,
+    setSections,
+    setContainers,
     newForm,
     undo,
     redo,
     setNewForm,
     handleUpdateForm,
     addSection,
-    isSortingContainer,
     removeSection,
     updateSection,
     updateItem,
@@ -71,6 +67,21 @@ export default function FormBuilderEditPage() {
   } = useFormBuilder({
     form: formData ?? undefined,
     sections: formData?.sections ?? undefined,
+  });
+
+  const {
+    sensors,
+    collisionDetectionStrategy,
+    handleDragStart,
+    handleDragEnd,
+    handleDragOver,
+    activeId,
+    isSortingContainer,
+  } = useDnd({
+    sections,
+    setSections,
+    containers,
+    setContainers,
   });
 
   const { active } = useDndContext();
@@ -159,8 +170,8 @@ export default function FormBuilderEditPage() {
             disabled={
               newForm.status === "published" ||
               sections?.length === 0 ||
-              newForm.title === '' ||
-              !sections?.some(section => section.items?.length > 0)
+              newForm.title === "" ||
+              !sections?.some((section) => section.items?.length > 0)
             }
             className={
               newForm.status == "published"
@@ -272,7 +283,7 @@ export default function FormBuilderEditPage() {
                     ?.flatMap((s) => s.items)
                     .find((i) => i.id === activeId)?.label;
                   const IconComponent = typeIcon[typeKey];
-                  
+
                   return (
                     <div
                       style={{

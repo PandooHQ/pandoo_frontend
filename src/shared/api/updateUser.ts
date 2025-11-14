@@ -15,21 +15,24 @@ export const updateUser = async (
   id: number | string,
   userData: Partial<UserInput>
 ) => {
-  if (userData.profile_picture instanceof File) {
-    const formData = new FormData();
+  const formData = new FormData();
 
-    Object.entries(userData).forEach(([key, value]) => {
-      if (value !== undefined && key !== "id") {
-        formData.append(`user[${key}]`, value !== null ? String(value) : "");
-      }
-    });
+  for (const [key, value] of Object.entries(userData)) {
+    if (value === undefined) continue;
 
-    const response = await api.put(`/users/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return response.data;
+    if (key === "profile_picture" && value instanceof File) {
+      formData.append("user[profile_picture]", value); 
+    } else {
+      formData.append(
+        `user[${key}]`,
+        value === null ? "" : String(value) 
+      );
+    }
   }
 
-  const response = await api.put(`/users/${id}`, { user: userData });
+  const response = await api.put(`/users/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
   return response.data;
 };
